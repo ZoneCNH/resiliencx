@@ -5,14 +5,24 @@ import (
 	"time"
 )
 
+// HealthStatusValue represents the health status of a client as a string constant.
+// It is used in [HealthStatus] to indicate whether the client is operating normally.
 type HealthStatusValue string
 
 const (
-	HealthHealthy   HealthStatusValue = "healthy"
-	HealthDegraded  HealthStatusValue = "degraded"
+	// HealthHealthy indicates the client is fully operational and all checks passed.
+	HealthHealthy HealthStatusValue = "healthy"
+	// HealthDegraded indicates the client is operational but with reduced capacity
+	// or a condition that may lead to failure, such as a context deadline shorter than the client timeout.
+	HealthDegraded HealthStatusValue = "degraded"
+	// HealthUnhealthy indicates the client is not operational due to an error,
+	// uninitialized state, or an expired context.
 	HealthUnhealthy HealthStatusValue = "unhealthy"
 )
 
+// HealthStatus holds the result of a health check performed by [Client.HealthCheck].
+// It includes the component name, current status, an optional message, timing information,
+// and optional metadata for diagnostic purposes.
 type HealthStatus struct {
 	Name      string            `json:"name"`
 	Status    HealthStatusValue `json:"status"`
@@ -22,6 +32,13 @@ type HealthStatus struct {
 	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
+// HealthCheck performs a health check on the client and returns a [HealthStatus] describing
+// the current state. It verifies that ctx is non-nil and not expired, that the client has
+// been initialized and not closed, and that the context deadline (if set) is sufficient
+// relative to the client's configured timeout.
+//
+// The returned status is one of [HealthHealthy], [HealthDegraded], or [HealthUnhealthy].
+// If a [Metrics] client is configured, the check result and latency are recorded automatically.
 func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 	start := time.Now()
 	name := "templatex"

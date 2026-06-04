@@ -12,6 +12,8 @@ func defaultOptions() options {
 	}
 }
 
+// WithMetrics sets a custom [Metrics] implementation for the client.
+// If metrics is nil, the option is ignored and the default [NoopMetrics] is retained.
 func WithMetrics(metrics Metrics) Option {
 	return func(o *options) {
 		if metrics != nil {

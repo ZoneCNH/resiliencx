@@ -32,7 +32,8 @@ jobs:
           if command -v golangci-lint &>/dev/null; then
             golangci-lint run ./...
           else
-            echo "golangci-lint 未安装，跳过。"
+            echo "golangci-lint not installed"
+            exit 1
           fi
 
       - name: Test
