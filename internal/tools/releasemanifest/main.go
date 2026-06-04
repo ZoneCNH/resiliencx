@@ -868,14 +868,6 @@ func runTrimmed(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func runTrimmedContext(ctx context.Context, name string, args ...string) (string, error) {
-	output, err := runRawContext(ctx, name, args...)
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(output)), nil
-}
-
 func runRaw(name string, args ...string) ([]byte, error) {
 	return runRawContext(context.Background(), name, args...)
 }

@@ -59,8 +59,8 @@ func (p BackoffPolicy) Delay(attempt int) time.Duration {
 	if attempt > 1 {
 		d *= math.Pow(multiplier, float64(attempt-1))
 	}
-	if max := p.Max; max > 0 && d > float64(max) {
-		d = float64(max)
+	if maxDelay := p.Max; maxDelay > 0 && d > float64(maxDelay) {
+		d = float64(maxDelay)
 	}
 	delay := time.Duration(d)
 	if p.Jitter != nil {

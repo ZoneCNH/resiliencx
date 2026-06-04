@@ -202,10 +202,6 @@ type externalCommand struct {
 	args []string
 }
 
-func runExternalSequence(stdin io.Reader, stdout io.Writer, stderr io.Writer, commands ...externalCommand) int {
-	return runExternalSequenceContext(context.Background(), stdin, stdout, stderr, commands...)
-}
-
 func runExternalSequenceContext(ctx context.Context, stdin io.Reader, stdout io.Writer, stderr io.Writer, commands ...externalCommand) int {
 	for _, command := range commands {
 		if code := runExternalContext(ctx, stdin, stdout, stderr, command.name, command.args...); code != 0 {
