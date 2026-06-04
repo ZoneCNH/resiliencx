@@ -320,7 +320,7 @@ func TestHealthCheckUsesInjectedClockForCheckedAtAndLatency(t *testing.T) {
 		base,
 		base.Add(1234 * time.Millisecond),
 	}}
-	client, err := New(context.Background(), Config{Name: "templatex"}, withClock(clk))
+	client, err := New(context.Background(), Config{Name: "resiliencx"}, withClock(clk))
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -340,7 +340,7 @@ func TestHealthCheckUsesInjectedClockForCheckedAtAndLatency(t *testing.T) {
 func TestHealthCheckDeadlineUsesInjectedClock(t *testing.T) {
 	base := time.Date(2026, 6, 4, 2, 0, 0, 0, time.UTC)
 	client, err := New(context.Background(), Config{
-		Name:    "templatex",
+		Name:    "resiliencx",
 		Timeout: 10 * time.Second,
 	}, withClock(&sequenceClock{times: []time.Time{
 		base,

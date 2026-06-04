@@ -24,7 +24,7 @@ type HealthStatus struct {
 
 func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 	clk := clock(systemClock{})
-	name := "templatex"
+	name := "resiliencx"
 	var metrics Metrics
 	initialized := false
 	closed := true

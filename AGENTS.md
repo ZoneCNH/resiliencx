@@ -2,11 +2,11 @@
 
 ## 项目概述
 
-本仓库是 Go 1.23 基础库标准与交付运行时，模块路径为 `github.com/ZoneCNH/xlib-standard`，承担五类职责：**Standard Source**、**Go Reference Template**、**Generator**、**Harness** 和 **Evidence Runtime**。旧名 `baselib-template` / `foundationx` 仅允许出现在迁移文档中。
+本仓库是 Go 1.23 基础库标准与交付运行时，模块路径为 `github.com/ZoneCNH/resiliencx`，承担五类职责：**Standard Source**、**Go Reference Template**、**Generator**、**Harness** 和 **Evidence Runtime**。旧名 `baselib-template` / `foundationx` 仅允许出现在迁移文档中。
 
 ## 项目结构与模块组织
 
-- `pkg/templatex`：公共 API 参考实现（config、client、health、errors、metrics、options、version），渲染后移到 `pkg/<package-name>`。
+- `pkg/resiliencx`：公共 API 参考实现（config、client、health、errors、metrics、options、version），渲染后移到 `pkg/<package-name>`。
 - `internal/`：内部辅助——`sanitize`（配置脱敏）、`validation`（校验）、`releasequality`（分数计算）、`tools/releasemanifest`（manifest 生成器）、`goalcli`（gate 辅助）。
 - `cmd/goalcli/`：统一 CLI 门禁工具，所有 Makefile gate 目标最终调用此命令。子命令分 Go 原生实现和 shell 脚本委托两类。
 - `testkit/`：可复用测试夹具、断言、golden 文件工具，以及 `governance/` 治理测试夹具。
@@ -31,7 +31,7 @@
 ### 运行单个测试
 
 ```bash
-go test ./pkg/templatex/ -run TestConfigValidate
+go test ./pkg/resiliencx/ -run TestConfigValidate
 go test ./internal/sanitize/ -run TestSanitize
 go test ./... -run 'Test.*Property|Test.*Invariant'   # 属性测试
 go test ./... -run 'Test.*Golden|Test.*Snapshot'       # golden 测试
@@ -99,7 +99,7 @@ scripts/render_template.sh \
 
 ## 编码风格与命名约定
 
-使用标准 Go 风格：交给 `gofmt` 处理缩进，包名保持简短，导出标识符要清晰表达用途。模板占位符 `{{MODULE_NAME}}`、`{{MODULE_PATH}}`、`{{PACKAGE_NAME}}` 必须在代码和文档中保持一致。公共库能力放入 `pkg/templatex`，私有辅助逻辑放入 `internal/`。golangci-lint 启用的 linter 见 `.golangci.yml`。
+使用标准 Go 风格：交给 `gofmt` 处理缩进，包名保持简短，导出标识符要清晰表达用途。模板占位符 `{{MODULE_NAME}}`、`{{MODULE_PATH}}`、`{{PACKAGE_NAME}}` 必须在代码和文档中保持一致。公共库能力放入 `pkg/resiliencx`，私有辅助逻辑放入 `internal/`。golangci-lint 启用的 linter 见 `.golangci.yml`。
 
 ## 测试规范
 

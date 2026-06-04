@@ -14,7 +14,7 @@ const (
 	EvidenceLedgerPath  = "release/evidence/goalcli/"
 	SourceLedgerPath    = ".agent/evidence/ledger.jsonl"
 	finalRuntimeCommand = "goal-runtime-final"
-	standardModulePath  = "github.com/ZoneCNH/xlib-standard"
+	standardModulePath  = "github.com/ZoneCNH/resiliencx"
 )
 
 // Options configures a goalcli MVA contract evaluation.

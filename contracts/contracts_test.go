@@ -196,7 +196,7 @@ func TestGoalRuntimeHasNoPackageLevelMutablePolicy(t *testing.T) {
 	}
 }
 
-func TestTemplateModuleIdentityMatchesGoModule(t *testing.T) {
+func TestResiliencxModuleIdentityMatchesGoModule(t *testing.T) {
 	content, err := os.ReadFile("../go.mod")
 	if err != nil {
 		t.Fatalf("read go.mod: %v", err)
@@ -211,25 +211,25 @@ func TestTemplateModuleIdentityMatchesGoModule(t *testing.T) {
 	if modulePath == "" {
 		t.Fatalf("go.mod missing module directive")
 	}
-	if templatex.ModuleName != modulePath {
-		t.Fatalf("template module identity drift: ModuleName = %q, go.mod = %q", templatex.ModuleName, modulePath)
+	if resiliencx.ModuleName != modulePath {
+		t.Fatalf("resiliencx module identity drift: ModuleName = %q, go.mod = %q", resiliencx.ModuleName, modulePath)
 	}
 	for _, forbidden := range []string{"github.com/bytechainx/x.go", "github.com/ZoneCNH/x.go"} {
-		if strings.Contains(templatex.ModuleName, forbidden) {
-			t.Fatalf("template module identity must not reference forbidden runtime %q: %q", forbidden, templatex.ModuleName)
+		if strings.Contains(resiliencx.ModuleName, forbidden) {
+			t.Fatalf("resiliencx module identity must not reference forbidden runtime %q: %q", forbidden, resiliencx.ModuleName)
 		}
 	}
 }
 
-func TestBoundaryScriptGuardsRenderedRuntimeTemplateIdentity(t *testing.T) {
+func TestBoundaryScriptGuardsRenderedRuntimeIdentity(t *testing.T) {
 	content, err := os.ReadFile("../scripts/check_boundary.sh")
 	if err != nil {
 		t.Fatalf("read boundary script: %v", err)
 	}
 	text := string(content)
 	for _, needle := range []string{
-		`template_module_path="github.com/ZoneCNH/xlib-standard"`,
-		`"${template_module_path}/pkg/templatex"`,
+		`template_module_path="github.com/ZoneCNH/resiliencx"`,
+		`"${template_module_path}/pkg/resiliencx"`,
 		`! -name '*_test.go'`,
 		`"github.com/ZoneCNH/x.go/provider/observex/core"`,
 		`"github.com/bytechainx/x.go/provider/observex/core"`,
