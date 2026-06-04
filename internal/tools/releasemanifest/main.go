@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -867,8 +868,20 @@ func runTrimmed(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
+func runTrimmedContext(ctx context.Context, name string, args ...string) (string, error) {
+	output, err := runRawContext(ctx, name, args...)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
 func runRaw(name string, args ...string) ([]byte, error) {
-	cmd := exec.Command(name, args...)
+	return runRawContext(context.Background(), name, args...)
+}
+
+func runRawContext(ctx context.Context, name string, args ...string) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, name, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("%s %s failed: %w: %s", name, strings.Join(args, " "), err, strings.TrimSpace(string(output)))

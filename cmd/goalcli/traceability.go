@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
@@ -241,7 +242,11 @@ func verifyArtifactExists(artifact string) error {
 // isGitIgnored 调用 `git check-ignore` 判定路径是否被 gitignore 规则匹配。
 // git 工具不可用或仓库无 git 历史时返回 false (保守视为非 ignored, 继续做 stat 校验)。
 func isGitIgnored(path string) bool {
-	cmd := exec.Command("git", "check-ignore", "-q", "--", path)
+	return isGitIgnoredContext(context.Background(), path)
+}
+
+func isGitIgnoredContext(ctx context.Context, path string) bool {
+	cmd := exec.CommandContext(ctx, "git", "check-ignore", "-q", "--", path)
 	if err := cmd.Run(); err == nil {
 		return true
 	}

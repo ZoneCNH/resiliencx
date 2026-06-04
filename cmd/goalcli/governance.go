@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -218,7 +219,11 @@ func runSpecCheck(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 func trackedDocsMarkdownFiles() ([]string, error) {
-	out, err := exec.Command("git", "ls-files", "-z", "--", "docs").Output()
+	return trackedDocsMarkdownFilesContext(context.Background())
+}
+
+func trackedDocsMarkdownFilesContext(ctx context.Context) ([]string, error) {
+	out, err := exec.CommandContext(ctx, "git", "ls-files", "-z", "--", "docs").Output()
 	if err != nil {
 		return nil, err
 	}
@@ -1389,7 +1394,11 @@ func trimYAMLScalar(value string) string {
 }
 
 func gitOutput(args ...string) string {
-	cmd := exec.Command("git", args...)
+	return gitOutputContext(context.Background(), args...)
+}
+
+func gitOutputContext(ctx context.Context, args ...string) string {
+	cmd := exec.CommandContext(ctx, "git", args...)
 	data, err := cmd.Output()
 	if err != nil {
 		return ""

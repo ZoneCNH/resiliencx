@@ -1,23 +1,31 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 
 	"github.com/ZoneCNH/resiliencx/internal/releasequality"
 )
 
 func main() {
-	exit(run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr))
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+	exit(runWithContext(ctx, os.Args[1:], os.Stdin, os.Stdout, os.Stderr))
 }
 
 var exit = os.Exit
 
 func run(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
+	return runWithContext(context.Background(), args, stdin, stdout, stderr)
+}
+
+func runWithContext(ctx context.Context, args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
 	if len(args) == 0 {
 		write(stderr, usage)
 		return 2
@@ -84,48 +92,48 @@ func run(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) int
 	case "minimal-kernel", "done-assertion", "agent-team-contract", "scope-lock", "pr-template", "acceptance-matrix", "runtime-health", "goal-runtime", "naming", "upgrade-standard", "conformance-profile", "downstream-registry", "self-healing-skeleton", "policy-schema", "github-settings", "toolchain", "evidence-artifacts", "install-runtime", "upgrade-runtime", "release-ready", "evidence-replay", "attest-conformance", "pack-standard", "pack-gate", "pack-evidence", "runtime-file-ownership", "downstream-baseline", "downstream-adoption", "autoresearch", "changelog", "github-governance", "governance-fixture-test", "supply-chain", "execution-context":
 		return runPlannedCommand(args[0], args[1:], stdout, stderr)
 	case "boundary":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_boundary.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_boundary.sh")
 	case "contracts":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_contracts.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_contracts.sh")
 	case "debt-evidence":
 		return runDebtEvidence(args[1:], stdout, stderr)
 	case "debt-evidence-checksum-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check", "release/debt/latest.json", "release/debt/latest.json.sha256")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check", "release/debt/latest.json", "release/debt/latest.json.sha256")
 	case "debt-evidence-hash":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "release/debt/latest.json", "release/debt/latest.json.sha256")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "release/debt/latest.json", "release/debt/latest.json.sha256")
 	case "dependency-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_dependency_diff.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_dependency_diff.sh")
 	case "docs-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_docs.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_docs.sh")
 	case "evidence", "manifest":
-		return runExternal(stdin, stdout, stderr, "go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")
+		return runExternalContext(ctx, stdin, stdout, stderr, "go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")
 	case "integration":
-		return runExternal(stdin, stdout, stderr, "./scripts/run_integration.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/run_integration.sh")
 	case "release-evidence-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_release_evidence.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_release_evidence.sh")
 	case "release-evidence-checksum-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check")
 	case "release-evidence-hash":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/hash_release_evidence.sh")
 	case "release-final-check":
-		return runExternal(stdin, stdout, stderr, "make", "release-final-check")
+		return runExternalContext(ctx, stdin, stdout, stderr, "make", "release-final-check")
 	case "render-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_rendered_template.sh", args[1:]...)
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_rendered_template.sh", args[1:]...)
 	case "rules-consistency-check":
 		return runRulesConsistencyCheck(args[1:], stdout, stderr)
 	case "rules-verify":
-		return runExternal(stdin, stdout, stderr, "python3", "scripts/verify_rules.py")
+		return runExternalContext(ctx, stdin, stdout, stderr, "python3", "scripts/verify_rules.py")
 	case "score":
 		return runScore(args[1:], stdout, stderr)
 	case "secrets":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_secrets.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_secrets.sh")
 	case "security":
-		return runExternalSequence(stdin, stdout, stderr,
+		return runExternalSequenceContext(ctx, stdin, stdout, stderr,
 			externalCommand{name: "govulncheck", args: []string{"./..."}},
 			externalCommand{name: "./scripts/check_secrets.sh"},
 		)
 	case "standard-impact-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_standard_impact.sh")
+		return runExternalContext(ctx, stdin, stdout, stderr, "./scripts/check_standard_impact.sh")
 	case "self-improving-check", "retro-check":
 		return runSelfImprovingCheck(args[0], args[1:], stdout, stderr)
 	case "traceability-check":
@@ -170,7 +178,11 @@ var (
 )
 
 func runExternal(stdin io.Reader, stdout io.Writer, stderr io.Writer, name string, args ...string) int {
-	cmd := exec.Command(name, args...)
+	return runExternalContext(context.Background(), stdin, stdout, stderr, name, args...)
+}
+
+func runExternalContext(ctx context.Context, stdin io.Reader, stdout io.Writer, stderr io.Writer, name string, args ...string) int {
+	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
@@ -191,8 +203,12 @@ type externalCommand struct {
 }
 
 func runExternalSequence(stdin io.Reader, stdout io.Writer, stderr io.Writer, commands ...externalCommand) int {
+	return runExternalSequenceContext(context.Background(), stdin, stdout, stderr, commands...)
+}
+
+func runExternalSequenceContext(ctx context.Context, stdin io.Reader, stdout io.Writer, stderr io.Writer, commands ...externalCommand) int {
 	for _, command := range commands {
-		if code := runExternal(stdin, stdout, stderr, command.name, command.args...); code != 0 {
+		if code := runExternalContext(ctx, stdin, stdout, stderr, command.name, command.args...); code != 0 {
 			return code
 		}
 	}
