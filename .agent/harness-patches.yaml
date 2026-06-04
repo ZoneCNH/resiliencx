@@ -1,6 +1,17 @@
 schema: harness-patches
-status: reconciled_stub
+status: IMPLEMENTED
 source_doc: .agent/harness-patches.md
-entries: []
+entries:
+  - patch_id: PATCH-HARNESS-20260604-001
+    status: IMPLEMENTED
+    title: "隔离渲染下游 Evidence 与 source identity"
+    trigger: "release-final downstream smoke 暴露渲染仓库继承 source GOAL_ID / goalcli evidence，并通过模板替换误改 source module identity。"
+    failure_mode: "下游 smoke 仓库可能发布 source goal evidence，或将 source module identity 常量改写为下游模块。"
+    fixture: "GOAL_ID=GOAL-20260604-RESILIENCX-001 make integration 渲染 kernel/configx/redisx 临时仓库。"
+    pass_condition: "下游 contracts/boundary/evidence 全部通过，source release manifest 与 checksum 在清洁工作树上通过校验。"
+    implemented_by:
+      - scripts/render_template.sh
+      - scripts/run_integration.sh
+      - internal/goalruntime/goalruntime.go
 notes:
   - "门禁补丁入口已存在；每项补丁必须说明失败模式、fixture 与通过条件。"

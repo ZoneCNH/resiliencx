@@ -21,6 +21,7 @@
 
 - 保持 `goalcli score --min 9.8` 为最终门禁。
 - 保持 kernel downstream smoke 为默认下游集成门禁。
+- `PATCH-HARNESS-20260604-001`：渲染下游 smoke 必须隔离 source `GOAL_ID` / `release/evidence/goalcli`，并保护 `github.com/ZoneCNH/resiliencx` source identity 不被模板替换误改。
 
 ## 规则补丁
 
