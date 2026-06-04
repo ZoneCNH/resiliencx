@@ -2,6 +2,9 @@ package contracts
 
 import (
 	"encoding/json"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"reflect"
 	"sort"
@@ -175,6 +178,21 @@ func TestExecutionEvidenceContractMatchesEvidenceManifest(t *testing.T) {
 		if !strings.Contains(text, needle) {
 			t.Fatalf(".agent/evidence-artifacts.yaml missing required marker %q", needle)
 		}
+	}
+}
+
+func TestGoalRuntimeHasNoPackageLevelMutablePolicy(t *testing.T) {
+	fileSet := token.NewFileSet()
+	file, err := parser.ParseFile(fileSet, "../internal/goalruntime/goalruntime.go", nil, 0)
+	if err != nil {
+		t.Fatalf("parse goalruntime: %v", err)
+	}
+	for _, decl := range file.Decls {
+		general, ok := decl.(*ast.GenDecl)
+		if !ok || general.Tok != token.VAR {
+			continue
+		}
+		t.Fatalf("goalruntime must not keep hidden mutable policy in package-level vars: %s", fileSet.Position(general.Pos()))
 	}
 }
 

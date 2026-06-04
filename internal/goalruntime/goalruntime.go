@@ -14,62 +14,8 @@ const (
 	EvidenceLedgerPath  = "release/evidence/goalcli/"
 	SourceLedgerPath    = ".agent/evidence/ledger.jsonl"
 	finalRuntimeCommand = "goal-runtime-final"
+	standardModulePath  = "github.com/ZoneCNH/xlib-standard"
 )
-
-var standardModulePath = "github.com/ZoneCNH/" + strings.Join([]string{"xlib", "standard"}, "-")
-
-var commandGates = map[string]string{
-	"goal-acceptance":          "G12",
-	"goal-delivery":            "G13",
-	"goal-handover":            "G14",
-	"goal-downstream-adoption": "G15A",
-	"goal-certify":             "G16",
-	"goal-runtime-final":       "G12_G16_FINAL",
-}
-
-var commandHarnessGates = map[string]string{
-	"goal-acceptance":          "G12_ACCEPTANCE",
-	"goal-delivery":            "G13_DELIVERY",
-	"goal-handover":            "G14_HANDOVER",
-	"goal-downstream-adoption": "G15_DOWNSTREAM_ADOPTION",
-	"goal-certify":             "G16_CERTIFY",
-}
-
-var gateDescriptions = map[string]string{
-	"goal-acceptance":          "验收矩阵和目标 ID contract 已收敛",
-	"goal-delivery":            "交付证据路径和 goalcli 执行面已收敛",
-	"goal-handover":            "接手材料和边界声明已收敛",
-	"goal-downstream-adoption": "下游采用证明保持为本地 contract，不修改 downstream 仓库",
-	"goal-certify":             "认证证明保持为本地 contract，不宣称完整 release 完成",
-	"goal-runtime-final":       "G12-G16 本地 contract 汇总为 goalcli v0.1.0 MVA final evidence",
-}
-
-var sourceOnlyAuthorityPaths = []string{
-	".worktree/goalcli-v0.1.0-plan.md",
-	".omx/context/goalcli-v0.1.0-team-20260603T005302Z.md",
-	"docs/adr/ADR-20260603-001-goalcli-runtime.md",
-}
-
-var portableAuthorityPaths = []string{
-	"docs/standard/goalcli-cli-contract.md",
-	".agent/harness.yaml",
-	".agent/command-registry.yaml",
-	".agent/registry/runtime.yaml",
-	".agent/registry/commands.yaml",
-	".agent/command-implementation-status.yaml",
-	".agent/evidence/README.md",
-	"docs/standard/goalcli-runtime.md",
-	"docs/plans/goalcli-v0.1.0-roadmap.md",
-	"Makefile",
-}
-
-var finalPrerequisiteCommands = []string{
-	"goal-acceptance",
-	"goal-delivery",
-	"goal-handover",
-	"goal-downstream-adoption",
-	"goal-certify",
-}
 
 // Options configures a goalcli MVA contract evaluation.
 type Options struct {
@@ -120,7 +66,7 @@ type LedgerEntry struct {
 
 // Evaluate verifies the local goalcli v0.1.0 MVA contract for a single command.
 func Evaluate(command string, options Options) (Report, error) {
-	gate, ok := commandGates[command]
+	gate, ok := commandGate(command)
 	if !ok {
 		return Report{}, fmt.Errorf("unsupported goalcli command %q", command)
 	}
@@ -152,7 +98,7 @@ func Evaluate(command string, options Options) (Report, error) {
 		EvidencePackPath: EvidenceLedgerPath + goalID + ".json",
 		Gates:            gatesForCommand(command),
 		Details: []string{
-			gateDescriptions[command],
+			gateDescription(command),
 			"goalcli v0.1.0 使用 cmd/goalcli 作为唯一执行面；不再保留历史并列入口",
 			"G12-G16 是 goalcli MVA evidence gates，不是全局 release blocking gates",
 			"root plan 是 authority；完成状态由本地 authority 校验和 evidence 写入共同证明",
@@ -198,11 +144,13 @@ func Evaluate(command string, options Options) (Report, error) {
 }
 
 func requiredAuthorityPaths(standardSourceRoot bool) []string {
-	paths := make([]string, 0, len(sourceOnlyAuthorityPaths)+len(portableAuthorityPaths))
+	sourceOnlyPaths := sourceOnlyAuthorityPaths()
+	portablePaths := portableAuthorityPaths()
+	paths := make([]string, 0, len(sourceOnlyPaths)+len(portablePaths))
 	if standardSourceRoot {
-		paths = append(paths, sourceOnlyAuthorityPaths...)
+		paths = append(paths, sourceOnlyPaths...)
 	}
-	paths = append(paths, portableAuthorityPaths...)
+	paths = append(paths, portablePaths...)
 	return paths
 }
 
@@ -231,12 +179,16 @@ func modulePathForRoot(root string) (string, bool) {
 func gatesForCommand(command string) []GateReport {
 	commands := []string{command}
 	if command == finalRuntimeCommand {
-		commands = finalPrerequisiteCommands
+		commands = finalPrerequisiteCommands()
 	}
 	reports := make([]GateReport, 0, len(commands))
 	for _, gateCommand := range commands {
+		harnessGate, ok := commandHarnessGate(gateCommand)
+		if !ok {
+			continue
+		}
 		reports = append(reports, GateReport{
-			ID:       commandHarnessGates[gateCommand],
+			ID:       harnessGate,
 			Command:  gateCommand,
 			Status:   "passed",
 			Blocking: true,
@@ -249,7 +201,7 @@ func gatesForCommand(command string) []GateReport {
 // ledger. Final reports also write the generated evidence pack after the
 // prerequisite G12-G16 ledger entries have been reconciled for the same goal.
 func WriteEvidence(root string, report Report) error {
-	if _, ok := commandGates[report.Command]; !ok {
+	if _, ok := commandGate(report.Command); !ok {
 		return fmt.Errorf("evidence write is not supported for command %s", report.Command)
 	}
 	if report.Status != "passed" || report.MVAStatus != "complete" || !report.Blocking {
@@ -303,7 +255,7 @@ func validateFinalPrerequisites(root string, goalID string) []string {
 		}
 	}
 	var gaps []string
-	for _, command := range finalPrerequisiteCommands {
+	for _, command := range finalPrerequisiteCommands() {
 		entry, ok := byCommand[command]
 		if !ok {
 			gaps = append(gaps, fmt.Sprintf("missing prerequisite evidence for goal_id %s: %s", goalID, command))
@@ -384,5 +336,93 @@ func Commands() []string {
 		"goal-downstream-adoption",
 		"goal-certify",
 		"goal-runtime-final",
+	}
+}
+
+func commandGate(command string) (string, bool) {
+	switch command {
+	case "goal-acceptance":
+		return "G12", true
+	case "goal-delivery":
+		return "G13", true
+	case "goal-handover":
+		return "G14", true
+	case "goal-downstream-adoption":
+		return "G15A", true
+	case "goal-certify":
+		return "G16", true
+	case finalRuntimeCommand:
+		return "G12_G16_FINAL", true
+	default:
+		return "", false
+	}
+}
+
+func commandHarnessGate(command string) (string, bool) {
+	switch command {
+	case "goal-acceptance":
+		return "G12_ACCEPTANCE", true
+	case "goal-delivery":
+		return "G13_DELIVERY", true
+	case "goal-handover":
+		return "G14_HANDOVER", true
+	case "goal-downstream-adoption":
+		return "G15_DOWNSTREAM_ADOPTION", true
+	case "goal-certify":
+		return "G16_CERTIFY", true
+	default:
+		return "", false
+	}
+}
+
+func gateDescription(command string) string {
+	switch command {
+	case "goal-acceptance":
+		return "验收矩阵和目标 ID contract 已收敛"
+	case "goal-delivery":
+		return "交付证据路径和 goalcli 执行面已收敛"
+	case "goal-handover":
+		return "接手材料和边界声明已收敛"
+	case "goal-downstream-adoption":
+		return "下游采用证明保持为本地 contract，不修改 downstream 仓库"
+	case "goal-certify":
+		return "认证证明保持为本地 contract，不宣称完整 release 完成"
+	case finalRuntimeCommand:
+		return "G12-G16 本地 contract 汇总为 goalcli v0.1.0 MVA final evidence"
+	default:
+		return ""
+	}
+}
+
+func sourceOnlyAuthorityPaths() []string {
+	return []string{
+		".worktree/goalcli-v0.1.0-plan.md",
+		".omx/context/goalcli-v0.1.0-team-20260603T005302Z.md",
+		"docs/adr/ADR-20260603-001-goalcli-runtime.md",
+	}
+}
+
+func portableAuthorityPaths() []string {
+	return []string{
+		"docs/standard/goalcli-cli-contract.md",
+		".agent/harness.yaml",
+		".agent/command-registry.yaml",
+		".agent/registry/runtime.yaml",
+		".agent/registry/commands.yaml",
+		".agent/command-implementation-status.yaml",
+		".agent/evidence/README.md",
+		"docs/standard/goalcli-runtime.md",
+		"docs/plans/goalcli-v0.1.0-roadmap.md",
+		"Makefile",
+	}
+}
+
+func finalPrerequisiteCommands() []string {
+	return []string{
+		"goal-acceptance",
+		"goal-delivery",
+		"goal-handover",
+		"goal-downstream-adoption",
+		"goal-certify",
 	}
 }

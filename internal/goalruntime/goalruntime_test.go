@@ -84,7 +84,7 @@ func TestEvaluateRenderedDownstreamSkipsSourceOnlyAuthorityPaths(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "go.mod"), []byte("module github.com/ZoneCNH/kernel\n"), 0o644); err != nil {
 		t.Fatalf("write downstream go.mod: %v", err)
 	}
-	writeAuthorityPaths(t, root, portableAuthorityPaths)
+	writeAuthorityPaths(t, root, portableAuthorityPaths())
 
 	report, err := Evaluate("goal-acceptance", Options{Root: root})
 	if err != nil {
@@ -93,7 +93,7 @@ func TestEvaluateRenderedDownstreamSkipsSourceOnlyAuthorityPaths(t *testing.T) {
 	if report.Status != "passed" {
 		t.Fatalf("status = %q; gaps %#v", report.Status, report.Gaps)
 	}
-	for _, path := range sourceOnlyAuthorityPaths {
+	for _, path := range sourceOnlyAuthorityPaths() {
 		if contains(report.AuthorityPaths, path) {
 			t.Fatalf("authority_paths = %#v; want source-only path %s skipped", report.AuthorityPaths, path)
 		}
@@ -209,6 +209,26 @@ func TestWriteEvidenceRejectsIncompleteReport(t *testing.T) {
 	}
 }
 
+func TestGoalRuntimePolicyHelpersReturnDefensiveSlices(t *testing.T) {
+	paths := requiredAuthorityPaths(true)
+	if len(paths) == 0 {
+		t.Fatalf("requiredAuthorityPaths returned no paths")
+	}
+	paths[0] = "mutated-authority-path"
+	if got := requiredAuthorityPaths(true)[0]; got == "mutated-authority-path" {
+		t.Fatalf("requiredAuthorityPaths reused mutable policy slice")
+	}
+
+	commands := finalPrerequisiteCommands()
+	if len(commands) == 0 {
+		t.Fatalf("finalPrerequisiteCommands returned no commands")
+	}
+	commands[0] = "mutated-command"
+	if got := finalPrerequisiteCommands()[0]; got == "mutated-command" {
+		t.Fatalf("finalPrerequisiteCommands reused mutable policy slice")
+	}
+}
+
 func writeAuthorityFixture(t *testing.T, root string) {
 	t.Helper()
 	writeAuthorityPaths(t, root, requiredAuthorityPaths(true))
@@ -229,7 +249,7 @@ func writeAuthorityPaths(t *testing.T, root string, paths []string) {
 
 func writePrerequisiteLedgerFixture(t *testing.T, root string, goalID string) {
 	t.Helper()
-	for _, command := range finalPrerequisiteCommands {
+	for _, command := range finalPrerequisiteCommands() {
 		report, err := Evaluate(command, Options{Root: root, GoalID: goalID})
 		if err != nil {
 			t.Fatalf("Evaluate prerequisite %s returned error: %v", command, err)
