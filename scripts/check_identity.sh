@@ -25,7 +25,7 @@ if grep -R --line-number --fixed-strings \
   -e "github.com/ZoneCNH/xlib-standard" \
   -e "pkg/templatex" \
   -e "package templatex" \
-  -- go.mod go.sum pkg internal contracts examples testkit scripts docs Makefile 2>/dev/null; then
+  -- go.mod go.sum pkg internal contracts examples testkit docs Makefile 2>/dev/null; then
   echo "ERROR: stale template identity found" >&2
   exit 1
 fi
