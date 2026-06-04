@@ -57,6 +57,17 @@ func TestRetryPolicyStopsWhenContextCanceledDuringWait(t *testing.T) {
 	}
 }
 
+func TestTimeoutPolicyPropagatesParentContextCancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	policy := TimeoutPolicy{Duration: time.Hour}
+
+	err := policy.Execute(ctx, func(ctx context.Context) error { return ctx.Err() })
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled, got %v", err)
+	}
+}
+
 func TestBulkheadAcquireRespectsContext(t *testing.T) {
 	bulkhead := NewBulkhead(1)
 	release, err := bulkhead.Acquire(context.Background())
@@ -83,6 +94,25 @@ func TestRateLimiterAcquireRespectsContext(t *testing.T) {
 	cancel()
 	if err := limiter.Acquire(ctx); !errors.Is(err, context.Canceled) {
 		t.Fatalf("expected context.Canceled, got %v", err)
+	}
+}
+
+func TestFailureBudgetRejectsAndResetsWithClock(t *testing.T) {
+	clock := NewManualClock(time.Unix(0, 0))
+	budget := NewFailureBudget(2, time.Second, clock)
+
+	if !budget.Allow() {
+		t.Fatal("fresh failure budget should allow work")
+	}
+	budget.Record(errors.New("first failure"))
+	budget.Record(errors.New("second failure"))
+	if budget.Allow() {
+		t.Fatal("failure budget should reject after max failures")
+	}
+
+	clock.Advance(time.Second)
+	if !budget.Allow() {
+		t.Fatal("failure budget should reset after window")
 	}
 }
 

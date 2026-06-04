@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -965,6 +966,20 @@ func TestRunExternalErrorPaths(t *testing.T) {
 		}
 		if !strings.Contains(stderr.String(), "ERROR:") {
 			t.Fatalf("stderr = %q; want ERROR", stderr.String())
+		}
+	})
+
+	t.Run("context cancellation stops command", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		var stdout, stderr bytes.Buffer
+		got := runExternalContext(ctx, strings.NewReader(""), &stdout, &stderr, shellPath(t), "-c", "sleep 5")
+		if got != 1 {
+			t.Fatalf("runExternalContext() = %d; want 1", got)
+		}
+		if !strings.Contains(stderr.String(), "context canceled") {
+			t.Fatalf("stderr = %q; want context canceled", stderr.String())
 		}
 	})
 }

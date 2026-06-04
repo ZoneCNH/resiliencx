@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -1504,6 +1505,19 @@ func withRunRawCommand(t *testing.T, runner func(name string, args ...string) ([
 	t.Cleanup(func() {
 		runRawCommand = previous
 	})
+}
+
+func TestRunRawContextHonorsCanceledContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := runRawContext(ctx, "git", "--version")
+	if err == nil {
+		t.Fatal("runRawContext() error = nil, want context cancellation")
+	}
+	if !strings.Contains(err.Error(), "context canceled") {
+		t.Fatalf("runRawContext() error = %v, want context canceled", err)
+	}
 }
 
 func runTestCommand(t *testing.T, dir string, name string, args ...string) {
