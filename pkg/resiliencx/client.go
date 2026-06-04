@@ -8,6 +8,7 @@ import (
 type Client struct {
 	cfg         Config
 	metrics     Metrics
+	clock       clock
 	mu          sync.Mutex
 	initialized bool
 	closed      bool
@@ -36,7 +37,7 @@ func New(ctx context.Context, cfg Config, opts ...Option) (*Client, error) {
 	}
 
 	options.metrics.IncCounter(MetricClientCreatedTotal, map[string]string{"name": cfg.Name})
-	return &Client{cfg: cfg, metrics: options.metrics, initialized: true}, nil
+	return &Client{cfg: cfg, metrics: options.metrics, clock: options.clock, initialized: true}, nil
 }
 
 func (c *Client) Close(ctx context.Context) error {
