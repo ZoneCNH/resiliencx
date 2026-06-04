@@ -1513,10 +1513,10 @@ func TestRunRawContextHonorsCanceledContext(t *testing.T) {
 
 	_, err := runRawContext(ctx, "git", "--version")
 	if err == nil {
-		t.Fatal("runRawContext() error = nil, want context cancellation")
+		t.Fatal("runRawContext canceled context error = nil; want error")
 	}
 	if !strings.Contains(err.Error(), "context canceled") {
-		t.Fatalf("runRawContext() error = %v, want context canceled", err)
+		t.Fatalf("runRawContext canceled error = %v; want context canceled", err)
 	}
 }
 

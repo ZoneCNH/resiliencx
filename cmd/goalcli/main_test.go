@@ -976,7 +976,7 @@ func TestRunExternalErrorPaths(t *testing.T) {
 		var stdout, stderr bytes.Buffer
 		got := runExternalContext(ctx, strings.NewReader(""), &stdout, &stderr, shellPath(t), "-c", "sleep 5")
 		if got != 1 {
-			t.Fatalf("runExternalContext() = %d; want 1", got)
+			t.Fatalf("runExternalContext canceled = %d; want 1", got)
 		}
 		if !strings.Contains(stderr.String(), "context canceled") {
 			t.Fatalf("stderr = %q; want context canceled", stderr.String())
