@@ -22,120 +22,18 @@ func run(args []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) int
 		write(stderr, usage)
 		return 2
 	}
-	switch args[0] {
-	case "version":
-		return runVersion(args[1:], stdout, stderr)
-	case "doctor":
-		return runDoctor(args[1:], stdout, stderr)
-	case "main-guard":
-		return runMainGuard(args[1:], stdout, stderr)
-	case "worktree-guard":
-		return runWorktreeGuard(args[1:], stdout, stderr)
-	case "worktree-check":
-		return runWorktreeCheck(args[1:], stdout, stderr)
-	case "context-check":
-		return runContextCheck(args[1:], stdout, stderr)
-	case "spec-check":
-		return runSpecCheck(args[1:], stdout, stderr)
-	case "design-check":
-		return runDesignCheck(args[1:], stdout, stderr)
-	case "task-check":
-		return runTaskCheck(args[1:], stdout, stderr)
-	case "pr-check":
-		return runPRCheck(args[1:], stdin, stdout, stderr)
-	case "evidence-check":
-		return runEvidenceCheck(args[1:], stdout, stderr)
-	case "cli-contract":
-		return runCLIContract(args[1:], stdout, stderr)
-	case "issue-registry":
-		return runIssueRegistry(args[1:], stdout, stderr)
-	case "command-registry":
-		return runCommandRegistry(args[1:], stdout, stderr)
-	case "makefile-baseline":
-		return runMakefileBaseline(args[1:], stdout, stderr)
-	case "context-profile":
-		return runContextProfile(args[1:], stdout, stderr)
-	case "context-profile-check":
-		return runContextProfileCheck("context-profile-check", args[1:], stdout, stderr)
-	case "context-schema-check":
-		return runContextProfileCheck("context-schema-check", args[1:], stdout, stderr)
-	case "context-lite", "context-standard", "context-full", "context-release", "context-fast-check", "context-standard-check", "context-full-check":
-		return runContextProfileAlias(args[0], args[1:], stdout, stderr)
-	case "debt":
-		return runDebt(args[1:], stdout, stderr)
-	case "architecture":
-		return runDebtAlias("architecture", "enforce", args[1:], stdout, stderr)
-	case "domain":
-		return runDebtAlias("domain", "enforce", args[1:], stdout, stderr)
-	case "docs-drift":
-		return runDebtAlias("docs", "warn", args[1:], stdout, stderr)
-	case "dependency-debt":
-		return runDebtAlias("dependency", "warn", args[1:], stdout, stderr)
-	case "testing-debt":
-		return runDebtAlias("testing", "warn", args[1:], stdout, stderr)
-	case "implementation-debt":
-		return runDebtAlias("implementation", "observe", args[1:], stdout, stderr)
-	case "security-debt":
-		return runDebtAlias("security", "warn", args[1:], stdout, stderr)
-	case "downstream-debt":
-		return runDebtAlias("downstream", "warn", args[1:], stdout, stderr)
-	case "goal-acceptance", "goal-delivery", "goal-handover", "goal-downstream-adoption", "goal-certify", "goal-runtime-final":
-		return runGoalRuntimeCommand(args[0], args[1:], stdout, stderr)
-	case "minimal-kernel", "done-assertion", "agent-team-contract", "scope-lock", "pr-template", "acceptance-matrix", "runtime-health", "goal-runtime", "naming", "upgrade-standard", "conformance-profile", "downstream-registry", "self-healing-skeleton", "policy-schema", "github-settings", "toolchain", "evidence-artifacts", "install-runtime", "upgrade-runtime", "release-ready", "evidence-replay", "attest-conformance", "pack-standard", "pack-gate", "pack-evidence", "runtime-file-ownership", "downstream-baseline", "downstream-adoption", "autoresearch", "changelog", "github-governance", "governance-fixture-test", "supply-chain", "execution-context":
-		return runPlannedCommand(args[0], args[1:], stdout, stderr)
-	case "boundary":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_boundary.sh")
-	case "contracts":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_contracts.sh")
-	case "debt-evidence":
-		return runDebtEvidence(args[1:], stdout, stderr)
-	case "debt-evidence-checksum-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check", "release/debt/latest.json", "release/debt/latest.json.sha256")
-	case "debt-evidence-hash":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "release/debt/latest.json", "release/debt/latest.json.sha256")
-	case "dependency-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_dependency_diff.sh")
-	case "docs-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_docs.sh")
-	case "evidence", "manifest":
-		return runExternal(stdin, stdout, stderr, "go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")
-	case "integration":
-		return runExternal(stdin, stdout, stderr, "./scripts/run_integration.sh")
-	case "release-evidence-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_release_evidence.sh")
-	case "release-evidence-checksum-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check")
-	case "release-evidence-hash":
-		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh")
-	case "release-final-check":
-		return runExternal(stdin, stdout, stderr, "make", "release-final-check")
-	case "render-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_rendered_template.sh", args[1:]...)
-	case "rules-consistency-check":
-		return runRulesConsistencyCheck(args[1:], stdout, stderr)
-	case "rules-verify":
-		return runExternal(stdin, stdout, stderr, "python3", "scripts/verify_rules.py")
-	case "score":
-		return runScore(args[1:], stdout, stderr)
-	case "secrets":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_secrets.sh")
-	case "security":
-		return runExternalSequence(stdin, stdout, stderr,
-			externalCommand{name: "govulncheck", args: []string{"./..."}},
-			externalCommand{name: "./scripts/check_secrets.sh"},
-		)
-	case "standard-impact-check":
-		return runExternal(stdin, stdout, stderr, "./scripts/check_standard_impact.sh")
-	case "self-improving-check", "retro-check":
-		return runSelfImprovingCheck(args[0], args[1:], stdout, stderr)
-	case "traceability-check":
-		return runTraceabilityCheck(args[1:], stdout, stderr)
+	name := args[0]
+	switch name {
 	case "help", "-h", "--help":
 		write(stdout, usage)
 		return 0
 	default:
-		write(stderr, "unknown command %q\n", args[0])
-		return 2
+		cmd, ok := lookupCommand(name)
+		if !ok {
+			write(stderr, "unknown command %q\n", name)
+			return 2
+		}
+		return cmd.Run(args[0], args[1:], stdin, stdout, stderr)
 	}
 }
 

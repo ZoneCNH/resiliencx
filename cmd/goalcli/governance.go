@@ -13,10 +13,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
 )
 
 const (
-	projectReleaseVersion    = "v0.4.7"
+	// projectReleaseVersion 引用 templatex.Version 作为唯一版本号来源。
+	projectReleaseVersion    = templatex.Version
 	governanceRuntimeVersion = "v2.9.3"
 )
 
