@@ -196,6 +196,48 @@ func TestGoalRuntimeHasNoPackageLevelMutablePolicy(t *testing.T) {
 	}
 }
 
+func TestTemplateModuleIdentityMatchesGoModule(t *testing.T) {
+	content, err := os.ReadFile("../go.mod")
+	if err != nil {
+		t.Fatalf("read go.mod: %v", err)
+	}
+	modulePath := ""
+	for _, line := range strings.Split(string(content), "\n") {
+		if strings.HasPrefix(line, "module ") {
+			modulePath = strings.TrimSpace(strings.TrimPrefix(line, "module "))
+			break
+		}
+	}
+	if modulePath == "" {
+		t.Fatalf("go.mod missing module directive")
+	}
+	if templatex.ModuleName != modulePath {
+		t.Fatalf("template module identity drift: ModuleName = %q, go.mod = %q", templatex.ModuleName, modulePath)
+	}
+	for _, forbidden := range []string{"github.com/bytechainx/x.go", "github.com/ZoneCNH/x.go"} {
+		if strings.Contains(templatex.ModuleName, forbidden) {
+			t.Fatalf("template module identity must not reference forbidden runtime %q: %q", forbidden, templatex.ModuleName)
+		}
+	}
+}
+
+func TestBoundaryScriptGuardsRenderedRuntimeTemplateIdentity(t *testing.T) {
+	content, err := os.ReadFile("../scripts/check_boundary.sh")
+	if err != nil {
+		t.Fatalf("read boundary script: %v", err)
+	}
+	text := string(content)
+	for _, needle := range []string{
+		`template_module_path="github.com/ZoneCNH/xlib-standard"`,
+		`"${template_module_path}/pkg/templatex"`,
+		`! -name '*_test.go'`,
+	} {
+		if !strings.Contains(text, needle) {
+			t.Fatalf("boundary script missing rendered identity guard %q", needle)
+		}
+	}
+}
+
 func requireSchemaFieldMapsToStructField(t *testing.T, schema objectSchema, structType reflect.Type, schemaField string, structField string, schemaType string) {
 	t.Helper()
 

@@ -14,12 +14,6 @@ func (systemClock) Now() time.Time {
 	return time.Now()
 }
 
-type clockFunc func() time.Time
-
-func (fn clockFunc) Now() time.Time {
-	return fn()
-}
-
 type options struct {
 	metrics Metrics
 	clock   clock
