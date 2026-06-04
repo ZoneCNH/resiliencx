@@ -17,8 +17,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("GOPROXY", "off")
-	os.Setenv("GOSUMDB", "off")
+	if err := os.Setenv("GOPROXY", "off"); err != nil {
+		panic(err)
+	}
+	if err := os.Setenv("GOSUMDB", "off"); err != nil {
+		panic(err)
+	}
 	os.Exit(m.Run())
 }
 
