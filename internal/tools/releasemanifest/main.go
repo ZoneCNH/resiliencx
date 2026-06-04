@@ -20,6 +20,7 @@ import (
 
 	"github.com/ZoneCNH/xlib-standard/internal/debtcheck"
 	"github.com/ZoneCNH/xlib-standard/internal/releasequality"
+	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
 )
 
 var checkNames = []string{
@@ -312,7 +313,7 @@ func buildManifest() (Manifest, error) {
 
 	return Manifest{
 		Module:                 module,
-		Version:                envDefault("VERSION", "v0.4.7"),
+		Version:                envDefault("VERSION", templatex.Version),
 		Commit:                 runTrimmedDefault("unknown", "git", "rev-parse", "HEAD"),
 		TreeSHA:                runTrimmedDefault("unknown", "git", "rev-parse", "HEAD^{tree}"),
 		SourceDigest:           sourceDigest,
