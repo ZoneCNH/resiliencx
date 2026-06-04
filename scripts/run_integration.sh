@@ -30,17 +30,17 @@ for spec in "${cases[@]}"; do
     git add .
     git commit -qm "Initial rendered template"
 
-    GOWORK=off go mod tidy
+    env -u GOAL_ID GOWORK=off go mod tidy
     git diff --exit-code -- go.mod go.sum
-    GOWORK=off go test ./...
-    GOWORK=off make contracts
-    GOWORK=off make boundary
-    GOWORK=off make standard-impact-check
-    GOWORK=off make debt
-    GOWORK=off make debt-evidence
-    GOWORK=off make debt-evidence-checksum-check
-    CHECK_STATUS=passed GOWORK=off make evidence
-    RELEASE_EVIDENCE_REQUIRE_PASSED=1 GOWORK=off make release-evidence-check
+    env -u GOAL_ID GOWORK=off go test ./...
+    env -u GOAL_ID GOWORK=off make contracts
+    env -u GOAL_ID GOWORK=off make boundary
+    env -u GOAL_ID GOWORK=off make standard-impact-check
+    env -u GOAL_ID GOWORK=off make debt
+    env -u GOAL_ID GOWORK=off make debt-evidence
+    env -u GOAL_ID GOWORK=off make debt-evidence-checksum-check
+    env -u GOAL_ID CHECK_STATUS=passed GOWORK=off make evidence
+    env -u GOAL_ID RELEASE_EVIDENCE_REQUIRE_PASSED=1 GOWORK=off make release-evidence-check
   )
 done
 

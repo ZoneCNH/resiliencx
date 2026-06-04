@@ -106,6 +106,13 @@ func TestEvaluateRenderedDownstreamSkipsSourceOnlyAuthorityPaths(t *testing.T) {
 	}
 }
 
+func TestStandardModulePathPreservesSourceIdentityThroughRender(t *testing.T) {
+	want := "github.com/ZoneCNH/" + "resili" + "encx"
+	if standardModulePath != want {
+		t.Fatalf("standardModulePath = %q; want %q", standardModulePath, want)
+	}
+}
+
 func TestEvaluateGoalcliGatePassesAsBlockingMVAContract(t *testing.T) {
 	root := t.TempDir()
 	writeAuthorityFixture(t, root)

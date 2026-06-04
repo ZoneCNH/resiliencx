@@ -105,11 +105,19 @@ out_dir="$out_abs"
     --exclude='./release/debt/latest.json' \
     --exclude='./release/debt/latest.md' \
     --exclude='./release/debt/latest.json.sha256' \
+    --exclude='./release/evidence/goalcli' \
     -cf - .
 ) | (
   cd "$out_dir"
   tar -xf -
 )
+
+ledger_path="$out_dir/.agent/evidence/ledger.jsonl"
+if [[ -f "$ledger_path" ]]; then
+  ledger_tmp="${ledger_path}.tmp"
+  grep -v 'RESILIENCX' "$ledger_path" > "$ledger_tmp" || true
+  mv "$ledger_tmp" "$ledger_path"
+fi
 
 if [[ "$package_name" != "resiliencx" ]]; then
   mkdir -p "$out_dir/pkg"

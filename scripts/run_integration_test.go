@@ -13,27 +13,27 @@ func TestRunIntegrationGeneratesStandardImpactBeforeReleaseEvidence(t *testing.T
 	}
 
 	script := string(contents)
-	standardImpactIndex := strings.Index(script, "GOWORK=off make standard-impact-check")
+	standardImpactIndex := strings.Index(script, "env -u GOAL_ID GOWORK=off make standard-impact-check")
 	if standardImpactIndex < 0 {
 		t.Fatal("run_integration.sh does not generate standard impact evidence")
 	}
-	debtIndex := strings.Index(script, "\n    GOWORK=off make debt\n")
+	debtIndex := strings.Index(script, "\n    env -u GOAL_ID GOWORK=off make debt\n")
 	if debtIndex < 0 {
 		t.Fatal("run_integration.sh does not run downstream debt gate")
 	}
-	debtEvidenceIndex := strings.Index(script, "GOWORK=off make debt-evidence")
+	debtEvidenceIndex := strings.Index(script, "env -u GOAL_ID GOWORK=off make debt-evidence")
 	if debtEvidenceIndex < 0 {
 		t.Fatal("run_integration.sh does not generate downstream debt evidence")
 	}
-	debtChecksumIndex := strings.Index(script, "GOWORK=off make debt-evidence-checksum-check")
+	debtChecksumIndex := strings.Index(script, "env -u GOAL_ID GOWORK=off make debt-evidence-checksum-check")
 	if debtChecksumIndex < 0 {
 		t.Fatal("run_integration.sh does not verify downstream debt evidence checksum")
 	}
-	evidenceIndex := strings.Index(script, "CHECK_STATUS=passed GOWORK=off make evidence")
+	evidenceIndex := strings.Index(script, "env -u GOAL_ID CHECK_STATUS=passed GOWORK=off make evidence")
 	if evidenceIndex < 0 {
 		t.Fatal("run_integration.sh does not generate release evidence")
 	}
-	checkIndex := strings.Index(script, "RELEASE_EVIDENCE_REQUIRE_PASSED=1 GOWORK=off make release-evidence-check")
+	checkIndex := strings.Index(script, "env -u GOAL_ID RELEASE_EVIDENCE_REQUIRE_PASSED=1 GOWORK=off make release-evidence-check")
 	if checkIndex < 0 {
 		t.Fatal("run_integration.sh does not verify release evidence")
 	}
