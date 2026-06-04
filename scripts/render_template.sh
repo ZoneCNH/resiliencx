@@ -113,7 +113,7 @@ out_dir="$out_abs"
 
 if [[ "$package_name" != "resiliencx" ]]; then
   mkdir -p "$out_dir/pkg"
-  mv "$out_dir/pkg/templatex" "$out_dir/pkg/$package_name"
+  mv "$out_dir/pkg/resiliencx" "$out_dir/pkg/$package_name"
 fi
 
 replace_in_text_files() {
@@ -145,10 +145,10 @@ replace_in_text_files 'resiliencx' "$module_name"
 replace_in_text_files 'baselib-template' "$module_name"
 package_title="$(printf '%s%s' "$(printf '%s' "${package_name:0:1}" | tr '[:lower:]' '[:upper:]')" "${package_name:1}")"
 package_upper="$(printf '%s' "$package_name" | tr '[:lower:]' '[:upper:]')"
-replace_in_text_files 'templatex_' "${package_name}_"
-replace_in_text_files 'Templatex' "$package_title"
-replace_in_text_files 'TEMPLATEX' "$package_upper"
-replace_in_text_files 'templatex' "$package_name"
+replace_in_text_files 'resiliencx_' "${package_name}_"
+replace_in_text_files 'Resiliencx' "$package_title"
+replace_in_text_files 'RESILIENCX' "$package_upper"
+replace_in_text_files 'resiliencx' "$package_name"
 
 (
   cd "$out_dir"

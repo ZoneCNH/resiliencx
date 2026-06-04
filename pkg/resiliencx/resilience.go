@@ -257,6 +257,9 @@ func NewCircuitBreaker(failureThreshold int, openFor time.Duration, clock Clock)
 }
 
 func (b *CircuitBreaker) State() CircuitState {
+	if b == nil {
+		return CircuitOpen
+	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return b.currentStateLocked()
@@ -323,6 +326,9 @@ func NewFailureBudget(maxFailures int, window time.Duration, clock Clock) *Failu
 }
 
 func (b *FailureBudget) Allow() bool {
+	if b == nil {
+		return false
+	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	b.resetIfExpiredLocked()
@@ -330,7 +336,7 @@ func (b *FailureBudget) Allow() bool {
 }
 
 func (b *FailureBudget) Record(err error) {
-	if err == nil || b == nil {
+	if b == nil || err == nil {
 		return
 	}
 	b.mu.Lock()

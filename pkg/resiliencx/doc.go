@@ -1,9 +1,8 @@
-// Package resiliencx provides a minimal base-library template package.
+// Package resiliencx provides context-aware resilience primitives for L1 libraries.
 //
-// This package demonstrates the required structure for independent base libraries:
-// Config, Validate, Sanitize, New, Close, HealthCheck, Error model, Metrics hooks,
-// tests, examples, contracts, CI gates, release manifest, and agent evidence.
-//
-// This package must not depend on github.com/bytechainx/x.go, github.com/ZoneCNH/x.go,
-// or any x.go internal package.
+// The package intentionally stays vendor-neutral: callers compose retry, timeout,
+// backoff, jitter, circuit breaker, bulkhead, rate-limit, and failure-budget
+// policies without importing provider, L2, x.go, or observability implementations.
+// All waits and resource acquisitions accept context.Context, and time is injected
+// through Clock so behavior is deterministic in tests.
 package resiliencx

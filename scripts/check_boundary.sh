@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "checking forbidden dependency on x.go..."
+echo "checking forbidden L2/provider/observability dependencies..."
 
 DEPS="$(go list -deps ./...)"
 FORBIDDEN_DEPS=(
   "github.com/bytechainx/x.go"
   "github.com/ZoneCNH/x.go"
+  "github.com/ZoneCNH/observex"
+  "github.com/ZoneCNH/redisx"
+  "github.com/ZoneCNH/kafkax"
+  "github.com/ZoneCNH/postgresx"
 )
 
 for dep in "${FORBIDDEN_DEPS[@]}"; do
   if grep -Fq "$dep" <<<"$DEPS"; then
-    echo "ERROR: base library template must not depend on x.go dependency: $dep"
+    echo "ERROR: resiliencx L1 core must not depend on forbidden dependency: $dep"
     exit 1
   fi
 done
