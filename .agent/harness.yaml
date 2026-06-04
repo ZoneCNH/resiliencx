@@ -1,5 +1,5 @@
 schema_version: "3.1"
-module: "xlib-standard"
+module: "resiliencx"
 default_env:
   GOWORK: "off"
 required_gates:
@@ -157,7 +157,7 @@ forbidden:
   - "production secrets in source, docs, CI, manifest, Issue, PR, or test logs"
   - "/home/k8s/secrets/env/* contents in any repository artifact"
   - "hidden global clients"
-  - "business-domain models in xlib-standard, kernel, or generated base libraries"
+  - "business-domain models in resiliencx, kernel, or generated base libraries"
   - "legacy baselib-template/foundationx as primary identity outside migration context"
 
 goalcli_v0_1_0:

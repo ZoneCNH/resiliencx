@@ -45,7 +45,7 @@ func runVersion(args []string, stdout io.Writer, stderr io.Writer) int {
 	if err := validateInternalCommandArgs("version", args, internalCommandFlagSpec{boolFlags: []string{"json"}}); err != nil {
 		return invalidInternalArgsExit("version", err, stderr)
 	}
-	return emitReport(stdout, "version", "passed", []string{"xlib-standard release " + projectReleaseVersion, "goalcli governance runtime " + governanceRuntimeVersion, "goalcli governance CLI available"}, nil)
+	return emitReport(stdout, "version", "passed", []string{"resiliencx release " + projectReleaseVersion, "goalcli governance runtime " + governanceRuntimeVersion, "goalcli governance CLI available"}, nil)
 }
 
 func runDoctor(args []string, stdout io.Writer, stderr io.Writer) int {

@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"testing"
@@ -15,7 +15,7 @@ func FuzzConfigSanitize(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, secret string) {
 		sanitized := Config{
-			Name:    "templatex",
+			Name:    "resiliencx",
 			Timeout: time.Second,
 			Secret:  secret,
 		}.Sanitize()

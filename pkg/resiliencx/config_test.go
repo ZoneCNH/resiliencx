@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ func TestConfigValidateRequiresName(t *testing.T) {
 }
 
 func TestConfigValidateRejectsNegativeTimeout(t *testing.T) {
-	err := Config{Name: "templatex", Timeout: -time.Second}.Validate()
+	err := Config{Name: "resiliencx", Timeout: -time.Second}.Validate()
 	if err == nil {
 		t.Fatal("expected negative timeout to fail validation")
 	}
@@ -26,11 +26,11 @@ func TestConfigValidateRejectsNegativeTimeout(t *testing.T) {
 }
 
 func TestConfigSanitizeMasksSecret(t *testing.T) {
-	sanitized := Config{Name: "templatex", Timeout: time.Second, Secret: "plain-text"}.Sanitize()
+	sanitized := Config{Name: "resiliencx", Timeout: time.Second, Secret: "plain-text"}.Sanitize()
 	if sanitized.Secret != "***" {
 		t.Fatalf("expected masked secret, got %q", sanitized.Secret)
 	}
-	if sanitized.Name != "templatex" {
+	if sanitized.Name != "resiliencx" {
 		t.Fatalf("expected name to be preserved, got %q", sanitized.Name)
 	}
 }

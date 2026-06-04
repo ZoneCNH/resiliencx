@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"context"
@@ -14,7 +14,7 @@ type Client struct {
 }
 
 func New(ctx context.Context, cfg Config, opts ...Option) (*Client, error) {
-	const op = "templatex.New"
+	const op = "resiliencx.New"
 	options := defaultOptions()
 	for _, opt := range opts {
 		opt(&options)
@@ -40,7 +40,7 @@ func New(ctx context.Context, cfg Config, opts ...Option) (*Client, error) {
 }
 
 func (c *Client) Close(ctx context.Context) error {
-	const op = "templatex.Close"
+	const op = "resiliencx.Close"
 	if c == nil {
 		return validationError(op, "client is nil", nil)
 	}

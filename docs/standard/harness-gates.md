@@ -1,6 +1,6 @@
 # Harness Gates
 
-Harness Gate 把 `xlib-standard` 的标准、模板、generator、Evidence 和 release 要求变成可执行检查。
+Harness Gate 把 `resiliencx` 的标准、模板、generator、Evidence 和 release 要求变成可执行检查。
 
 Full Goal Runtime v3.1 以 `cmd/goalcli` 作为 Go gate runtime。Makefile target 是推荐的人机入口，内部必须委托到 `GOWORK=off go run ./cmd/goalcli ...`；`scripts/*.sh` 是兼容实现层，不再作为 CI/发布文档中的唯一权威入口。
 
@@ -62,7 +62,7 @@ Full Goal Runtime v3.1 以 `cmd/goalcli` 作为 Go gate runtime。Makefile targe
 
 ## Generator Gate
 
-Generator gate 必须证明模板能生成代表性下游，而不是只证明 `xlib-standard` 自身可用。
+Generator gate 必须证明模板能生成代表性下游，而不是只证明 `resiliencx` 自身可用。
 
 代表下游：
 

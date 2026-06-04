@@ -1,6 +1,6 @@
 # Full Goal Runtime v3.1
 
-Runtime: `xlib-standard` Full Goal Runtime v3.1.
+Runtime: `resiliencx` Full Goal Runtime v3.1.
 
 ## 目的
 

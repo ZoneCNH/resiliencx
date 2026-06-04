@@ -1,4 +1,4 @@
-# Agent Team Contract（xlib-standard v2.9.3）
+# Agent Team Contract（resiliencx v2.9.3）
 
 本文件记录 P1-001 Agent Team Contract 的本地可验证契约，用于 `goalcli agent-team-contract` 与 team worker 验收。
 
@@ -10,7 +10,7 @@
 
 ## 范围锁定
 
-- 所有实现必须使用 team 自动创建的 worker worktree，不写入 `/home/xlib-standard` 主工作区。
+- 所有实现必须使用 team 自动创建的 worker worktree，不写入 `/home/resiliencx` 主工作区。
 - 共享文件修改必须来自已分配任务；发生冲突时先上报 leader。
 - 禁止读取真实 secrets，禁止新增依赖，禁止 `x.go` imports，`release/manifest/latest.json` 仅作为生成物。
 

@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 const (
 	MetricClientCreatedTotal           = "client_created_total"

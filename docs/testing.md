@@ -1,6 +1,6 @@
 # 测试策略
 
-`xlib-standard` 的测试策略同时约束标准仓库、Go 参考模板、generator、Harness、Evidence Runtime 和所有生成基础库。
+`resiliencx` 的测试策略同时约束标准仓库、Go 参考模板、generator、Harness、Evidence Runtime 和所有生成基础库。
 
 ## 必需覆盖范围
 

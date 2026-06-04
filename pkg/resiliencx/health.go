@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"context"
@@ -24,7 +24,7 @@ type HealthStatus struct {
 
 func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 	start := time.Now()
-	name := "templatex"
+	name := "resiliencx"
 	var metrics Metrics
 	initialized := false
 	closed := true
@@ -39,7 +39,7 @@ func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 		timeout = c.cfg.Timeout
 		c.mu.Unlock()
 		if name == "" {
-			name = "templatex"
+			name = "resiliencx"
 		}
 	}
 

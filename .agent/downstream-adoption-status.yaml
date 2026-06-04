@@ -1,5 +1,5 @@
 schema_version: "1.0"
-module: xlib-standard
+module: resiliencx
 source_registry: .agent/downstream-registry.yaml
 truth_state: .agent/truth-state.yaml
 mode: patch-only

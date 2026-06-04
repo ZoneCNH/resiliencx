@@ -9,7 +9,7 @@ func TestRequireNonEmptyRejectsEmptyValue(t *testing.T) {
 }
 
 func TestRequireNonEmptyAcceptsValue(t *testing.T) {
-	if err := RequireNonEmpty("name", "templatex"); err != nil {
+	if err := RequireNonEmpty("name", "resiliencx"); err != nil {
 		t.Fatalf("expected value to pass: %v", err)
 	}
 }

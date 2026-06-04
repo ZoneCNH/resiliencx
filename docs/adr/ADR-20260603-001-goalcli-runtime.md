@@ -10,7 +10,7 @@ source evidence ledger 是 `.agent/evidence/ledger.jsonl`。`release/evidence/go
 
 ## Rationale
 
-该决策让 MVA 与现有 governance gate architecture 保持一致，避免第二套 command authority，并确保 G12-G16 evidence 可以由 xlib-standard 现有 runtime 审计。
+该决策让 MVA 与现有 governance gate architecture 保持一致，避免第二套 command authority，并确保 G12-G16 evidence 可以由 resiliencx 现有 runtime 审计。
 
 ## Consequences
 

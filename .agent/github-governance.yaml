@@ -1,4 +1,4 @@
-schema: xlib-standard.github-governance.v1
+schema: resiliencx.github-governance.v1
 status: planned
 checks:
   - branch_protection

@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"context"
@@ -25,7 +25,7 @@ func TestNewRejectsInvalidConfig(t *testing.T) {
 func TestNewRejectsNilContext(t *testing.T) {
 	metrics := &recordingMetrics{}
 
-	_, err := New(nil, Config{Name: "templatex"}, WithMetrics(metrics)) //nolint:staticcheck // verifies the defensive nil-context branch.
+	_, err := New(nil, Config{Name: "resiliencx"}, WithMetrics(metrics)) //nolint:staticcheck // verifies the defensive nil-context branch.
 	if err == nil {
 		t.Fatal("expected nil context to fail")
 	}
@@ -41,7 +41,7 @@ func TestNewRejectsCanceledContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := New(ctx, Config{Name: "templatex"})
+	_, err := New(ctx, Config{Name: "resiliencx"})
 	if err == nil {
 		t.Fatal("expected canceled context to fail")
 	}
@@ -57,7 +57,7 @@ func TestNewRejectsExpiredContext(t *testing.T) {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(-time.Second))
 	defer cancel()
 
-	_, err := New(ctx, Config{Name: "templatex"})
+	_, err := New(ctx, Config{Name: "resiliencx"})
 	if err == nil {
 		t.Fatal("expected expired context to fail")
 	}
@@ -71,7 +71,7 @@ func TestNewRejectsExpiredContext(t *testing.T) {
 
 func TestCloseIsIdempotent(t *testing.T) {
 	metrics := &recordingMetrics{}
-	client, err := New(context.Background(), Config{Name: "templatex"}, WithMetrics(metrics))
+	client, err := New(context.Background(), Config{Name: "resiliencx"}, WithMetrics(metrics))
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -104,7 +104,7 @@ func TestCloseRejectsNilClient(t *testing.T) {
 
 func TestCloseRejectsNilContext(t *testing.T) {
 	metrics := &recordingMetrics{}
-	client, err := New(context.Background(), Config{Name: "templatex"}, WithMetrics(metrics))
+	client, err := New(context.Background(), Config{Name: "resiliencx"}, WithMetrics(metrics))
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -124,7 +124,7 @@ func TestCloseRejectsNilContext(t *testing.T) {
 func TestCloseRejectsCanceledContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	client, err := New(context.Background(), Config{Name: "templatex"})
+	client, err := New(context.Background(), Config{Name: "resiliencx"})
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -143,7 +143,7 @@ func TestCloseRejectsCanceledContext(t *testing.T) {
 
 func TestCloseRejectsExpiredContext(t *testing.T) {
 	metrics := &recordingMetrics{}
-	client, err := New(context.Background(), Config{Name: "templatex"}, WithMetrics(metrics))
+	client, err := New(context.Background(), Config{Name: "resiliencx"}, WithMetrics(metrics))
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}

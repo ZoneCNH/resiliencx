@@ -221,7 +221,7 @@ Retrospective
 跨仓库改造
 运行时控制平面
 自动化系统
-goalcli / harness / xlib-standard / kernel / x.go
+goalcli / harness / resiliencx / kernel / x.go
 ```
 
 最低要求：
@@ -1220,12 +1220,12 @@ authorization header
 
 ---
 
-# 22. xlib-standard / kernel / x.go 专用规则
+# 22. resiliencx / kernel / x.go 专用规则
 
-## RULE-XSTACK-001：xlib-standard 是标准源
+## RULE-XSTACK-001：resiliencx 是标准源
 
 ```text
-xlib-standard = 基础库标准源
+resiliencx = 基础库标准源
 .agent = 运行时控制平面
 goalcli = 机器裁判与执行器
 Evidence = 完成证明
@@ -1736,7 +1736,7 @@ goals:
     title: Build Goal Runtime Harness System
     mode: Full
     state: EXECUTING
-    repo: xlib-standard
+    repo: resiliencx
     owner: zonecnh
     branch_policy: worktree-only
     evidence_required: true
@@ -1786,7 +1786,7 @@ tasks:
       - AC-REQ-SPEC-goal-runtime-v1.0-001-001
     issue: 123
     branch: goal/GOAL-20260603-001/TASK-001
-    worktree: ~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+    worktree: ~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
     status: READY
     evidence:
       - EVID-TASK-GOAL-20260603-001-001-20260603-001
@@ -1909,7 +1909,7 @@ goals.yaml
 goalcli worktree create \
   --goal GOAL-20260603-001 \
   --task TASK-GOAL-20260603-001-001 \
-  --repo xlib-standard
+  --repo resiliencx
 ```
 
 ---
@@ -1925,7 +1925,7 @@ goalcli worktree create \
 示例：
 
 ```text
-~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-GOAL-20260603-001-001
+~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-GOAL-20260603-001-001
 ```
 
 ---
@@ -2202,7 +2202,7 @@ patches:
 
 # 45. Downstream Adoption 规则
 
-这是 xlib-standard 作为标准工厂必须有的规则。
+这是 resiliencx 作为标准工厂必须有的规则。
 
 ## RULE-DOWNSTREAM-001：标准必须能被下游库采用
 
@@ -2224,7 +2224,7 @@ x.go
 
 ---
 
-## RULE-DOWNSTREAM-002：每次 xlib-standard 规则更新必须说明下游影响
+## RULE-DOWNSTREAM-002：每次 resiliencx 规则更新必须说明下游影响
 
 必须输出：
 
@@ -2244,7 +2244,7 @@ verification commands
 # Adoption Manifest
 
 ## Source Standard
-- xlib-standard version:
+- resiliencx version:
 - rule version:
 - template version:
 
@@ -2775,7 +2775,7 @@ Evidence ID
 
 ```yaml
 allowed_repos:
-  - xlib-standard
+  - resiliencx
 allowed_paths:
   - .agent/
   - scripts/harness/
@@ -2841,7 +2841,7 @@ lock_id: LOCK-TASK-GOAL-20260603-001-001
 owner: agent-01
 goal_id: GOAL-20260603-001
 task_id: TASK-GOAL-20260603-001-001
-worktree: /home/zone/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+worktree: /home/zone/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
 created_at: 2026-06-03T16:30:00+09:00
 expires_at: 2026-06-03T20:30:00+09:00
 ```
@@ -3497,7 +3497,7 @@ reports/audit/GOAL-20260603-001.md
 
 # 79. Downstream Sync 规则
 
-## RULE-DOWNSTREAM-SYNC-001：xlib-standard 更新后必须生成同步任务
+## RULE-DOWNSTREAM-SYNC-001：resiliencx 更新后必须生成同步任务
 
 当以下内容变化：
 
@@ -4496,9 +4496,9 @@ fix_issue: "#166"
 
 # 106. Standard Factory 规则
 
-## RULE-FACTORY-001：xlib-standard 的最终输出不是仓库，而是工厂能力
+## RULE-FACTORY-001：resiliencx 的最终输出不是仓库，而是工厂能力
 
-xlib-standard 必须能够生产或约束：
+resiliencx 必须能够生产或约束：
 
 ```text
 kernel
@@ -4760,7 +4760,7 @@ goalcli 内部怎么设计？
 
 ## RULE-REPO-LAYOUT-001：Goal Runtime 必须有固定目录结构
 
-推荐在 `xlib-standard` 中落地：
+推荐在 `resiliencx` 中落地：
 
 ```text
 .agent/
@@ -4886,7 +4886,7 @@ runtime:
   worktree_root: ~/code/.worktrees
 
 repositories:
-  default: xlib-standard
+  default: resiliencx
   root: .
   remote: origin
 
@@ -7603,7 +7603,7 @@ rollback plan
 例如：
 
 ```text
-1. xlib-standard 发布规则版本
+1. resiliencx 发布规则版本
 2. kernel 采用规则
 3. configx / observex / testkitx 采用
 4. L2 基础库采用
@@ -7614,7 +7614,7 @@ rollback plan
 
 # 187. Downstream Contract 规则
 
-## RULE-DOWNSTREAM-CONTRACT-001：xlib-standard 必须发布下游契约
+## RULE-DOWNSTREAM-CONTRACT-001：resiliencx 必须发布下游契约
 
 契约包括：
 
@@ -8173,7 +8173,7 @@ Downstream Adoption
 接入命令：
 
 ```bash
-goalcli bootstrap repo --profile xlib-standard
+goalcli bootstrap repo --profile resiliencx
 ```
 
 必须生成或检查：
@@ -8479,7 +8479,7 @@ xgo
 | ---------- | ------------- | ----------------------------------------- |
 | minimal    | 小库            | worktree/evidence/schema                  |
 | standard   | 普通基础库         | minimal + traceability/pr/release         |
-| full       | xlib-standard | standard + retro/adoption/audit/dashboard |
+| full       | resiliencx | standard + retro/adoption/audit/dashboard |
 | downstream | 下游库           | adoption-check + contract                 |
 | xgo        | x.go          | x.go 架构专用 gates                           |
 
@@ -8929,12 +8929,12 @@ Dashboard 不是展示板，而是治理入口。
 
 # 230. Downstream Promotion 规则
 
-## RULE-PROMOTE-001：xlib-standard 新规则不能直接推全量下游
+## RULE-PROMOTE-001：resiliencx 新规则不能直接推全量下游
 
 先按顺序推广：
 
 ```text
-1. xlib-standard self-check
+1. resiliencx self-check
 2. kernel pilot
 3. L1 pilot: configx / observex / testkitx
 4. L2 pilot: redisx / kafkax / postgresx
@@ -8958,7 +8958,7 @@ release-check passed
 
 # 231. Compatibility Guard 规则
 
-## RULE-COMPAT-GUARD-001：下游兼容性失败不得阻断 xlib-standard 内部发布
+## RULE-COMPAT-GUARD-001：下游兼容性失败不得阻断 resiliencx 内部发布
 
 但必须限制发布通道：
 
@@ -9141,7 +9141,7 @@ Sunset
 
 最终判断：
 
-> **Goal Runtime v1.7 的核心已经足够完整。下一步不应继续堆规则，而应把 v1.0-v1.7 合并成一个可执行规范，并拆成 goalcli v0.1.0、xlib-standard `.agent`、Harness Gates、CI Workflows、下游 adoption 五条落地线。**
+> **Goal Runtime v1.7 的核心已经足够完整。下一步不应继续堆规则，而应把 v1.0-v1.7 合并成一个可执行规范，并拆成 goalcli v0.1.0、resiliencx `.agent`、Harness Gates、CI Workflows、下游 adoption 五条落地线。**
 继续，但从 **v1.8** 开始不再继续无限扩规则，而是进入 **Rule Freeze + Build Mode**：把 v1.0-v1.7 收敛成可执行规范、文件树、Issue、Gate、CI、Release 与 Adoption。
 
 ---
@@ -9235,9 +9235,9 @@ L9 Self-improving      # 复盘补丁与下游采用
 
 ---
 
-## 239. xlib-standard 落地包结构
+## 239. resiliencx 落地包结构
 
-最终应该在 `xlib-standard` 中形成这个运行时包：
+最终应该在 `resiliencx` 中形成这个运行时包：
 
 ```text
 .agent/
@@ -9753,7 +9753,7 @@ Violation Fixtures 可失败
 完成后必须达到：
 
 ```text
-xlib-standard 自身达到 Goal Runtime L2
+resiliencx 自身达到 Goal Runtime L2
 kernel 可开始试点采用
 ```
 
@@ -9830,7 +9830,7 @@ Phase 7：Retro 后再决定 v0.2.0 自动化范围
 3. goalcli v0.1.0 只做裁判内核，不做全自动平台。
 4. P0 Gate 必须先于 Issue/PR/Release 自动化。
 5. Golden/Violation fixtures 是系统可信度的根。
-6. xlib-standard 先自证，再推广 kernel。
+6. resiliencx 先自证，再推广 kernel。
 7. 没有 audit report，不算真正完成。
 8. 没有 downstream adoption pilot，不算标准工厂。
 ```
@@ -9879,7 +9879,7 @@ Rule Freeze
 
 ## 当前阶段目标
 
-> 把 xlib-standard 从“规则文档集合”升级为“可机器裁判的 Goal Runtime 标准源”。
+> 把 resiliencx 从“规则文档集合”升级为“可机器裁判的 Goal Runtime 标准源”。
 
 更具体地说：
 
@@ -10738,16 +10738,16 @@ jobs:
 ## 创建任务 worktree
 
 ```bash
-cd ~/code/xlib-standard
+cd ~/code/resiliencx
 
 git fetch origin
 
 git worktree add \
-  ~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001 \
+  ~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001 \
   -b goal/GOAL-20260603-001/TASK-001 \
   origin/main
 
-cd ~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+cd ~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
 
 make worktree-check
 ```
@@ -10786,7 +10786,7 @@ make release-check-all
 ## 合并后清理
 
 ```bash
-git worktree remove ~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+git worktree remove ~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
 git worktree prune
 ```
 
@@ -10964,12 +10964,12 @@ make pr-check
 
 # 270. kernel Adoption Pilot
 
-xlib-standard 自证通过后，下一步不是全量推广，而是先拿 `kernel` 做试点。
+resiliencx 自证通过后，下一步不是全量推广，而是先拿 `kernel` 做试点。
 
 ## 目标
 
 ```text
-验证 xlib-standard Goal Runtime 是否能被 L0 内核库采用。
+验证 resiliencx Goal Runtime 是否能被 L0 内核库采用。
 ```
 
 ## kernel 需要采用
@@ -11068,7 +11068,7 @@ reports/adoption-check.json
 ```text
 1. 不再扩规则，开始实现 Gate。
 2. 不先做自动化 Issue / PR / Release，先做裁判。
-3. 不先推广下游，先让 xlib-standard 自证。
+3. 不先推广下游，先让 resiliencx 自证。
 4. 不把 goalcli v0.1.0 做成大平台，只做最小裁判内核。
 5. 不允许 main 开发，这是所有 Agent 自动化的地基。
 6. 不允许无 Evidence DONE，这是所有交付可信度的地基。
@@ -11098,7 +11098,7 @@ v2.0 不追求全自动 Agent，不追求复杂平台，不追求一次覆盖所
 只做一件事：
 
 ```text
-建立 xlib-standard 的最小机器裁判系统。
+建立 resiliencx 的最小机器裁判系统。
 ```
 
 也就是：
@@ -11186,7 +11186,7 @@ goalcli
 
 # 277. goalcli 项目结构
 
-建议在 `xlib-standard` 内先作为本地工具实现：
+建议在 `resiliencx` 内先作为本地工具实现：
 
 ```text
 tools/goalcli/
@@ -12040,7 +12040,7 @@ make release-check-all
 现在真正应该执行的是：
 
 ```text
-1. 在 xlib-standard 新建 tools/goalcli/
+1. 在 resiliencx 新建 tools/goalcli/
 2. 实现 CheckResult 与 report writer
 3. 实现 worktree-check
 4. 接入 Makefile
@@ -12569,9 +12569,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/config"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/gitutil"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/report"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/config"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/gitutil"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/report"
 )
 
 func Check(cfg config.Config) report.CheckResult {
@@ -12645,10 +12645,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/config"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/gitutil"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/report"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/worktree"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/config"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/gitutil"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/report"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/worktree"
 )
 
 const version = "v0.1.0"
@@ -12729,7 +12729,7 @@ func runWorktreeCheck() {
 `tools/goalcli/go.mod`
 
 ```go
-module github.com/ZoneCNH/xlib-standard/tools/goalcli
+module github.com/ZoneCNH/resiliencx/tools/goalcli
 
 go 1.22
 ```
@@ -12874,16 +12874,16 @@ FAIL: worktree-check
 创建合法 worktree：
 
 ```bash
-cd ~/code/xlib-standard
+cd ~/code/resiliencx
 
 git fetch origin
 
 git worktree add \
-  ~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001 \
+  ~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001 \
   -b goal/GOAL-20260603-001/TASK-001 \
   origin/main
 
-cd ~/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+cd ~/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
 
 make worktree-check
 ```
@@ -13288,9 +13288,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/config"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/gitutil"
-	"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/report"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/config"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/gitutil"
+	"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/report"
 )
 
 var secretAssignmentPattern = regexp.MustCompile(
@@ -13517,7 +13517,7 @@ tools/goalcli/cmd/goalcli/main.go
 新增 import：
 
 ```go
-"github.com/ZoneCNH/xlib-standard/tools/goalcli/internal/secret"
+"github.com/ZoneCNH/resiliencx/tools/goalcli/internal/secret"
 ```
 
 新增 usage：

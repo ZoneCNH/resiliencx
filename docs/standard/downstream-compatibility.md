@@ -1,6 +1,6 @@
 # Downstream Compatibility
 
-`xlib-standard` 的下游兼容性必须通过真实生成库 smoke 证明，而不是只证明模板仓库自身可用。
+`resiliencx` 的下游兼容性必须通过真实生成库 smoke 证明，而不是只证明模板仓库自身可用。
 
 ## 默认下游
 

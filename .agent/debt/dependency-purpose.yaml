@@ -1,5 +1,5 @@
 schema_version: dependency-purpose/v1
-module: github.com/ZoneCNH/xlib-standard
+module: github.com/ZoneCNH/resiliencx
 policy:
   require_purpose_for_new_dependencies: true
   adr_required_for_new_runtime_dependency: true

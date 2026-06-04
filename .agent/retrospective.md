@@ -2,7 +2,7 @@
 
 ## 改进项
 
-- `xlib-standard` 的身份统一为 Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime。
+- `resiliencx` 的身份统一为 Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime。
 - 默认下游从旧示例名迁移为 `kernel`，并通过下游矩阵约束 `configx`、`observex`、`testkitx` 和 profile 库。
 - `.agent` 运行时从单一目标说明升级为 Full Goal Runtime v3.1 的对象、状态、traceability、gate、Evidence、release、review、rollback 和 patch 集合。
 
@@ -14,7 +14,7 @@
 
 ## 提示补丁
 
-- 后续创建基础库必须从 `xlib-standard` 生成，旧名仅可作为迁移历史引用。
+- 后续创建基础库必须从 `resiliencx` 生成，旧名仅可作为迁移历史引用。
 - 所有基础库必须保留 Boundary Gate、Secret Gate、Evidence Gate 和 Retrospective Patch 入口。
 
 ## Harness 补丁

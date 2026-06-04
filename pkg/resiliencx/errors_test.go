@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewErrorFormatsKindOpAndMessage(t *testing.T) {
-	err := NewError(ErrorKindValidation, "templatex.Test", "bad input", false)
+	err := NewError(ErrorKindValidation, "resiliencx.Test", "bad input", false)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -18,14 +18,14 @@ func TestNewErrorFormatsKindOpAndMessage(t *testing.T) {
 	if err.Retryable {
 		t.Fatal("expected non-retryable error")
 	}
-	if got := err.Error(); !strings.Contains(got, "validation: templatex.Test: bad input") {
+	if got := err.Error(); !strings.Contains(got, "validation: resiliencx.Test: bad input") {
 		t.Fatalf("unexpected error string: %q", got)
 	}
 }
 
 func TestWrapErrorPreservesCauseAndKind(t *testing.T) {
 	cause := context.DeadlineExceeded
-	err := WrapError(ErrorKindTimeout, "templatex.Test", "", true, cause)
+	err := WrapError(ErrorKindTimeout, "resiliencx.Test", "", true, cause)
 
 	if !IsKind(err, ErrorKindTimeout) {
 		t.Fatalf("expected timeout kind, got %v", err)
@@ -48,8 +48,8 @@ func TestErrorHandlesNilReceiverAndCauseOnlyMessage(t *testing.T) {
 	}
 
 	cause := errors.New("root cause")
-	err := &Error{Kind: ErrorKindInternal, Op: "templatex.Test", Cause: cause}
-	if got := err.Error(); got != "internal: templatex.Test: root cause" {
+	err := &Error{Kind: ErrorKindInternal, Op: "resiliencx.Test", Cause: cause}
+	if got := err.Error(); got != "internal: resiliencx.Test: root cause" {
 		t.Fatalf("cause-only Error() = %q", got)
 	}
 }
@@ -57,7 +57,7 @@ func TestErrorHandlesNilReceiverAndCauseOnlyMessage(t *testing.T) {
 func TestErrorKindFallbacksForPlainErrors(t *testing.T) {
 	err := errors.New("plain")
 	if IsKind(err, ErrorKindInternal) {
-		t.Fatal("plain errors should not match templatex error kinds")
+		t.Fatal("plain errors should not match resiliencx error kinds")
 	}
 	if got := errorKind(err); got != ErrorKindInternal {
 		t.Fatalf("errorKind(plain) = %q; want %q", got, ErrorKindInternal)
@@ -65,7 +65,7 @@ func TestErrorKindFallbacksForPlainErrors(t *testing.T) {
 }
 
 func TestContextErrorClassifiesDeadlineAsRetryableTimeout(t *testing.T) {
-	err := contextError("templatex.Test", context.DeadlineExceeded)
+	err := contextError("resiliencx.Test", context.DeadlineExceeded)
 	if !IsKind(err, ErrorKindTimeout) {
 		t.Fatalf("expected timeout kind, got %v", err)
 	}

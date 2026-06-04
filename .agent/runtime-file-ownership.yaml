@@ -56,7 +56,7 @@ owners:
     owner: ci
     review_required: true
     rationale: 本地 Gate 入口，本地与 CI 必须 parity (RULE-PARITY-001)
-  "pkg/templatex/":
+  "pkg/resiliencx/":
     owner: standard
     review_required: true
     rationale: 公共 API 模板，下游库会渲染消费，破坏性变更影响所有下游

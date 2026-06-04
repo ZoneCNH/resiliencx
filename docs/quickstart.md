@@ -1,6 +1,6 @@
 # 快速开始
 
-本指南用于在本地复核 xlib-standard 的标准、门禁与证据链，不代表下游 kernel/configx 已通过。
+本指南用于在本地复核 resiliencx 的标准、门禁与证据链，不代表下游 kernel/configx 已通过。
 
 ## 环境
 

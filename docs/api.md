@@ -23,4 +23,4 @@
 
 ## 生成对齐
 
-使用 `scripts/render_template.sh` 生成具体基础库时，公共包目录会从 `pkg/templatex` 移动到 `pkg/{{PACKAGE_NAME}}`，代码 imports、文档占位符和 module path 会同步替换。
+使用 `scripts/render_template.sh` 生成具体基础库时，公共包目录会从 `pkg/resiliencx` 移动到 `pkg/{{PACKAGE_NAME}}`，代码 imports、文档占位符和 module path 会同步替换。

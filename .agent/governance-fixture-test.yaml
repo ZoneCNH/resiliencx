@@ -1,4 +1,4 @@
-schema: xlib-standard.governance-fixture-test.v1
+schema: resiliencx.governance-fixture-test.v1
 status: planned
 fixtures:
   - goalcli-report

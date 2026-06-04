@@ -1,4 +1,4 @@
-schema: xlib-standard.changelog.v1
+schema: resiliencx.changelog.v1
 status: planned
 required_sections:
   - Added

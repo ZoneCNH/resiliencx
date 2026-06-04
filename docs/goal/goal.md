@@ -1,7 +1,7 @@
-# xlib-standard 完整 Goal 可执行方案 v2.9.3 Complete
+# resiliencx 完整 Goal 可执行方案 v2.9.3 Complete
 
 > 版本：v2.9.3 Complete
-> 目标仓库：`https://github.com/ZoneCNH/xlib-standard`  
+> 目标仓库：`https://github.com/ZoneCNH/resiliencx`  
 > 首批下游验证：`github.com/ZoneCNH/kernel`、`github.com/ZoneCNH/configx`
 > 执行标准：Goal Runtime v3.1 + First-Principles + Harness Engineering + Karpathy 四原则 + Self-improving + AutoResearch + Compound Engineering
 > 生成日期：2026-06-02
@@ -16,7 +16,7 @@
 第三轮审计发现，v2.9.2 已补齐大量落地缺口，但仍有 3 类风险需要集成进完整版：
 
 1. **补丁附录化风险**：v2.9.2 的新增 Issue、命令、Makefile、验收标准散落在后文，Agent 实施时可能只读取前文 P0/P1/P2 Pack 而漏掉补丁。
-2. **命名与自符合风险**：旧名 `baselib-template` / `foundationx` 缺少明确 guard；且下游 adoption 前应先完成 `xlib-standard` 自身 standard-source profile attestation。
+2. **命名与自符合风险**：旧名 `baselib-template` / `foundationx` 缺少明确 guard；且下游 adoption 前应先完成 `resiliencx` 自身 standard-source profile attestation。
 3. **执行入口漂移风险**：Issue Registry、Command Registry、Makefile Target Registry、Policy Schema、Toolchain、Evidence Path、GitHub Settings、Runtime File Ownership 必须统一进入 SSOT，否则后续多 Agent 实施会漂移。
 
 因此 v2.9.3 的裁决是：
@@ -34,7 +34,7 @@ v2.9.3 Complete = v2.9 主方案
 
 ## 1. 最终目标
 
-`xlib-standard` 的目标不是做一个普通 Go 模板，而是升级为：
+`resiliencx` 的目标不是做一个普通 Go 模板，而是升级为：
 
 ```text
 Standard Source
@@ -60,7 +60,7 @@ v2.9.3 完成后必须具备：
 
 ### 2.1 问题本质
 
-`xlib-standard` 的本质问题不是“模板怎么写”，而是：
+`resiliencx` 的本质问题不是“模板怎么写”，而是：
 
 > 如何让所有基础库在多 Agent、多 worktree、多仓库、多 release 阶段中，持续遵守同一套可验证工程文明。
 
@@ -87,7 +87,7 @@ LIMIT-002  不必一开始做 Fleet Dashboard；P2 完成后再做。
 LIMIT-003  不必一开始做 Formal Model Checking；Release Readiness Formula 先足够。
 LIMIT-004  不必所有 Article 都变成 Gate；ACTIVE + BLOCKING 才必须 Gate。
 LIMIT-005  不必所有任务 Full Runtime；按 C0-C5 复杂度分级。
-LIMIT-006  不必所有下游同时迁移；先 xlib-standard self，再 kernel，再 configx。
+LIMIT-006  不必所有下游同时迁移；先 resiliencx self，再 kernel，再 configx。
 ```
 
 ---
@@ -116,7 +116,7 @@ git fetch origin
 git checkout main
 git pull --ff-only origin main
 
-git worktree add ../.worktrees/xlib-standard/<issue-id>   -b <branch-name> main
+git worktree add ../.worktrees/resiliencx/<issue-id>   -b <branch-name> main
 ```
 
 ### 3.3 强制 Agent Teams
@@ -176,10 +176,10 @@ P2: Runtime & Conformance Automation
 
 ```yaml
 goal_id: GOAL-20260602-001
-title: xlib-standard v2.9.3 Constitution Runtime & Conformance Automation
+title: resiliencx v2.9.3 Constitution Runtime & Conformance Automation
 mode: full
 owner: lead
-repository: github.com/ZoneCNH/xlib-standard
+repository: github.com/ZoneCNH/resiliencx
 state_machine:
   - INIT
   - CONTEXT_READY
@@ -211,7 +211,7 @@ success_criteria:
   - Makefile targets in baseline registry exist and fail non-zero on failure.
   - CI invokes Makefile and does not duplicate Gate logic.
   - Release Manifest Skeleton can be generated and checksummed.
-  - xlib-standard self-conformance attestation is generated before downstream adoption.
+  - resiliencx self-conformance attestation is generated before downstream adoption.
   - kernel/configx adoption can run in patch-only/dry-run mode.
 ```
 
@@ -349,7 +349,7 @@ GOWORK=off go run ./cmd/goalcli makefile-baseline
 | P1-018 | GitHub Settings Apply and Verify Protocol   | github-governance | C3         | .agent/github-settings.yaml; docs/standard/github-settings.md; scripts/github/verify_settings.sh                                                                                                                                                  | goalcli github-settings --verify; goalcli codeowners                     | Required checks/branch protection/rulesets 可验证；apply 不隐式执行                            |
 | P1-019 | Toolchain Pinning Baseline                  | supply-chain      | C2         | .tool-versions; .agent/toolchain.yaml; docs/standard/toolchain.md                                                                                                                                                                                 | goalcli toolchain; make lint; make security                               | 本地/CI 工具版本 SSOT；禁止 required tools 使用 latest                                         |
 | P1-020 | Evidence Artifact Path and Retention Policy | evidence          | C2         | .agent/evidence-artifact-policy.yaml; docs/standard/evidence-artifacts.md                                                                                                                                                                         | goalcli evidence-artifacts                                                | release/evidence 与 release/manifest 路径、retention、DONE links 规范                          |
-| P1-021 | Naming Consistency and Legacy Name Guard    | docs/governance   | C2         | .agent/naming-policy.yaml; docs/standard/naming.md; internal/goalcli/naming/\*\*                                                                                                                                                                 | goalcli naming; docs-check                                                | 默认名称统一 xlib-standard/kernel；旧名 baselib-template/foundationx 仅允许迁移/ADR/兼容上下文 |
+| P1-021 | Naming Consistency and Legacy Name Guard    | docs/governance   | C2         | .agent/naming-policy.yaml; docs/standard/naming.md; internal/goalcli/naming/\*\*                                                                                                                                                                 | goalcli naming; docs-check                                                | 默认名称统一 resiliencx/kernel；旧名 baselib-template/foundationx 仅允许迁移/ADR/兼容上下文 |
 
 ### 8.1 P1 验收命令
 
@@ -383,7 +383,7 @@ GOWORK=off make release-check
 | P2-012 | Downstream Adoption Modes                  | downstream-adoption | C4         | .agent/downstream-adoption-modes.yaml; docs/standard/downstream-adoption-modes.md; internal/goalcli/downstream/adoption_modes.go     | goalcli downstream-adoption --mode patch-only --repo kernel/configx                                           | 支持 local_path / patch_only / pr_plan；无授权不跨仓写                                              |
 | P2-013 | Runtime File Ownership and Merge Safety    | runtime-upgrade     | C4         | .agent/runtime-file-ownership.yaml; docs/standard/runtime-file-ownership.md; internal/goalcli/runtime/file_ownership.go              | goalcli runtime-file-ownership; goalcli upgrade-runtime --dry-run                                            | XLIB_OWNED/USER_OWNED/MERGE_REQUIRED/GENERATED；不覆盖用户文件                                      |
 | P2-014 | Downstream Baseline Scan Before Adoption   | downstream-adoption | C4         | .agent/downstream-baseline-scan.yaml; docs/standard/downstream-baseline-scan.md; internal/goalcli/downstream/baseline_scan.go        | goalcli downstream-baseline --repo kernel/configx --mode patch-only                                           | adoption 前扫描 module/package/Makefile/CI/contracts/docs/x.go/secret/release flow，输出 risk score |
-| P2-015 | xlib-standard Self-Conformance Attestation | conformance         | C3         | release/manifest/conformance-attestation.json; docs/reports/self-conformance.md                                                       | goalcli attest-conformance --profile standard-source                                                          | 下游 adoption 前先证明 xlib-standard 自身符合 standard-source profile                               |
+| P2-015 | resiliencx Self-Conformance Attestation | conformance         | C3         | release/manifest/conformance-attestation.json; docs/reports/self-conformance.md                                                       | goalcli attest-conformance --profile standard-source                                                          | 下游 adoption 前先证明 resiliencx 自身符合 standard-source profile                               |
 
 ### 9.1 P2 验收命令
 
@@ -733,7 +733,7 @@ release_ready =
 ```yaml
 file_classes:
   XLIB_OWNED:
-    description: xlib-standard may generate and update
+    description: resiliencx may generate and update
   USER_OWNED:
     description: never overwrite
   MERGE_REQUIRED:
@@ -781,7 +781,7 @@ adoption risk score
 首批顺序：
 
 ```text
-1. xlib-standard self-conformance -> standard-source
+1. resiliencx self-conformance -> standard-source
 2. kernel -> l0-kernel
 3. configx -> l1-shared
 ```
@@ -844,7 +844,7 @@ Third-party policy admission
 默认名称：
 
 ```text
-standard repo: xlib-standard
+standard repo: resiliencx
 L0 downstream: kernel
 old template name: baselib-template only allowed in migration docs context
 old downstream example: foundationx only allowed in migration docs context
@@ -877,7 +877,7 @@ old downstream example: foundationx only allowed in migration docs context
 | RISK-010 | Runtime install 覆盖下游手写内容           |    P1 | runtime file ownership + dry-run         |
 | RISK-011 | 下游 adoption 未扫描 baseline              |    P1 | downstream baseline scan                 |
 | RISK-012 | 旧名污染生成库                             |    P1 | naming guard                             |
-| RISK-013 | xlib-standard 自身未证明符合就要求下游符合 |    P1 | self-conformance attestation             |
+| RISK-013 | resiliencx 自身未证明符合就要求下游符合 |    P1 | self-conformance attestation             |
 
 ---
 
@@ -952,7 +952,7 @@ old downstream example: foundationx only allowed in migration docs context
 ```text
 1. P2-001..P2-015 done.
 2. p2-runtime-check passes.
-3. xlib-standard self-conformance attestation exists.
+3. resiliencx self-conformance attestation exists.
 4. kernel/configx baseline scan reports exist.
 5. kernel/configx patch-only adoption reports exist.
 ```
@@ -1010,7 +1010,7 @@ GOWORK=off go run ./cmd/goalcli cli-contract
 ```text
 1. P1 Governance Hardening 全部完成。
 2. P2 Runtime & Conformance Automation 全部完成。
-3. xlib-standard self-conformance attestation 生成。
+3. resiliencx self-conformance attestation 生成。
 4. kernel/configx baseline scan 生成。
 5. kernel/configx patch-only adoption reports 生成。
 ```
@@ -1030,7 +1030,7 @@ GOWORK=off go test ./...
 ## 25. Agent Team 可执行 Prompt
 
 ```text
-You are executing GOAL-20260602-001 for github.com/ZoneCNH/xlib-standard.
+You are executing GOAL-20260602-001 for github.com/ZoneCNH/resiliencx.
 
 Hard constraints:
 - Do not develop on main.
@@ -1078,7 +1078,7 @@ P3/P4
 最终裁决：
 
 ```text
-xlib-standard v2.9.3 Complete 的核心目标，
+resiliencx v2.9.3 Complete 的核心目标，
 是把前面所有宪法、方法论、Harness、Agent Teams、Self-improving、AutoResearch、Compound Engineering
 收敛成一个可执行工程内核：
 P0 先防灾难，

@@ -178,7 +178,7 @@ Evidence ID
 
 ```yaml
 allowed_repos:
-  - xlib-standard
+  - resiliencx
 allowed_paths:
   - .agent/
   - scripts/harness/
@@ -246,7 +246,7 @@ lock_id: LOCK-TASK-GOAL-20260603-001-001
 owner: agent-01
 goal_id: GOAL-20260603-001
 task_id: TASK-GOAL-20260603-001-001
-worktree: /home/zone/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+worktree: /home/zone/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
 created_at: 2026-06-03T16:30:00+09:00
 expires_at: 2026-06-03T20:30:00+09:00
 ```
@@ -564,7 +564,7 @@ PR 内容漂移
 
 <sub>level: P1 · status: active · enforced_by: `goalcli boundary` · exit: 1 · source: §113 L4761</sub>
 
-推荐在 `xlib-standard` 中落地：
+推荐在 `resiliencx` 中落地：
 
 ```text
 .agent/
@@ -656,7 +656,7 @@ runtime:
   worktree_root: ~/code/.worktrees
 
 repositories:
-  default: xlib-standard
+  default: resiliencx
   root: .
   remote: origin
 
@@ -1255,7 +1255,7 @@ full design
 接入命令：
 
 ```bash
-goalcli bootstrap repo --profile xlib-standard
+goalcli bootstrap repo --profile resiliencx
 ```
 
 必须生成或检查：

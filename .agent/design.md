@@ -2,7 +2,7 @@
 
 ## 结构
 
-- `pkg/templatex` 是可编译 Go 参考模板的公共 API 占位包。
+- `pkg/resiliencx` 是可编译 Go 参考模板的公共 API 占位包。
 - `internal/` 包含模板自检、release manifest、CLI gate 等仓库内部工具。
 - `scripts/` 包含文档、边界、contract、secret、integration 和 release gate。
 - `.github/workflows/` 承载 CI、集成、安全和发布检查。

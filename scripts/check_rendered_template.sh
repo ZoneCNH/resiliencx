@@ -37,8 +37,8 @@ if [[ ! -d "$repo_dir/pkg/$package_name" ]]; then
   exit 1
 fi
 
-if [[ "$package_name" != "templatex" && -e "$repo_dir/pkg/templatex" ]]; then
-  echo "ERROR: stale pkg/templatex directory still exists" >&2
+if [[ "$package_name" != "resiliencx" && -e "$repo_dir/pkg/resiliencx" ]]; then
+  echo "ERROR: stale pkg/resiliencx directory still exists" >&2
   exit 1
 fi
 
@@ -119,23 +119,23 @@ scan_template_placeholders() {
 }
 
 scan_template_placeholders
-scan_fixed "github.com/ZoneCNH/xlib-standard" "module path"
+scan_fixed "github.com/ZoneCNH/resiliencx" "module path"
 scan_fixed "github.com/ZoneCNH/baselib-template" "module path"
 
-if [[ "$module_name" != "xlib-standard" ]]; then
-  scan_fixed "xlib-standard" "module name"
+if [[ "$module_name" != "resiliencx" ]]; then
+  scan_fixed "resiliencx" "module name"
 fi
 
 if [[ "$module_name" != "baselib-template" ]]; then
   scan_fixed "baselib-template" "module name"
 fi
 
-if [[ "$package_name" != "templatex" ]]; then
-  scan_fixed "pkg/templatex" "package directory reference"
-  scan_fixed "templatex_" "metrics prefix"
-  scan_fixed "Templatex" "title-case package name"
-  scan_fixed "TEMPLATEX" "upper-case package name"
-  scan_regex '\btemplatex\b' "package name"
+if [[ "$package_name" != "resiliencx" ]]; then
+  scan_fixed "pkg/resiliencx" "package directory reference"
+  scan_fixed "resiliencx_" "metrics prefix"
+  scan_fixed "Resiliencx" "title-case package name"
+  scan_fixed "RESILIENCX" "upper-case package name"
+  scan_regex '\bresiliencx\b' "package name"
 fi
 
 echo "rendered template check passed: $module_name"

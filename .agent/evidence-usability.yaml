@@ -1,5 +1,5 @@
 schema_version: "1.0"
-module: xlib-standard
+module: resiliencx
 truth_state: .agent/truth-state.yaml
 purpose: "区分 artifact exists、checksum verified、replayable 与 release usable。"
 

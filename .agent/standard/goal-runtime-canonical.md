@@ -1,6 +1,6 @@
 # Goal Runtime Canonical Standard v1.0
 
-> 本文档是 xlib-standard 的 Goal Runtime **唯一权威规格**。  
+> 本文档是 resiliencx 的 Goal Runtime **唯一权威规格**。  
 > 原始演进合集见 `.agent/inbox/goal-patch-v1.0-to-v2.2.md`（只读归档，13856 行）。  
 > 本文档为裁决版，目标 ≤ 800 行，只保留经过审批的、有机器化等价实现的规则。
 
@@ -10,7 +10,7 @@
 
 | 对象 | 是否适用 |
 |---|---|
-| `xlib-standard` 本仓库 | ✅ |
+| `resiliencx` 本仓库 | ✅ |
 | 下游库（kernel / configx / observex / ...） | ✅（通过 Adoption Manifest） |
 | 应用层（x.go 等） | 仅作为消费方约束 |
 

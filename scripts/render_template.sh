@@ -6,8 +6,8 @@ usage() {
 Usage:
   scripts/render_template.sh --module-name NAME --module-path PATH --package-name NAME --out DIR
 
-Renders xlib-standard into a concrete base library by copying the repository,
-moving pkg/templatex to pkg/<package>, and replacing template identifiers.
+Renders resiliencx into a concrete base library by copying the repository,
+moving pkg/resiliencx to pkg/<package>, and replacing template identifiers.
 USAGE
 }
 
@@ -111,7 +111,7 @@ out_dir="$out_abs"
   tar -xf -
 )
 
-if [[ "$package_name" != "templatex" ]]; then
+if [[ "$package_name" != "resiliencx" ]]; then
   mkdir -p "$out_dir/pkg"
   mv "$out_dir/pkg/templatex" "$out_dir/pkg/$package_name"
 fi
@@ -139,9 +139,9 @@ replace_in_text_files() {
 replace_in_text_files '{{MODULE_NAME}}' "$module_name"
 replace_in_text_files '{{MODULE_PATH}}' "$module_path"
 replace_in_text_files '{{PACKAGE_NAME}}' "$package_name"
-replace_in_text_files 'github.com/ZoneCNH/xlib-standard' "$module_path"
+replace_in_text_files 'github.com/ZoneCNH/resiliencx' "$module_path"
 replace_in_text_files 'github.com/ZoneCNH/baselib-template' "$module_path"
-replace_in_text_files 'xlib-standard' "$module_name"
+replace_in_text_files 'resiliencx' "$module_name"
 replace_in_text_files 'baselib-template' "$module_name"
 package_title="$(printf '%s%s' "$(printf '%s' "${package_name:0:1}" | tr '[:lower:]' '[:upper:]')" "${package_name:1}")"
 package_upper="$(printf '%s' "$package_name" | tr '[:lower:]' '[:upper:]')"

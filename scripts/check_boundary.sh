@@ -41,7 +41,7 @@ fi
 echo "checking forbidden rendered runtime dependency on template package..."
 
 module_path="$(go list -m)"
-template_module_path="github.com/ZoneCNH/xlib-standard"
+template_module_path="github.com/ZoneCNH/resiliencx"
 
 if [[ "$module_path" != "$template_module_path" ]]; then
   search_roots=()
@@ -57,7 +57,7 @@ if [[ "$module_path" != "$template_module_path" ]]; then
   fi
 
   while IFS= read -r file; do
-    if grep -Fq "${template_module_path}/pkg/templatex" "$file"; then
+    if grep -Fq "${template_module_path}/pkg/resiliencx" "$file"; then
       echo "ERROR: rendered runtime code must not depend on template package: $file"
       exit 1
     fi

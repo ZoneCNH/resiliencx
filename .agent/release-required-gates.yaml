@@ -1,5 +1,5 @@
 schema_version: "1.0"
-module: xlib-standard
+module: resiliencx
 source_harness: .agent/harness.yaml
 truth_state: .agent/truth-state.yaml
 purpose: "列出 release required gate 与 first-PR/MVA 当前证据等级；本文件不运行 gate、不改变 release-check。"

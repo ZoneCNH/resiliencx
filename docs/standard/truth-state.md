@@ -4,7 +4,7 @@ Truth-State 是 first-PR/MVA 的治理事实分离标准，用于把“已登记
 
 ## 目的
 
-`xlib-standard` 的治理结论必须来自可核验事实，不能把 registry、baseline scan、dry-run、artifact upload 或 downstream 声明混写为同一个 passed 结论。
+`resiliencx` 的治理结论必须来自可核验事实，不能把 registry、baseline scan、dry-run、artifact upload 或 downstream 声明混写为同一个 passed 结论。
 
 first-PR/MVA 必须至少区分：
 

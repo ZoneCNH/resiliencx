@@ -2,7 +2,7 @@
 
 ## 目标
 
-对齐独立标准仓库 [`xlib-standard`](https://github.com/ZoneCNH/xlib-standard)，并在同一仓库中提供 Go 参考模板、generator、Harness 和 Evidence Runtime。
+对齐独立标准仓库 [`resiliencx`](https://github.com/ZoneCNH/resiliencx)，并在同一仓库中提供 Go 参考模板、generator、Harness 和 Evidence Runtime。
 
 ## 需求
 

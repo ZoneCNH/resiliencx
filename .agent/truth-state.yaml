@@ -1,8 +1,8 @@
 schema_version: "1.0"
-module: xlib-standard
+module: resiliencx
 scope:
   name: first-pr-mva-truth-state
-  source: /home/xlib-standard/.worktree/patch.md
+  source: /home/resiliencx/.worktree/patch.md
   acceptance_command: "GOWORK=off XLIB_CONTEXT=ci_pull_request make governance-check"
   optional_commands:
     - "GOWORK=off go test ./cmd/goalcli ./contracts"

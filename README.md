@@ -1,15 +1,15 @@
-# xlib-standard
+# resiliencx
 
-`xlib-standard` 是基础库标准与交付运行时仓库，承担五类职责：**Standard Source**、**Go Reference Template**、**Generator**、**Harness** 和 **Evidence Runtime**。它把基础库的公共 API、配置、错误、健康检查、metrics、测试、release Evidence、Goal Runtime 和下游生成规则放在同一套可验证工件中维护。
+`resiliencx` 是基础库标准与交付运行时仓库，承担五类职责：**Standard Source**、**Go Reference Template**、**Generator**、**Harness** 和 **Evidence Runtime**。它把基础库的公共 API、配置、错误、健康检查、metrics、测试、release Evidence、Goal Runtime 和下游生成规则放在同一套可验证工件中维护。
 
 旧名 `baselib-template` 和示例名 `foundationx` 只允许出现在迁移文档语境中；新的默认下游集成目标是 `kernel`，生成库包括 `configx`、`observex`、`testkitx`、`postgresx`、`redisx`、`kafkax`、`taosx`、`ossx` 和 `clickhousex`。
 
-标准源仓库 URL 为 [`xlib-standard`](https://github.com/ZoneCNH/xlib-standard)。本仓库不再把标准源与模板实现拆成两个角色：标准文本、模板、generator、Harness gate 和 Evidence runtime 必须一起通过 release gate 验证。
+标准源仓库 URL 为 [`resiliencx`](https://github.com/ZoneCNH/resiliencx)。本仓库不再把标准源与模板实现拆成两个角色：标准文本、模板、generator、Harness gate 和 Evidence runtime 必须一起通过 release gate 验证。
 
 ## 五类职责
 
 - **Standard Source**：维护基础库 P0 标准、仓库角色、分层、模块边界、DoD、安全、release 和 Evidence 协议。
-- **Go Reference Template**：提供可编译参考包 `pkg/templatex`、内部辅助、examples、contracts 和 testkit，用于证明标准可落地。
+- **Go Reference Template**：提供可编译参考包 `pkg/resiliencx`、内部辅助、examples、contracts 和 testkit，用于证明标准可落地。
 - **Generator**：通过 [docs/generation.md](docs/generation.md) 与 `scripts/render_template.sh` 渲染具体基础库 module path、package name、README、docs 和 contracts。
 - **Harness**：通过 Makefile、scripts、CI 和 [.agent/harness.yaml](.agent/harness.yaml) 固化 required、extended、docs、boundary、integration、score 和 final gate。
 - **Evidence Runtime**：通过 [docs/standard/evidence-protocol.md](docs/standard/evidence-protocol.md)、[docs/release.md](docs/release.md)、[.agent](.agent/) 和 `release/manifest/latest.json` 记录可追溯完成状态。
@@ -24,7 +24,7 @@
 
 ## 标准结构
 
-- `pkg/templatex`：公共包 API 的可编译参考实现；渲染后会移动到 `pkg/<package-name>`。
+- `pkg/resiliencx`：公共包 API 的可编译参考实现；渲染后会移动到 `pkg/<package-name>`。
 - `internal/`：脱敏、校验和运行时说明等内部辅助代码。
 - `testkit/`：可复用测试夹具和断言。
 - `examples/`：最小使用示例。
@@ -37,13 +37,13 @@
 ## 文档入口
 
 - [基础库标准索引](docs/standard/README.md)：P0 标准入口，覆盖仓库角色、分层、DoD、Harness、Evidence、release、安全和 generator 契约。
-- [基础库总标准](docs/standard/xlib-standard.md)：同步 [`xlib-standard`](https://github.com/ZoneCNH/xlib-standard) 的公共 API、配置、错误、健康检查、metrics、测试、安全和发布规则。
-- [仓库角色](docs/standard/repository-roles.md)：区分 `xlib-standard`、`kernel`、生成基础库和 `x.go`。
+- [基础库总标准](docs/standard/resiliencx.md)：同步 [`resiliencx`](https://github.com/ZoneCNH/resiliencx) 的公共 API、配置、错误、健康检查、metrics、测试、安全和发布规则。
+- [仓库角色](docs/standard/repository-roles.md)：区分 `resiliencx`、`kernel`、生成基础库和 `x.go`。
 - [模块边界](docs/standard/module-boundary.md)：定义标准、模板、generator、Harness、Evidence 与下游库边界。
 - [下游矩阵](docs/downstream-matrix.md)：列出 `kernel` 与所有目标库的 module path、package、layer、允许依赖和禁止依赖。
-- [下游同步策略](docs/downstream-sync-policy.md)：定义 `xlib-standard` 变更如何同步到 `kernel`、L1/L2 基础库，以及 `x.go` 的消费方边界。
+- [下游同步策略](docs/downstream-sync-policy.md)：定义 `resiliencx` 变更如何同步到 `kernel`、L1/L2 基础库，以及 `x.go` 的消费方边界。
 - [x.go 集成边界](docs/xgo-integration-boundary.md)：说明 `x.go` 只能作为调用方组合层，基础库不得反向依赖。
-- [迁移指南](docs/migration/baselib-template-to-xlib-standard.md)：记录旧名到新身份的迁移规则。
+- [迁移指南](docs/migration/baselib-template-to-resiliencx.md)：记录旧名到新身份的迁移规则。
 - [Harness gate](docs/standard/harness-gates.md)：required、extended、generator、docs、score 和 final gate 命令。
 - [Evidence 协议](docs/standard/evidence-protocol.md)：`DONE with evidence:` 和 release manifest 要求。
 - [测试策略](docs/testing.md)：单元、示例 smoke、release quality 和 release manifest fixture 隔离要求。

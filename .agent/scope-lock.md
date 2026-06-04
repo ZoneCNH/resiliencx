@@ -1,6 +1,6 @@
 # Scope Lock
 
-`xlib-standard` 是标准、模板、generator、Harness 与 Evidence 的权威源。P0/P1/P2 gate 只能修改当前 worker worktree 中的源文件，不得写 `/home/xlib-standard` 主工作区。
+`resiliencx` 是标准、模板、generator、Harness 与 Evidence 的权威源。P0/P1/P2 gate 只能修改当前 worker worktree 中的源文件，不得写 `/home/resiliencx` 主工作区。
 
 强制范围：
 

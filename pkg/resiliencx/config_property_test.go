@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 func TestConfigSanitizeSecretProperty(t *testing.T) {
 	property := func(secret string) bool {
 		sanitized := Config{
-			Name:    "templatex",
+			Name:    "resiliencx",
 			Timeout: time.Second,
 			Secret:  secret,
 		}.Sanitize()
@@ -31,7 +31,7 @@ func TestConfigSanitizeSecretProperty(t *testing.T) {
 
 func TestConfigNegativeTimeoutInvariant(t *testing.T) {
 	for _, timeout := range []time.Duration{-1, -time.Nanosecond, -time.Second} {
-		err := Config{Name: "templatex", Timeout: timeout}.Validate()
+		err := Config{Name: "resiliencx", Timeout: timeout}.Validate()
 		if err == nil || !IsKind(err, ErrorKindValidation) {
 			t.Fatalf("negative timeout must return validation error, got %v", err)
 		}

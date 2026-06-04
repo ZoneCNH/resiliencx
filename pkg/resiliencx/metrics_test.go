@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"sync"
@@ -128,7 +128,7 @@ func cloneLabels(labels map[string]string) map[string]string {
 func TestNoopMetricsAcceptsCalls(t *testing.T) {
 	metrics := NoopMetrics{}
 
-	metrics.IncCounter(MetricClientCreatedTotal, map[string]string{"name": "templatex"})
+	metrics.IncCounter(MetricClientCreatedTotal, map[string]string{"name": "resiliencx"})
 	metrics.ObserveHistogram(MetricClientHealthLatencyMS, 1, nil)
 	metrics.SetGauge(MetricClientHealthStatus, 1, map[string]string{"status": string(HealthHealthy)})
 }

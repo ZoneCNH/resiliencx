@@ -17,7 +17,7 @@ body:
     attributes:
       label: 标准区域
       options:
-        - xlib-standard
+        - resiliencx
         - repository-roles
         - layering
         - module-boundary

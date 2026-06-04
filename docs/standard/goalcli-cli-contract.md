@@ -1,6 +1,6 @@
 # goalcli CLI Contract
 
-`goalcli` 是 xlib-standard v2.9.3 的 machine-verifiable gate surface。除明确委托给既有脚本的命令外，所有命令必须输出包含 `command`、`status`、可选 `details` 和可选 `gaps` 的 JSON report，并符合 `contracts/goalcli-report.schema.json`。
+`goalcli` 是 resiliencx v2.9.3 的 machine-verifiable gate surface。除明确委托给既有脚本的命令外，所有命令必须输出包含 `command`、`status`、可选 `details` 和可选 `gaps` 的 JSON report，并符合 `contracts/goalcli-report.schema.json`。
 
 该 CLI 只执行本地非破坏性 contract checks：不读取真实 secrets，不连接外部生产系统，也不修改 downstream 仓库。涉及 GitHub、release、runtime 或 downstream 状态的命令，在当前版本中以本地 contract、manifest 和 dry-run 证据表达。
 

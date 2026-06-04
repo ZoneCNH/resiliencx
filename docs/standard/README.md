@@ -1,11 +1,11 @@
-# xlib-standard 基础库标准索引
+# resiliencx 基础库标准索引
 
-[`xlib-standard`](https://github.com/ZoneCNH/xlib-standard) 是基础库 Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime 的统一仓库。旧 `baselib-template` 名称只作为迁移兼容上下文保留；旧 `foundationx` 默认下游名迁移为 `kernel`。
+[`resiliencx`](https://github.com/ZoneCNH/resiliencx) 是基础库 Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime 的统一仓库。旧 `baselib-template` 名称只作为迁移兼容上下文保留；旧 `foundationx` 默认下游名迁移为 `kernel`。
 
 ## 必读标准
 
-- [基础库总标准](xlib-standard.md)：公共 API、配置、错误、健康检查、metrics、测试、安全和发布规则。
-- [仓库角色](repository-roles.md)：`xlib-standard`、`kernel`、各生成库和 `x.go` 的职责。
+- [基础库总标准](resiliencx.md)：公共 API、配置、错误、健康检查、metrics、测试、安全和发布规则。
+- [仓库角色](repository-roles.md)：`resiliencx`、`kernel`、各生成库和 `x.go` 的职责。
 - [分层](layering.md)：Standard、L0、L1、L2、应用组合层关系。
 - [模块边界](module-boundary.md)：允许/禁止内容、module path 和 `x.go` 边界。
 - [完成定义](dod.md)：基础库 DONE with evidence 的最低标准。
@@ -27,8 +27,8 @@
 - [供应链与 Evidence](../supply-chain.md)：workflow Action SHA pinning、固定 `govulncheck` 版本、manifest 校验和 CI artifact 对齐。
 - [Release Scorecard](../scorecard.md)：`goalcli score --min 9.8` 的评分维度、阈值和语义边界。
 - [独立审计 2026-06-02](../independent-audit-20260602.md)：审计发现、修复状态和剩余远端验证缺口。
-- [迁移指南](../migration/baselib-template-to-xlib-standard.md)：旧名迁移规则。
-- [目标 ADR-001](../adr/ADR-20260602-001-xlib-standard-role.md)：合并五类职责的身份决策。
+- [迁移指南](../migration/baselib-template-to-resiliencx.md)：旧名迁移规则。
+- [目标 ADR-001](../adr/ADR-20260602-001-resiliencx-role.md)：合并五类职责的身份决策。
 - [目标 ADR-002](../adr/ADR-20260602-002-kernel-rename.md)：默认下游名迁移到 `kernel`。
 
 ## Gate

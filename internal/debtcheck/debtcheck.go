@@ -90,7 +90,7 @@ func Run(opts Options) (Report, error) {
 	report := Report{
 		SchemaVersion: SchemaVersion,
 		Mode:          opts.Mode,
-		ActiveProfile: "xlib-standard-debt-v1",
+		ActiveProfile: "resiliencx-debt-v1",
 		MinScore:      opts.MinScore,
 		Digests: Digests{
 			Rules:             digestFile(opts.Root, opts.ConfigPath),

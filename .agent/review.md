@@ -5,7 +5,7 @@
 - 独立 Go module。
 - 不依赖 `x.go`。
 - 存在标准目录结构。
-- `pkg/templatex` 可编译。
+- `pkg/resiliencx` 可编译。
 - 测试存在且通过。
 - Makefile 和脚本存在。
 - CI 工作流存在。

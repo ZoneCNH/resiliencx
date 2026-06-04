@@ -1,5 +1,5 @@
 schema_version: debt-rules/v1
-active_profile: xlib-standard-debt-v1
+active_profile: resiliencx-debt-v1
 minimum_score: 9.8
 sections:
   architecture:

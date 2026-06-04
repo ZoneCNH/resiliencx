@@ -14,7 +14,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API 形状；`Version` 元数据同步到 `v0.4.6`。
+- 本版本不改变 `pkg/resiliencx` 公共 API 形状；`Version` 元数据同步到 `v0.4.6`。
 
 ## v0.4.5 - 2026-06-03
 
@@ -31,7 +31,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅更新版本元数据、CI 治理和文档链接。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅更新版本元数据、CI 治理和文档链接。
 
 ## v0.4.3 - 2026-06-03
 
@@ -47,7 +47,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅收紧 downstream debt 和 release Evidence 治理。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅收紧 downstream debt 和 release Evidence 治理。
 
 ## v0.4.2 - 2026-06-03
 
@@ -62,17 +62,17 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅修复 release Evidence/generator 交付口径。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅修复 release Evidence/generator 交付口径。
 
 ## v0.4.1 - 2026-06-03
 
 ### 治理
 
-- 对齐 release 版本口径到 `v0.4.1`，同步 `templatex.Version`、release manifest 默认版本、preflight 命令示例和 Harness 记录。
+- 对齐 release 版本口径到 `v0.4.1`，同步 `resiliencx.Version`、release manifest 默认版本、preflight 命令示例和 Harness 记录。
 
 ### 兼容性
 
-- 本版本仅更新发布治理与版本元数据，不改变 `pkg/templatex` 公共 API 行为。
+- 本版本仅更新发布治理与版本元数据，不改变 `pkg/resiliencx` 公共 API 行为。
 
 ## v0.4.0 - 2026-06-03
 
@@ -83,7 +83,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅收紧发布 Evidence 校验与文档门禁。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅收紧发布 Evidence 校验与文档门禁。
 
 ## v0.3.8 - 2026-06-02
 
@@ -95,7 +95,7 @@
 
 ### 兼容性
 
-- 本版本仅包含治理和文档更新，不改变 `pkg/templatex` 公共 API。
+- 本版本仅包含治理和文档更新，不改变 `pkg/resiliencx` 公共 API。
 
 ## v0.3.7 - 2026-06-02
 
@@ -107,7 +107,7 @@
 
 ### 兼容性
 
-- 本版本仅包含治理和文档更新，不改变 `pkg/templatex` 公共 API。
+- 本版本仅包含治理和文档更新，不改变 `pkg/resiliencx` 公共 API。
 
 ## v0.3.6 - 2026-06-02
 
@@ -145,7 +145,7 @@
 ### 治理
 
 - `release-final-check` 强制校验 scored release Evidence，避免仅凭局部 gate 结果推进发布。
-- 发布文档、Agent 运行时文档和标准文档统一到 `xlib-standard` 命名与 release gate 口径。
+- 发布文档、Agent 运行时文档和标准文档统一到 `resiliencx` 命名与 release gate 口径。
 - GitHub CI 与 release workflow 对齐 `GOWORK=off`、docs-check、security、contracts、boundary 和 release manifest 校验。
 
 ### 验证

@@ -4,7 +4,7 @@ set -euo pipefail
 required_files=(
   "README.md"
   "docs/standard/README.md"
-  "docs/standard/xlib-standard.md"
+  "docs/standard/resiliencx.md"
   "docs/standard/repository-roles.md"
   "docs/standard/layering.md"
   "docs/standard/module-boundary.md"
@@ -72,7 +72,7 @@ require_text "docs/standard/README.md" "release/manifest/latest.json"
 require_text "docs/standard/README.md" "release/manifest/latest.json.sha256"
 require_text "docs/standard/README.md" "FUZZ_SMOKE_TIME"
 require_text "docs/standard/README.md" "../downstream-sync-policy.md"
-require_text "docs/downstream-sync-policy.md" "xlib-standard"
+require_text "docs/downstream-sync-policy.md" "resiliencx"
 require_text "docs/downstream-sync-policy.md" "kernel"
 require_text "docs/downstream-sync-policy.md" "corekit"
 require_text "docs/downstream-sync-policy.md" "L1 基础库"
@@ -191,13 +191,13 @@ require_text "docs/standard/acceptance-matrix.md" "governance-check"
 require_text "docs/standard/downstream-registry.md" "kernel/configx"
 require_text "docs/standard/conformance-profiles.md" "l0-kernel"
 
-xlib_standard_url="https://github.com/ZoneCNH/xlib-standard"
+xlib_standard_url="https://github.com/ZoneCNH/resiliencx"
 require_text "README.md" "$xlib_standard_url"
 require_text "docs/standard/README.md" "$xlib_standard_url"
 require_text "docs/spec.md" "$xlib_standard_url"
 require_text "docs/design.md" "$xlib_standard_url"
 require_text "docs/generation.md" "$xlib_standard_url"
-require_text "docs/standard/xlib-standard.md" "$xlib_standard_url"
+require_text "docs/standard/resiliencx.md" "$xlib_standard_url"
 require_text "docs/standard/repository-roles.md" "$xlib_standard_url"
 require_text "docs/standard/harness-gates.md" "GOWORK=off make dependency-check"
 require_text "docs/standard/harness-gates.md" "GOWORK=off make standard-impact-check"
@@ -270,8 +270,8 @@ from pathlib import Path
 
 root = Path(sys.argv[1])
 requirements = {
-    "docs/standard/xlib-standard.md": [
-        "xlib-standard",
+    "docs/standard/resiliencx.md": [
+        "resiliencx",
         "baselib-template",
         "模板",
         "generator",
@@ -279,19 +279,19 @@ requirements = {
         "Evidence",
     ],
     "docs/standard/repository-roles.md": [
-        "xlib-standard",
+        "resiliencx",
         "baselib-template",
         "标准权威源",
         "模板、generator、Harness、Evidence 实现仓库",
     ],
     "docs/standard/layering.md": [
-        "xlib-standard",
+        "resiliencx",
         "baselib-template",
         "Standard 规则的独立来源",
         "Go 基础库模板中的实现仓库",
     ],
     "docs/standard/module-boundary.md": [
-        "xlib-standard",
+        "resiliencx",
         "baselib-template",
         "go.mod",
         "module path",

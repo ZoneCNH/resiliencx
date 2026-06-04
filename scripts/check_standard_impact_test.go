@@ -396,7 +396,7 @@ func TestStandardImpactReportIncludesDecisionEvidence(t *testing.T) {
 	report := runStandardImpact(t, []string{
 		"contracts/template.md",
 		"docs/supply-chain.md",
-		"pkg/templatex/client.go",
+		"pkg/resiliencx/client.go",
 	})
 
 	assertReportContains(t, report,
@@ -411,7 +411,7 @@ func TestStandardImpactReportIncludesDecisionEvidence(t *testing.T) {
 		"## docs",
 		"- `docs/supply-chain.md`",
 		"## other",
-		"- `pkg/templatex/client.go`",
+		"- `pkg/resiliencx/client.go`",
 		"## Sync Decision",
 	)
 }

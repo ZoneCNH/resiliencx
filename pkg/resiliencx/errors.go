@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"context"

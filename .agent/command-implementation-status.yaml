@@ -1,5 +1,5 @@
 schema_version: "1.0"
-module: xlib-standard
+module: resiliencx
 source_registry: .agent/command-registry.yaml
 truth_state: .agent/truth-state.yaml
 purpose: "区分 command registered、planned、dry-run verify、implemented 与 executed。"

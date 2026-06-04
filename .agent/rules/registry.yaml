@@ -1555,7 +1555,7 @@ rules:
     status: active
   - id: RULE-COMPAT-GUARD-001
     level: P1
-    title: "下游兼容性失败不得阻断 xlib-standard 内部发布"
+    title: "下游兼容性失败不得阻断 resiliencx 内部发布"
     source_section: 231
     source_section_title: "Compatibility Guard 规则"
     source_line: 8961
@@ -1951,7 +1951,7 @@ rules:
     status: active
   - id: RULE-DOWNSTREAM-002
     level: P1
-    title: "每次 xlib-standard 规则更新必须说明下游影响"
+    title: "每次 resiliencx 规则更新必须说明下游影响"
     source_section: 45
     source_section_title: "Downstream Adoption 规则"
     source_line: 2227
@@ -1969,7 +1969,7 @@ rules:
     status: active
   - id: RULE-DOWNSTREAM-CONTRACT-001
     level: P1
-    title: "xlib-standard 必须发布下游契约"
+    title: "resiliencx 必须发布下游契约"
     source_section: 187
     source_section_title: "Downstream Contract 规则"
     source_line: 7617
@@ -1987,7 +1987,7 @@ rules:
     status: active
   - id: RULE-DOWNSTREAM-SYNC-001
     level: P1
-    title: "xlib-standard 更新后必须生成同步任务"
+    title: "resiliencx 更新后必须生成同步任务"
     source_section: 79
     source_section_title: "Downstream Sync 规则"
     source_line: 3500
@@ -2131,7 +2131,7 @@ rules:
     status: active
   - id: RULE-FACTORY-001
     level: P1
-    title: "xlib-standard 的最终输出不是仓库，而是工厂能力"
+    title: "resiliencx 的最终输出不是仓库，而是工厂能力"
     source_section: 106
     source_section_title: "Standard Factory 规则"
     source_line: 4499
@@ -3022,7 +3022,7 @@ rules:
     status: active
   - id: RULE-PROMOTE-001
     level: P1
-    title: "xlib-standard 新规则不能直接推全量下游"
+    title: "resiliencx 新规则不能直接推全量下游"
     source_section: 230
     source_section_title: "Downstream Promotion 规则"
     source_line: 8932
@@ -3746,16 +3746,16 @@ rules:
     level: P1
     title: "x.go 专用架构约束"
     source_section: 22
-    source_section_title: "xlib-standard / kernel / x.go 专用规则"
+    source_section_title: "resiliencx / kernel / x.go 专用规则"
     source_line: 1264
     enforced_by: "goalcli boundary"
     exit_code: 1
     status: active
   - id: RULE-XSTACK-001
     level: P1
-    title: "xlib-standard 是标准源"
+    title: "resiliencx 是标准源"
     source_section: 22
-    source_section_title: "xlib-standard / kernel / x.go 专用规则"
+    source_section_title: "resiliencx / kernel / x.go 专用规则"
     source_line: 1225
     enforced_by: "goalcli attest-conformance"
     exit_code: 1
@@ -3764,7 +3764,7 @@ rules:
     level: P1
     title: "kernel 是 L0 内核库"
     source_section: 22
-    source_section_title: "xlib-standard / kernel / x.go 专用规则"
+    source_section_title: "resiliencx / kernel / x.go 专用规则"
     source_line: 1238
     enforced_by: "goalcli attest-conformance"
     exit_code: 1
@@ -3773,7 +3773,7 @@ rules:
     level: P1
     title: "L1/L2 必须遵守分层"
     source_section: 22
-    source_section_title: "xlib-standard / kernel / x.go 专用规则"
+    source_section_title: "resiliencx / kernel / x.go 专用规则"
     source_line: 1246
     enforced_by: "goalcli attest-conformance"
     exit_code: 1

@@ -1,4 +1,4 @@
-package templatex
+package resiliencx
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 func TestHealthCheckHealthy(t *testing.T) {
 	metrics := &recordingMetrics{}
-	client, err := New(context.Background(), Config{Name: "templatex"}, WithMetrics(metrics))
+	client, err := New(context.Background(), Config{Name: "resiliencx"}, WithMetrics(metrics))
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -19,8 +19,8 @@ func TestHealthCheckHealthy(t *testing.T) {
 	if status.Status != HealthHealthy {
 		t.Fatalf("expected healthy status, got %q", status.Status)
 	}
-	if status.Name != "templatex" {
-		t.Fatalf("expected templatex health name, got %q", status.Name)
+	if status.Name != "resiliencx" {
+		t.Fatalf("expected resiliencx health name, got %q", status.Name)
 	}
 	if status.LatencyMs < 0 {
 		t.Fatalf("expected non-negative latency, got %d", status.LatencyMs)
@@ -34,7 +34,7 @@ func TestHealthCheckHealthy(t *testing.T) {
 }
 
 func TestHealthCheckClosedClientUnhealthy(t *testing.T) {
-	client, err := New(context.Background(), Config{Name: "templatex"})
+	client, err := New(context.Background(), Config{Name: "resiliencx"})
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestHealthCheckClosedClientUnhealthy(t *testing.T) {
 }
 
 func TestHealthCheckCanceledContextUnhealthy(t *testing.T) {
-	client, err := New(context.Background(), Config{Name: "templatex"})
+	client, err := New(context.Background(), Config{Name: "resiliencx"})
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -66,7 +66,7 @@ func TestHealthCheckCanceledContextUnhealthy(t *testing.T) {
 }
 
 func TestHealthCheckNilContextUnhealthy(t *testing.T) {
-	client, err := New(context.Background(), Config{Name: "templatex"})
+	client, err := New(context.Background(), Config{Name: "resiliencx"})
 	if err != nil {
 		t.Fatalf("new client: %v", err)
 	}
@@ -83,7 +83,7 @@ func TestHealthCheckNilContextUnhealthy(t *testing.T) {
 func TestHealthCheckDeadlineBelowTimeoutDegraded(t *testing.T) {
 	metrics := &recordingMetrics{}
 	client, err := New(context.Background(), Config{
-		Name:    "templatex",
+		Name:    "resiliencx",
 		Timeout: time.Hour,
 	}, WithMetrics(metrics))
 	if err != nil {
@@ -124,7 +124,7 @@ func TestHealthCheckDeadlineBelowTimeoutDegraded(t *testing.T) {
 	}
 
 	labels := map[string]string{
-		"name":   "templatex",
+		"name":   "resiliencx",
 		"status": string(HealthDegraded),
 	}
 	if !metrics.gaugeWithLabels(MetricClientHealthStatus, 0, labels) {
@@ -138,7 +138,7 @@ func TestHealthCheckDeadlineBelowTimeoutDegraded(t *testing.T) {
 func TestHealthCheckTimeoutWithoutDeadlineHealthy(t *testing.T) {
 	metrics := &recordingMetrics{}
 	client, err := New(context.Background(), Config{
-		Name:    "templatex",
+		Name:    "resiliencx",
 		Timeout: time.Minute,
 	}, WithMetrics(metrics))
 	if err != nil {
@@ -154,7 +154,7 @@ func TestHealthCheckTimeoutWithoutDeadlineHealthy(t *testing.T) {
 	}
 
 	labels := map[string]string{
-		"name":   "templatex",
+		"name":   "resiliencx",
 		"status": string(HealthHealthy),
 	}
 	if !metrics.gaugeWithLabels(MetricClientHealthStatus, 1, labels) {
@@ -167,7 +167,7 @@ func TestHealthCheckTimeoutWithoutDeadlineHealthy(t *testing.T) {
 
 func TestHealthCheckDeadlineAboveTimeoutHealthy(t *testing.T) {
 	client, err := New(context.Background(), Config{
-		Name:    "templatex",
+		Name:    "resiliencx",
 		Timeout: 10 * time.Millisecond,
 	})
 	if err != nil {
@@ -192,7 +192,7 @@ func TestHealthCheckNilClientUnhealthy(t *testing.T) {
 	if status.Status != HealthUnhealthy {
 		t.Fatalf("expected unhealthy status, got %q", status.Status)
 	}
-	if status.Name != "templatex" {
+	if status.Name != "resiliencx" {
 		t.Fatalf("expected fallback health name, got %q", status.Name)
 	}
 }
@@ -200,7 +200,7 @@ func TestHealthCheckNilClientUnhealthy(t *testing.T) {
 func TestHealthCheckElapsedDeadlineWithoutContextErrorUnhealthy(t *testing.T) {
 	metrics := &recordingMetrics{}
 	client, err := New(context.Background(), Config{
-		Name:    "templatex",
+		Name:    "resiliencx",
 		Timeout: time.Hour,
 	}, WithMetrics(metrics))
 	if err != nil {
@@ -219,7 +219,7 @@ func TestHealthCheckElapsedDeadlineWithoutContextErrorUnhealthy(t *testing.T) {
 	}
 
 	labels := map[string]string{
-		"name":   "templatex",
+		"name":   "resiliencx",
 		"status": string(HealthUnhealthy),
 	}
 	if !metrics.gaugeWithLabels(MetricClientHealthStatus, 0, labels) {
@@ -229,7 +229,7 @@ func TestHealthCheckElapsedDeadlineWithoutContextErrorUnhealthy(t *testing.T) {
 
 func TestHealthCheckElapsedDeadlineUsesCurrentContextError(t *testing.T) {
 	client, err := New(context.Background(), Config{
-		Name:    "templatex",
+		Name:    "resiliencx",
 		Timeout: time.Hour,
 	})
 	if err != nil {
@@ -257,14 +257,14 @@ func TestHealthCheckZeroValueClientUnhealthy(t *testing.T) {
 	if status.Status != HealthUnhealthy {
 		t.Fatalf("expected unhealthy status, got %q", status.Status)
 	}
-	if status.Name != "templatex" {
+	if status.Name != "resiliencx" {
 		t.Fatalf("expected fallback health name, got %q", status.Name)
 	}
 }
 
 func TestHealthStatusJSONContract(t *testing.T) {
 	payload, err := json.Marshal(HealthStatus{
-		Name:      "templatex",
+		Name:      "resiliencx",
 		Status:    HealthHealthy,
 		LatencyMs: 7,
 	})

@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ZoneCNH/xlib-standard/internal/debtcheck"
+	"github.com/ZoneCNH/resiliencx/internal/debtcheck"
 )
 
 func runDebt(args []string, stdout, stderr io.Writer) int {

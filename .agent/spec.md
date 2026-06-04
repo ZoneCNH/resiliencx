@@ -2,7 +2,7 @@
 
 ## 需求
 
-`xlib-standard` 同时承担五类职责：Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime。仓库必须提供可编译 Go 模板、标准文档、ADR、下游矩阵、边界规则、`.agent` 运行时协议、release Evidence 协议和复盘补丁入口。
+`resiliencx` 同时承担五类职责：Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime。仓库必须提供可编译 Go 模板、标准文档、ADR、下游矩阵、边界规则、`.agent` 运行时协议、release Evidence 协议和复盘补丁入口。
 
 ## 非目标
 

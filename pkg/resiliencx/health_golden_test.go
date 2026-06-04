@@ -1,18 +1,18 @@
-package templatex_test
+package resiliencx_test
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
-	"github.com/ZoneCNH/xlib-standard/testkit"
+	"github.com/ZoneCNH/resiliencx/pkg/resiliencx"
+	"github.com/ZoneCNH/resiliencx/testkit"
 )
 
 func TestHealthStatusJSONGolden(t *testing.T) {
-	payload, err := json.Marshal(templatex.HealthStatus{
-		Name:      "templatex",
-		Status:    templatex.HealthHealthy,
+	payload, err := json.Marshal(resiliencx.HealthStatus{
+		Name:      "resiliencx",
+		Status:    resiliencx.HealthHealthy,
 		Message:   "ok",
 		CheckedAt: time.Unix(0, 0).UTC(),
 		LatencyMs: 7,

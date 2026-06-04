@@ -1,11 +1,11 @@
-package templatex
+package resiliencx
 
 import (
 	"errors"
 	"time"
 
-	"github.com/ZoneCNH/xlib-standard/internal/sanitize"
-	"github.com/ZoneCNH/xlib-standard/internal/validation"
+	"github.com/ZoneCNH/resiliencx/internal/sanitize"
+	"github.com/ZoneCNH/resiliencx/internal/validation"
 )
 
 type Config struct {
