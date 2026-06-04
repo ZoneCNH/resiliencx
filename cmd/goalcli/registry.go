@@ -156,16 +156,16 @@ var commandRegistry = map[string]Command{
 	"execution-context":       plannedCommand,
 
 	// ── 外部脚本命令 ──
-	"boundary":         {Run: externalCmd("./scripts/check_boundary.sh")},
-	"contracts":        {Run: externalCmd("./scripts/check_contracts.sh")},
-	"dependency-check": {Run: externalCmd("./scripts/check_dependency_diff.sh")},
-	"docs-check":       {Run: externalCmd("./scripts/check_docs.sh")},
-	"evidence":         {Run: externalCmd("go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")},
-	"manifest":         {Run: externalCmd("go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")},
-	"integration":      {Run: externalCmd("./scripts/run_integration.sh")},
+	"boundary":                     {Run: externalCmd("./scripts/check_boundary.sh")},
+	"contracts":                    {Run: externalCmd("./scripts/check_contracts.sh")},
+	"dependency-check":             {Run: externalCmd("./scripts/check_dependency_diff.sh")},
+	"docs-check":                   {Run: externalCmd("./scripts/check_docs.sh")},
+	"evidence":                     {Run: externalCmd("go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")},
+	"manifest":                     {Run: externalCmd("go", "run", "./internal/tools/releasemanifest", "--out", "release/manifest/latest.json")},
+	"integration":                  {Run: externalCmd("./scripts/run_integration.sh")},
 	"debt-evidence-checksum-check": {Run: externalCmd("./scripts/hash_release_evidence.sh", "--check", "release/debt/latest.json", "release/debt/latest.json.sha256")},
-	"debt-evidence-hash": {Run: externalCmd("./scripts/hash_release_evidence.sh", "release/debt/latest.json", "release/debt/latest.json.sha256")},
-	"release-evidence-check": {Run: externalCmd("./scripts/check_release_evidence.sh")},
+	"debt-evidence-hash":           {Run: externalCmd("./scripts/hash_release_evidence.sh", "release/debt/latest.json", "release/debt/latest.json.sha256")},
+	"release-evidence-check":       {Run: externalCmd("./scripts/check_release_evidence.sh")},
 	"release-evidence-checksum-check": {Run: func(_ string, _ []string, stdin io.Reader, stdout io.Writer, stderr io.Writer) int {
 		return runExternal(stdin, stdout, stderr, "./scripts/hash_release_evidence.sh", "--check")
 	}},

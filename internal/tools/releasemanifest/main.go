@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ZoneCNH/xlib-standard/internal/debtcheck"
@@ -261,7 +262,7 @@ func runCLI(name string, args []string, stdout io.Writer, stderr io.Writer) int 
 		return printCLIStatus(stdout, "release evidence verified: %s\n", *verify)
 	}
 
-	manifest, err := buildManifest()
+	manifest, err := buildManifestCached()
 	if err != nil {
 		return printCLIError(stderr, err)
 	}
@@ -348,6 +349,36 @@ func buildManifest() (Manifest, error) {
 	}, nil
 }
 
+// buildManifestCached 对同一工作目录只执行一次 buildManifest()，后续调用返回缓存结果。
+// 用于 verifyManifest() 和 runCLI() 避免重复执行昂贵的 sourceDigest() / go list。
+var (
+	buildCacheMu    sync.Mutex
+	buildCacheByDir = map[string]struct {
+		mfst Manifest
+		err  error
+	}{}
+)
+
+func buildManifestCached() (Manifest, error) {
+	dir, _ := os.Getwd()
+	buildCacheMu.Lock()
+	if cached, ok := buildCacheByDir[dir]; ok {
+		buildCacheMu.Unlock()
+		return cached.mfst, cached.err
+	}
+	buildCacheMu.Unlock()
+
+	mfst, err := buildManifest()
+
+	buildCacheMu.Lock()
+	buildCacheByDir[dir] = struct {
+		mfst Manifest
+		err  error
+	}{mfst: mfst, err: err}
+	buildCacheMu.Unlock()
+	return mfst, err
+}
+
 func verifyManifest(path string, requirePassed bool, requireClean bool, expectVersion string, minScore float64) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -359,7 +390,7 @@ func verifyManifest(path string, requirePassed bool, requireClean bool, expectVe
 		return err
 	}
 
-	current, err := buildManifest()
+	current, err := buildManifestCached()
 	if err != nil {
 		return err
 	}

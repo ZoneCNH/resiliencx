@@ -27,18 +27,27 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / ".agent" / "rules" / "registry.yaml"
 MAIN_GO = ROOT / "cmd" / "goalcli" / "main.go"
+REGISTRY_GO = ROOT / "cmd" / "goalcli" / "registry.go"
 MAKEFILE = ROOT / "Makefile"
 
 
 def load_goalcli_commands() -> set[str]:
-    text = MAIN_GO.read_text(encoding="utf-8")
     cmds: set[str] = set()
+
+    # 1) main.go 中的 case 分支（向后兼容）
+    text = MAIN_GO.read_text(encoding="utf-8")
     for line in text.splitlines():
         m = re.search(r"case\s+(.+?):\s*$", line)
         if not m:
             continue
         for tok in re.findall(r'"([^"]+)"', m.group(1)):
             cmds.add(tok)
+
+    # 2) registry.go 中 commandRegistry map 的 key
+    text = REGISTRY_GO.read_text(encoding="utf-8")
+    for m in re.finditer(r'^\s*"([^"]+)":\s', text, re.MULTILINE):
+        cmds.add(m.group(1))
+
     return cmds
 
 
