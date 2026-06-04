@@ -82,7 +82,7 @@ GOWORK=off make standard-impact-check
 GOWORK=off make docs-check
 XLIB_CONTEXT=release_verify GOWORK=off make release-check
 XLIB_CONTEXT=release_verify GOWORK=off make release-final-check
-XLIB_CONTEXT=release_verify GOWORK=off make release-preflight VERSION=v0.4.6
+XLIB_CONTEXT=release_verify GOWORK=off make release-preflight VERSION=v0.4.7
 make evidence
 ```
 
