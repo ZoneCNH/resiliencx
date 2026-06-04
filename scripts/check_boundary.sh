@@ -6,11 +6,9 @@ echo "checking forbidden L2/provider/observability dependencies..."
 DEPS="$(go list -deps ./...)"
 FORBIDDEN_DEPS=(
   "github.com/bytechainx/x.go"
+  "github.com/bytechainx/x.go/provider/observex/core"
   "github.com/ZoneCNH/x.go"
-  "github.com/ZoneCNH/observex"
-  "github.com/ZoneCNH/redisx"
-  "github.com/ZoneCNH/kafkax"
-  "github.com/ZoneCNH/postgresx"
+  "github.com/ZoneCNH/x.go/provider/observex/core"
 )
 
 for dep in "${FORBIDDEN_DEPS[@]}"; do

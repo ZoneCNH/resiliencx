@@ -231,6 +231,8 @@ func TestBoundaryScriptGuardsRenderedRuntimeTemplateIdentity(t *testing.T) {
 		`template_module_path="github.com/ZoneCNH/xlib-standard"`,
 		`"${template_module_path}/pkg/templatex"`,
 		`! -name '*_test.go'`,
+		`"github.com/ZoneCNH/x.go/provider/observex/core"`,
+		`"github.com/bytechainx/x.go/provider/observex/core"`,
 	} {
 		if !strings.Contains(text, needle) {
 			t.Fatalf("boundary script missing rendered identity guard %q", needle)

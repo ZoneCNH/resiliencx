@@ -183,8 +183,31 @@ func TestRunFailsOnLegacyProductionImport(t *testing.T) {
 	if code := ExitCode(report); code != 1 {
 		t.Fatalf("ExitCode = %d, want 1", code)
 	}
-	if !strings.Contains(ToMarkdown(report), "legacy ZoneCNH x module") {
+	if !strings.Contains(ToMarkdown(report), "legacy x module") {
 		t.Fatalf("markdown missing legacy import finding: %s", ToMarkdown(report))
+	}
+}
+
+func TestRunFailsOnForbiddenProviderObservexCoreProductionImport(t *testing.T) {
+	root := t.TempDir()
+	writePolicyFiles(t, root)
+	writeFile(t, root, "bad.go", "package fixture\n\nimport _ \"github.com/ZoneCNH/x.go/provider/observex/core\"\n")
+
+	report, err := Run(Options{Root: root, Section: "architecture", Mode: "enforce", MinScore: DefaultMinScore})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if report.Status != "failed" {
+		t.Fatalf("status = %q, want failed", report.Status)
+	}
+	if report.Summary.P0 != 1 {
+		t.Fatalf("P0 = %d, want 1", report.Summary.P0)
+	}
+	markdown := ToMarkdown(report)
+	if !strings.Contains(markdown, "debt.architecture.forbidden-provider-observex-core-import") ||
+		!strings.Contains(markdown, "provider/observex core") {
+		t.Fatalf("markdown missing provider/observex core finding: %s", markdown)
 	}
 }
 

@@ -522,8 +522,12 @@ func scanGoImports(root string) []Finding {
 		} else {
 			for _, imported := range file.Imports {
 				importPath := strings.Trim(imported.Path.Value, `"`)
-				if importPath == "github.com/ZoneCNH/x.go" || strings.HasPrefix(importPath, "github.com/ZoneCNH/x/") {
-					findings = append(findings, Finding{ID: "debt.architecture.legacy-import", Severity: "P0", Path: rel(root, path), Message: "production code imports legacy ZoneCNH x module"})
+				if isForbiddenXGoProviderObservexCoreImport(importPath) {
+					findings = append(findings, Finding{ID: "debt.architecture.forbidden-provider-observex-core-import", Severity: "P0", Path: rel(root, path), Message: "production code imports forbidden x.go provider/observex core"})
+					break
+				}
+				if isForbiddenLegacyXImport(importPath) {
+					findings = append(findings, Finding{ID: "debt.architecture.legacy-import", Severity: "P0", Path: rel(root, path), Message: "production code imports legacy x module"})
 					break
 				}
 			}
@@ -531,6 +535,26 @@ func scanGoImports(root string) []Finding {
 		return nil
 	})
 	return findings
+}
+
+func isForbiddenXGoProviderObservexCoreImport(importPath string) bool {
+	for _, prefix := range []string{
+		"github.com/ZoneCNH/x.go/provider/observex/core",
+		"github.com/bytechainx/x.go/provider/observex/core",
+	} {
+		if importPath == prefix || strings.HasPrefix(importPath, prefix+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+func isForbiddenLegacyXImport(importPath string) bool {
+	return importPath == "github.com/ZoneCNH/x.go" ||
+		strings.HasPrefix(importPath, "github.com/ZoneCNH/x.go/") ||
+		importPath == "github.com/bytechainx/x.go" ||
+		strings.HasPrefix(importPath, "github.com/bytechainx/x.go/") ||
+		strings.HasPrefix(importPath, "github.com/ZoneCNH/x/")
 }
 
 func scanDependencyDebt(root string) []Finding {
