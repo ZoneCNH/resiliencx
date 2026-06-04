@@ -13,6 +13,10 @@ type Client struct {
 	closed      bool
 }
 
+// New creates a new Client with the given Config and functional options.
+// It validates the config and the provided context before returning.
+// On failure it returns a descriptive *Error; callers may use IsKind to
+// inspect the error category.
 func New(ctx context.Context, cfg Config, opts ...Option) (*Client, error) {
 	const op = "templatex.New"
 	options := defaultOptions()
@@ -39,6 +43,10 @@ func New(ctx context.Context, cfg Config, opts ...Option) (*Client, error) {
 	return &Client{cfg: cfg, metrics: options.metrics, initialized: true}, nil
 }
 
+// Close releases the resources held by the Client.
+// It is safe to call Close on a nil or already-closed Client — in the nil
+// case a validation error is returned; in the already-closed case nil is
+// returned. The provided context must not be nil.
 func (c *Client) Close(ctx context.Context) error {
 	const op = "templatex.Close"
 	if c == nil {
