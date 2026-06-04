@@ -23,8 +23,8 @@ type HealthStatus struct {
 }
 
 func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
-	start := time.Now()
-	name := "resiliencx"
+	clk := clock(systemClock{})
+	name := "templatex"
 	var metrics Metrics
 	initialized := false
 	closed := true
@@ -34,6 +34,7 @@ func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 		c.mu.Lock()
 		name = c.cfg.Name
 		metrics = c.metrics
+		clk = c.clock
 		initialized = c.initialized
 		closed = c.closed
 		timeout = c.cfg.Timeout
@@ -42,100 +43,73 @@ func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 			name = "resiliencx"
 		}
 	}
+	if clk == nil {
+		clk = systemClock{}
+	}
+	start := clk.Now()
 
 	if ctx == nil {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   "context is required",
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
+		status := newHealthStatus(name, HealthUnhealthy, "context is required", start, clk, nil)
 		recordHealthMetric(metrics, status)
 		return status
 	}
 
 	if err := ctx.Err(); err != nil {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   err.Error(),
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
+		status := newHealthStatus(name, HealthUnhealthy, err.Error(), start, clk, nil)
 		recordHealthMetric(metrics, status)
 		return status
 	}
 
 	if !initialized {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   "client is not initialized",
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
+		status := newHealthStatus(name, HealthUnhealthy, "client is not initialized", start, clk, nil)
 		recordHealthMetric(metrics, status)
 		return status
 	}
 
 	if closed {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   "client is closed",
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
+		status := newHealthStatus(name, HealthUnhealthy, "client is closed", start, clk, nil)
 		recordHealthMetric(metrics, status)
 		return status
 	}
 
 	if timeout > 0 {
 		if deadline, ok := ctx.Deadline(); ok {
-			remaining := time.Until(deadline)
+			remaining := deadline.Sub(clk.Now())
 			if remaining <= 0 {
 				message := context.DeadlineExceeded.Error()
 				if err := ctx.Err(); err != nil {
 					message = err.Error()
 				}
-				status := HealthStatus{
-					Name:      name,
-					Status:    HealthUnhealthy,
-					Message:   message,
-					CheckedAt: time.Now(),
-					LatencyMs: time.Since(start).Milliseconds(),
-				}
+				status := newHealthStatus(name, HealthUnhealthy, message, start, clk, nil)
 				recordHealthMetric(metrics, status)
 				return status
 			}
 			if remaining < timeout {
-				status := HealthStatus{
-					Name:      name,
-					Status:    HealthDegraded,
-					Message:   "context deadline is shorter than client timeout",
-					CheckedAt: time.Now(),
-					LatencyMs: time.Since(start).Milliseconds(),
-					Metadata: map[string]string{
-						"reason":  "deadline_below_timeout",
-						"timeout": timeout.String(),
-					},
-				}
+				status := newHealthStatus(name, HealthDegraded, "context deadline is shorter than client timeout", start, clk, map[string]string{
+					"reason":  "deadline_below_timeout",
+					"timeout": timeout.String(),
+				})
 				recordHealthMetric(metrics, status)
 				return status
 			}
 		}
 	}
 
-	status := HealthStatus{
-		Name:      name,
-		Status:    HealthHealthy,
-		Message:   "ok",
-		CheckedAt: time.Now(),
-		LatencyMs: time.Since(start).Milliseconds(),
-	}
+	status := newHealthStatus(name, HealthHealthy, "ok", start, clk, nil)
 	recordHealthMetric(metrics, status)
 	return status
+}
+
+func newHealthStatus(name string, status HealthStatusValue, message string, start time.Time, clk clock, metadata map[string]string) HealthStatus {
+	checkedAt := clk.Now()
+	return HealthStatus{
+		Name:      name,
+		Status:    status,
+		Message:   message,
+		CheckedAt: checkedAt,
+		LatencyMs: checkedAt.Sub(start).Milliseconds(),
+		Metadata:  metadata,
+	}
 }
 
 func recordHealthMetric(metrics Metrics, status HealthStatus) {

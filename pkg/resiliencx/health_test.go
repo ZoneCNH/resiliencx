@@ -313,3 +313,106 @@ func (ctx *changingErrDeadlineContext) Err() error {
 	}
 	return ctx.err
 }
+
+func TestHealthCheckUsesInjectedClockForCheckedAtAndLatency(t *testing.T) {
+	base := time.Date(2026, 6, 4, 2, 0, 0, 0, time.UTC)
+	clk := &sequenceClock{times: []time.Time{
+		base,
+		base.Add(1234 * time.Millisecond),
+	}}
+	client, err := New(context.Background(), Config{Name: "templatex"}, withClock(clk))
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	status := client.HealthCheck(context.Background())
+	if status.Status != HealthHealthy {
+		t.Fatalf("expected healthy status, got %q", status.Status)
+	}
+	if !status.CheckedAt.Equal(base.Add(1234 * time.Millisecond)) {
+		t.Fatalf("checked_at = %s, want %s", status.CheckedAt, base.Add(1234*time.Millisecond))
+	}
+	if status.LatencyMs != 1234 {
+		t.Fatalf("latency_ms = %d, want 1234", status.LatencyMs)
+	}
+}
+
+func TestHealthCheckDeadlineUsesInjectedClock(t *testing.T) {
+	base := time.Date(2026, 6, 4, 2, 0, 0, 0, time.UTC)
+	client, err := New(context.Background(), Config{
+		Name:    "templatex",
+		Timeout: 10 * time.Second,
+	}, withClock(&sequenceClock{times: []time.Time{
+		base,
+		base,
+		base.Add(25 * time.Millisecond),
+	}}))
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+
+	status := client.HealthCheck(deadlineOnlyContext{
+		Context:  context.Background(),
+		deadline: base.Add(5 * time.Second),
+	})
+	if status.Status != HealthDegraded {
+		t.Fatalf("expected degraded status, got %q", status.Status)
+	}
+	if status.Metadata["reason"] != "deadline_below_timeout" {
+		t.Fatalf("expected deterministic deadline metadata, got %#v", status.Metadata)
+	}
+	if !status.CheckedAt.Equal(base.Add(25 * time.Millisecond)) {
+		t.Fatalf("checked_at = %s, want %s", status.CheckedAt, base.Add(25*time.Millisecond))
+	}
+	if status.LatencyMs != 25 {
+		t.Fatalf("latency_ms = %d, want 25", status.LatencyMs)
+	}
+}
+
+func TestHealthCheckClockIsClientLocal(t *testing.T) {
+	base := time.Date(2026, 6, 4, 2, 0, 0, 0, time.UTC)
+	clientA, err := New(context.Background(), Config{Name: "a"}, withClock(&sequenceClock{times: []time.Time{
+		base,
+		base.Add(time.Millisecond),
+	}}))
+	if err != nil {
+		t.Fatalf("new client a: %v", err)
+	}
+	clientB, err := New(context.Background(), Config{Name: "b"}, withClock(&sequenceClock{times: []time.Time{
+		base.Add(time.Hour),
+		base.Add(time.Hour + 2*time.Millisecond),
+	}}))
+	if err != nil {
+		t.Fatalf("new client b: %v", err)
+	}
+
+	statusA := clientA.HealthCheck(context.Background())
+	statusB := clientB.HealthCheck(context.Background())
+	if statusA.LatencyMs != 1 {
+		t.Fatalf("client A latency_ms = %d, want 1", statusA.LatencyMs)
+	}
+	if statusB.LatencyMs != 2 {
+		t.Fatalf("client B latency_ms = %d, want 2", statusB.LatencyMs)
+	}
+	if statusA.CheckedAt.Equal(statusB.CheckedAt) {
+		t.Fatalf("expected client-local clocks, got matching checked_at %s", statusA.CheckedAt)
+	}
+}
+
+type sequenceClock struct {
+	times []time.Time
+	idx   int
+}
+
+func (c *sequenceClock) Now() time.Time {
+	if len(c.times) == 0 {
+		return time.Time{}
+	}
+	idx := c.idx
+	if idx >= len(c.times) {
+		idx = len(c.times) - 1
+	} else {
+		c.idx++
+	}
+	return c.times[idx]
+}
