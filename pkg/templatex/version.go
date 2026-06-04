@@ -8,5 +8,5 @@ const (
 	// Version is the current release version of the module.
 	// It is synchronized with the release manifest, goalcli governance version,
 	// and CHANGELOG during the release process.
-	Version = "v0.4.7"
+	Version = "v0.4.8"
 )
