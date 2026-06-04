@@ -20,7 +20,6 @@ import (
 
 	"github.com/ZoneCNH/xlib-standard/internal/debtcheck"
 	"github.com/ZoneCNH/xlib-standard/internal/releasequality"
-	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
 )
 
 var checkNames = []string{
@@ -99,6 +98,10 @@ const debtReportPath = "release/debt/latest.json"
 const debtMarkdownPath = "release/debt/latest.md"
 const debtChecksumPath = "release/debt/latest.json.sha256"
 const governanceRuntimeVersion = "v2.9.3"
+
+// releaseVersion 是当前发布版本，与 pkg/templatex/version.go 中的 Version 保持一致。
+// 通过 VERSION 环境变量可覆盖；此常量仅作为 fallback。
+const releaseVersion = "v0.4.8"
 
 var downstreamReleaseDecisionValues = []string{
 	"required",
@@ -313,7 +316,7 @@ func buildManifest() (Manifest, error) {
 
 	return Manifest{
 		Module:                 module,
-		Version:                envDefault("VERSION", templatex.Version),
+		Version:                envDefault("VERSION", releaseVersion),
 		Commit:                 runTrimmedDefault("unknown", "git", "rev-parse", "HEAD"),
 		TreeSHA:                runTrimmedDefault("unknown", "git", "rev-parse", "HEAD^{tree}"),
 		SourceDigest:           sourceDigest,
