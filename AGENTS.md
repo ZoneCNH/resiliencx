@@ -58,7 +58,7 @@ go test ./... -run 'Test.*Golden|Test.*Snapshot'       # golden 测试
 ```bash
 GOWORK=off make release-check
 XLIB_CONTEXT=release_verify GOWORK=off make release-final-check
-XLIB_CONTEXT=release_verify GOWORK=off make release-preflight VERSION=v0.4.6
+XLIB_CONTEXT=release_verify GOWORK=off make release-preflight VERSION=v0.4.7
 make evidence                                    # 生成 release/manifest/latest.json
 ```
 
