@@ -16,6 +16,12 @@ import (
 	"time"
 )
 
+func TestMain(m *testing.M) {
+	os.Setenv("GOPROXY", "off")
+	os.Setenv("GOSUMDB", "off")
+	os.Exit(m.Run())
+}
+
 func TestBuildChecksUsesGlobalAndSpecificStatus(t *testing.T) {
 	t.Setenv("CHECK_STATUS", "passed")
 	t.Setenv("LINT_STATUS", "failed")
@@ -1267,6 +1273,8 @@ replace example.com/dep => ./dep
 	}
 
 	t.Setenv("GOWORK", "off")
+	t.Setenv("GOPROXY", "off")
+	t.Setenv("GOSUMDB", "off")
 	chdir(t, root)
 
 	modules, err := moduleDigests()

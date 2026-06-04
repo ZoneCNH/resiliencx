@@ -20,6 +20,7 @@ func TestDependencyAutomationPolicyAccepted(t *testing.T) {
 	for _, want := range []string{
 		"checking dependency automation...",
 		"Go module dependencies:",
+		"example.com/localdep v0.0.0 => ./localdep",
 		"GitHub Actions dependencies:",
 		"dependency_surface_changed=false",
 		"standard_contract_generator_review_required=false",
@@ -83,7 +84,16 @@ func newDependencyGateRepo(t *testing.T) string {
 	copyFile(t, filepath.Join("check_dependency_diff.sh"), filepath.Join(root, "scripts", "check_dependency_diff.sh"), 0o755)
 	copyFile(t, filepath.Join("..", "renovate.json"), filepath.Join(root, "renovate.json"), 0o644)
 	copyFile(t, filepath.Join("..", ".github", "dependabot.yml"), filepath.Join(root, ".github", "dependabot.yml"), 0o644)
-	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/dependency-gate\n\ngo 1.23\n")
+	mkdirAll(t, filepath.Join(root, "localdep"))
+	writeFile(t, filepath.Join(root, "localdep", "go.mod"), "module example.com/localdep\n\ngo 1.23\n")
+	writeFile(t, filepath.Join(root, "go.mod"), `module example.com/dependency-gate
+
+go 1.23
+
+require example.com/localdep v0.0.0
+
+replace example.com/localdep => ./localdep
+`)
 	writeFile(t, filepath.Join(root, ".github", "workflows", "ci.yml"), "name: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n")
 
 	runGit(t, root, "init", "-b", "main")
@@ -100,7 +110,7 @@ func runDependencyGate(t *testing.T, repo string) commandResult {
 
 	cmd := exec.Command("bash", "scripts/check_dependency_diff.sh")
 	cmd.Dir = repo
-	cmd.Env = append(os.Environ(), "GOWORK=off")
+	cmd.Env = append(os.Environ(), noNetworkGoEnv()...)
 	output, err := cmd.CombinedOutput()
 	if err == nil {
 		return commandResult{code: 0, output: string(output)}
@@ -111,6 +121,14 @@ func runDependencyGate(t *testing.T, repo string) commandResult {
 		t.Fatalf("dependency gate failed without exit status: %v\noutput:\n%s", err, output)
 	}
 	return commandResult{code: exitErr.ExitCode(), output: string(output)}
+}
+
+func noNetworkGoEnv() []string {
+	return []string{
+		"GOWORK=off",
+		"GOPROXY=off",
+		"GOSUMDB=off",
+	}
 }
 
 func runGit(t *testing.T, dir string, args ...string) {
