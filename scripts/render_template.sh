@@ -303,6 +303,8 @@ verify_governance_pack() {
 if [[ "$enable_governance" == "1" ]]; then
   write_governance_lock
   verify_governance_pack
+else
+  rm -f "$out_dir/xlib-standard.lock"
 fi
 
 (

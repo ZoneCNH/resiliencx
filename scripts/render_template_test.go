@@ -92,6 +92,10 @@ func TestRenderTemplateIncludesGoalcliControlPlane(t *testing.T) {
 	if !strings.Contains(string(makefile), "GOALCLI ?= go run ./cmd/goalcli") {
 		t.Fatalf("rendered Makefile missing GOALCLI entrypoint")
 	}
+
+	if _, err := os.Stat(filepath.Join(outDir, "xlib-standard.lock")); !os.IsNotExist(err) {
+		t.Fatalf("non-governance render should omit copied xlib-standard.lock, stat err=%v", err)
+	}
 }
 
 func TestRenderTemplateIncludesGovernancePack(t *testing.T) {
