@@ -2,13 +2,7 @@
   "name": "protect-main",
   "target": "branch",
   "enforcement": "active",
-  "bypass_actors": [
-    {
-      "actor_id": 5,
-      "actor_type": "RepositoryRole",
-      "bypass_mode": "always"
-    }
-  ],
+  "bypass_actors": [],
   "conditions": {
     "ref_name": {
       "include": ["~DEFAULT_BRANCH"],
@@ -35,7 +29,10 @@
         "do_not_enforce_on_create": false,
         "required_status_checks": [
           { "context": "ci" },
-          { "context": "security" }
+          { "context": "security" },
+          { "context": "adoption-check" },
+          { "context": "governance-check" },
+          { "context": "release-check" }
         ]
       }
     },

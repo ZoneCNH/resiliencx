@@ -76,7 +76,7 @@ manifest 必须记录：
 - `tools`：tool versions。
 - `standard_impact`：标准影响报告摘要。
 - `downstream_sync_required`：是否需要同步到 `kernel`、L1/L2 基础库或记录 `x.go` 消费方影响。
-- `generator_evidence`：`kernel` 和 `corekit` 的生成验证摘要。
+- `generator_evidence`：`kernel`、`configx` 和 `redisx` 的生成验证摘要。
 - `workflow`：CI 或本地 Evidence artifact 元数据，至少包含 `workflow_run_id`、`artifact_name`、`artifact_url`。
 - `score`：release governance 评分结果、阈值、状态和维度明细。
 - `governance_runtime`：Context Runtime v4.0 / `REQ-014` 的必需证据字段，由 `internal/tools/releasemanifest/main.go` 生成；必须记录 runtime/schema version、profile 状态、`context-profile-check` / `context-release` / legacy alias 结果、registry source 和 profile wrapper 命令。若生成器、校验器或 manifest 缺失该字段，release Evidence 必须失败或列入 blocked/known gaps，不得写成 passed。
@@ -107,7 +107,7 @@ Goal 或 Release 级完成声明必须覆盖以下字段，缺失项要写入 `k
 - `release score`：`goalcli score` 的阈值和 manifest `score` 校验状态。
 - `workflow artifact`：`workflow_run_id`、`artifact_name`、`artifact_url` 或明确的本地 artifact 说明。
 - `gates`：`fmt`、`vet`、`test`、`race`、`lint`、`security`、`contracts`、`boundary`、`integration`、`dependency-check`、`standard-impact-check`、`evidence`、`release-evidence-check`、`release-final-check`。
-- `rendered downstream`：`kernel` 和 `corekit` 的 generator 验证状态；旧 `foundationx` 仅作为迁移扫描项记录。
+- `rendered downstream`：`kernel`、`configx` 和 `redisx` 的 generator 验证状态；旧 `foundationx` 仅作为迁移扫描项记录。
 - `workspace`：clean、dirty 或 blocked，并说明 dirty 原因。
 
 ## 禁止声明
@@ -116,6 +116,7 @@ Goal 或 Release 级完成声明必须覆盖以下字段，缺失项要写入 `k
 - 禁止把 skipped required gate 记录为 passed。
 - 禁止在 dirty workspace 下宣称 release-final ready。
 - 禁止删除失败 Evidence。
+- 禁止把 `goal-downstream-adoption`、`goal-runtime-final` 或 downstream sync plan 中的本地 Evidence 解读为真实 downstream 仓库已采用、已发布或 proof-based adoption；没有外部 downstream 仓库 Evidence 时，必须保留 `adoption_claim=not_claimed`、`downstream_adoption_scope=local_contract_only`、`proof_based_adoption=false`、`downstream_repo_write=false`。
 
 ## 失败 Evidence
 

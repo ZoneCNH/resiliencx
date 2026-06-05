@@ -1,4 +1,4 @@
-# xlib-standard 结构性问题分析
+# resiliencx 结构性问题分析
 
 > 生成日期：2026-06-02
 > 基于：深度代码审查、治理文件审计、Makefile 依赖图分析
@@ -30,7 +30,7 @@
 
 **位置**：`cmd/goalcli/governance.go:398-434`（`plannedCommandFiles` map）、`runPlannedCommand` 函数
 
-**描述**：`plannedCommandFiles` map 中约 30 个命令（占总命令一半）只检查声明的 YAML 文件是否存在，不执行任何实质性验证。例如 `agent-team-contract` 只检查 `.agent/team-contract.yaml` 是否存在。
+**描述**：`plannedCommandFiles` map 中约 30 个命令（占总命令一半）只检查声明的 YAML 文件是否存在，不执行任何实质性验证。例如 `agent-team-contract` 只检查 `.agent/contracts/team-contract.yaml` 是否存在。
 
 **影响**：
 
@@ -46,22 +46,22 @@
 
 **位置**：多处
 
-以下版本关系为 2026-06-02 审计时的历史状态。当前 release 口径已将项目发布版本、`templatex.Version`、release manifest template、release preflight 文档和 harness 配置同步到 `v0.4.3`。
+以下版本关系为 2026-06-02 审计时的历史状态。当前 release 口径已将项目发布版本、`resiliencx.Version`、release manifest template、release preflight 文档和 harness 配置同步到 `v0.4.3`。
 
 | 版本     | 位置                                         | 含义                     |
 | -------- | -------------------------------------------- | ------------------------ |
 | `v0.3.7` | CHANGELOG.md                                 | 项目发布版本             |
-| `v0.1.0` | `pkg/templatex/version.go`                   | 包版本（**未同步**）     |
+| `v0.1.0` | `pkg/resiliencx/version.go`                   | 包版本（**未同步**）     |
 | `v2.9.3` | `cmd/goalcli/governance.go` goalcliVersion | Goal Runtime 版本        |
-| `v3.1`   | `.agent/goal-runtime.md`                     | Goal Runtime schema 版本 |
+| `v3.1`   | `.agent/runtime/goal-runtime.md`                     | Goal Runtime schema 版本 |
 
 **影响**：
 
-- 历史上 `templatex.Version` 停留在 `v0.1.0`，而项目已发布到 `v0.3.7`
+- 历史上 `resiliencx.Version` 停留在 `v0.1.0`，而项目已发布到 `v0.3.7`
 - 历史上 `release-preflight` 的 `VERSION=v0.2.0` 是硬编码的过期值
 - 当前 v0.4.3 已修复该漂移；后续风险转为“新增发布时必须同步更新版本事实”
 
-**建议**：统一版本管理策略，`templatex.Version` 应与 CHANGELOG 保持同步，或通过 build info 注入。
+**建议**：统一版本管理策略，`resiliencx.Version` 应与 CHANGELOG 保持同步，或通过 build info 注入。
 
 ---
 
@@ -121,10 +121,10 @@ func requiredIssueRegistryNeedles() []string {
 **描述**：大量文件是小体积 YAML（< 200 字节），且许多只是声明一个文件路径或一个布尔值：
 
 ```
-.agent/runtime-health.yaml      (56 bytes)
-.agent/runtime-install.yaml     (56 bytes)
-.agent/upgrade-runtime.md       (100 bytes)
-.agent/self-healing-skeleton.md (116 bytes)
+.agent/contracts/runtime-health.yaml      (56 bytes)
+.agent/contracts/runtime-install.yaml     (56 bytes)
+.agent/contracts/upgrade-runtime.md       (100 bytes)
+.agent/docs/self-healing-skeleton.md (116 bytes)
 ```
 
 **影响**：
@@ -244,7 +244,7 @@ release-final-check → context-release → context-full → governance-check + 
 | 问题 | 状态 | 修复摘要 | 验证 |
 | ---- | ---- | -------- | ---- |
 | 问题 2：Planned Command 空壳验证 | 已修复最小语义层 | `runPlannedCommand` 不再只检查文件存在；会拒绝目录、空文件、非法 JSON，并对 `agent-team-contract`、`runtime-health`、`execution-context` 等核心 manifest 检查最小语义 marker。 | `GOWORK=off go run ./cmd/goalcli agent-team-contract --dry-run --verify`、`runtime-health --dry-run --verify`、`execution-context --dry-run --verify` |
-| 问题 3：版本号体系混乱 | 已修复当前 release 口径 | 拆分项目发布版本 `projectReleaseVersion` 与治理运行时版本 `governanceRuntimeVersion`，并将 `templatex.Version`、release manifest template、release preflight 文档和 harness 版本同步到 `CHANGELOG.md` 最新版本 `v0.4.3`。 | `GOWORK=off go run ./cmd/goalcli version --json`、`GOWORK=off go test ./cmd/goalcli` |
-| 问题 4：Issue Registry 硬编码计数 | 已修复 | 移除 Go 代码中的固定 P0/P1/P2/CTX 数量 needle，改为从 `.agent/issue-registry.yaml` 动态解析 issue ID，校验 ID 格式、重复、连续性、`status: implemented`、`command` 和非空 `evidence`。 | `GOWORK=off go run ./cmd/goalcli issue-registry`、`GOWORK=off go run ./cmd/goalcli context-profile-check` |
+| 问题 3：版本号体系混乱 | 已修复当前 release 口径 | 拆分项目发布版本 `projectReleaseVersion` 与治理运行时版本 `governanceRuntimeVersion`，并将 `resiliencx.Version`、release manifest template、release preflight 文档和 harness 版本同步到 `CHANGELOG.md` 最新版本 `v0.4.3`。 | `GOWORK=off go run ./cmd/goalcli version --json`、`GOWORK=off go test ./cmd/goalcli` |
+| 问题 4：Issue Registry 硬编码计数 | 已修复 | 移除 Go 代码中的固定 P0/P1/P2/CTX 数量 needle，改为从 `.agent/registries/issue-registry.yaml` 动态解析 issue ID，校验 ID 格式、重复、连续性、`status: implemented`、`command` 和非空 `evidence`。 | `GOWORK=off go run ./cmd/goalcli issue-registry`、`GOWORK=off go run ./cmd/goalcli context-profile-check` |
 
 回归验证：`GOWORK=off go test ./...` 已通过。

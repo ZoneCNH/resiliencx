@@ -30,7 +30,7 @@ goals:
     title: Build Goal Runtime Harness System
     mode: Full
     state: EXECUTING
-    repo: xlib-standard
+    repo: resiliencx
     owner: zonecnh
     branch_policy: worktree-only
     evidence_required: true
@@ -216,7 +216,7 @@ Task 中必须包含：
 ```yaml
 files_to_change:
   - .agent/rules/07-worktree-rules.md
-  - scripts/harness/no-main-dev.sh
+  - cmd/goalcli/governance.go
   - Makefile
 ```
 
@@ -1093,7 +1093,7 @@ archive rule
 
 ## §231 Compatibility Guard 规则
 
-### **[P1]** `RULE-COMPAT-GUARD-001`：下游兼容性失败不得阻断 xlib-standard 内部发布
+### **[P1]** `RULE-COMPAT-GUARD-001`：下游兼容性失败不得阻断 resiliencx 内部发布
 
 <sub>level: P1 · status: active · enforced_by: `goalcli downstream-adoption` · exit: 1 · source: §231 L8961</sub>
 

@@ -1,3 +1,0 @@
-schema_version: "2.9.3"
-forbidden_reads: [/home/k8s/secrets/env]
-checks: [govulncheck, goalcli secrets]

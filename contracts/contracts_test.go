@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
+	"github.com/ZoneCNH/resiliencx/pkg/resiliencx"
 )
 
 type schemaProperty struct {
@@ -27,15 +27,15 @@ func TestErrorKindContractMatchesPublicConstants(t *testing.T) {
 	schema := readSchema(t, "error.schema.json")
 
 	expected := sortedStrings(
-		string(templatex.ErrorKindConfig),
-		string(templatex.ErrorKindValidation),
-		string(templatex.ErrorKindConnection),
-		string(templatex.ErrorKindUnavailable),
-		string(templatex.ErrorKindTimeout),
-		string(templatex.ErrorKindAuth),
-		string(templatex.ErrorKindConflict),
-		string(templatex.ErrorKindRateLimit),
-		string(templatex.ErrorKindInternal),
+		string(resiliencx.ErrorKindConfig),
+		string(resiliencx.ErrorKindValidation),
+		string(resiliencx.ErrorKindConnection),
+		string(resiliencx.ErrorKindUnavailable),
+		string(resiliencx.ErrorKindTimeout),
+		string(resiliencx.ErrorKindAuth),
+		string(resiliencx.ErrorKindConflict),
+		string(resiliencx.ErrorKindRateLimit),
+		string(resiliencx.ErrorKindInternal),
 	)
 	actual := sortedStrings(schema.Properties["kind"].Enum...)
 	if !reflect.DeepEqual(actual, expected) {
@@ -48,9 +48,9 @@ func TestHealthStatusContractMatchesPublicConstants(t *testing.T) {
 	schema := readSchema(t, "health.schema.json")
 
 	expected := sortedStrings(
-		string(templatex.HealthHealthy),
-		string(templatex.HealthDegraded),
-		string(templatex.HealthUnhealthy),
+		string(resiliencx.HealthHealthy),
+		string(resiliencx.HealthDegraded),
+		string(resiliencx.HealthUnhealthy),
 	)
 	actual := sortedStrings(schema.Properties["status"].Enum...)
 	if !reflect.DeepEqual(actual, expected) {
@@ -63,7 +63,7 @@ func TestConfigContractMatchesPublicConfig(t *testing.T) {
 	schema := readSchema(t, "config.schema.json")
 	requireFields(t, schema.Required, "name")
 
-	configType := reflect.TypeOf(templatex.Config{})
+	configType := reflect.TypeOf(resiliencx.Config{})
 	requireSchemaFieldMapsToStructField(t, schema, configType, "name", "Name", "string")
 	requireSchemaFieldMapsToStructField(t, schema, configType, "timeout_ms", "Timeout", "integer")
 	requireSchemaFieldMapsToStructField(t, schema, configType, "secret", "Secret", "string")
@@ -83,15 +83,15 @@ func TestMetricsContractDocumentsPublicConstants(t *testing.T) {
 	}
 	text := string(content)
 	for _, metric := range []string{
-		templatex.MetricClientCreatedTotal,
-		templatex.MetricClientClosedTotal,
-		templatex.MetricClientErrorsTotal,
-		templatex.MetricClientHealthStatus,
-		templatex.MetricClientHealthLatencyMS,
-		templatex.MetricClientRequestsTotal,
-		templatex.MetricClientRequestDurationSeconds,
-		templatex.MetricClientRetriesTotal,
-		templatex.MetricClientInflight,
+		resiliencx.MetricClientCreatedTotal,
+		resiliencx.MetricClientClosedTotal,
+		resiliencx.MetricClientErrorsTotal,
+		resiliencx.MetricClientHealthStatus,
+		resiliencx.MetricClientHealthLatencyMS,
+		resiliencx.MetricClientRequestsTotal,
+		resiliencx.MetricClientRequestDurationSeconds,
+		resiliencx.MetricClientRetriesTotal,
+		resiliencx.MetricClientInflight,
 	} {
 		if !strings.Contains(text, "`"+metric+"`") {
 			t.Fatalf("metrics contract does not document %q", metric)
@@ -102,12 +102,16 @@ func TestMetricsContractDocumentsPublicConstants(t *testing.T) {
 func TestGoalRuntimeSchemasAreValidJSON(t *testing.T) {
 	for _, path := range []string{
 		"goalcli-report.schema.json",
+		"goalcli-dashboard.schema.json",
 		"issue-registry.schema.json",
 		"command-registry.schema.json",
+		"layer-governance.schema.json",
 		"execution-context.schema.json",
 		"conformance-attestation.schema.json",
 		"policy.schema.json",
 		"execution-evidence.schema.json",
+		"downstream-adoption-proof.schema.json",
+		"docker-toolchain.schema.json",
 	} {
 		t.Run(path, func(t *testing.T) {
 			content, err := os.ReadFile(path)
@@ -159,8 +163,27 @@ func TestExecutionEvidenceContractRequiredFields(t *testing.T) {
 	}
 }
 
+func TestDownstreamAdoptionProofContractRequiredFields(t *testing.T) {
+	schema := readSchema(t, "downstream-adoption-proof.schema.json")
+	requireFields(t, schema.Required,
+		"schema_version",
+		"source_repo",
+		"source_commit",
+		"downstream_repo",
+		"downstream_commit",
+		"mode",
+		"gate_outputs",
+		"rollback",
+	)
+	mode := sortedStrings(schema.Properties["mode"].Enum...)
+	expectedMode := sortedStrings("patch-only", "dry-run", "pr-plan")
+	if !reflect.DeepEqual(mode, expectedMode) {
+		t.Fatalf("mode enum drift:\nactual:   %#v\nexpected: %#v", mode, expectedMode)
+	}
+}
+
 func TestExecutionEvidenceContractMatchesEvidenceManifest(t *testing.T) {
-	manifest, err := os.ReadFile("../.agent/evidence-artifacts.yaml")
+	manifest, err := os.ReadFile("../.agent/evidence/evidence-artifacts.yaml")
 	if err != nil {
 		t.Fatalf("read evidence-artifacts.yaml: %v", err)
 	}
@@ -173,7 +196,7 @@ func TestExecutionEvidenceContractMatchesEvidenceManifest(t *testing.T) {
 		"exit_code",
 	} {
 		if !strings.Contains(text, needle) {
-			t.Fatalf(".agent/evidence-artifacts.yaml missing required marker %q", needle)
+			t.Fatalf(".agent/evidence/evidence-artifacts.yaml missing required marker %q", needle)
 		}
 	}
 }

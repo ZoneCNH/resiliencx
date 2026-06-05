@@ -4,7 +4,7 @@
 
 ## 语义边界
 
-当前 `score` 是发布治理完整性分，不是运行时语义质量分。它主要证明必需文档、脚本、模板、manifest schema 和 gate wiring 存在并互相对齐；它不能替代单元测试、race、漏洞扫描、secret scan、integration 或 release Evidence 校验，也不能证明 public API 行为、覆盖率、benchmark 或下游真实运行质量。
+当前 `score` 是发布治理完整性分，不是运行时语义质量分。它主要证明必需文档、脚本、模板、manifest schema 和 gate wiring 存在并互相对齐；它不能替代单元测试、race、按开关启用的漏洞扫描、secret scan、integration 或 release Evidence 校验，也不能证明 public API 行为、覆盖率、benchmark 或下游真实运行质量。
 
 因此，`score >= 9.8` 只能作为 release governance 信号使用。发布结论必须同时读取 `make ci`、`make security`、`make release-final-check`、测试覆盖证据和必要的人工审查结果。
 

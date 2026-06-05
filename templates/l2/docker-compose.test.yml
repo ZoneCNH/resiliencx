@@ -1,0 +1,21 @@
+# Standards-only provider-neutral placeholder.
+# Downstream L2 repositories may add concrete service containers and testkitx
+# runner wiring in their own repository; resiliencx keeps this template free
+# of provider connections and executable Contract Runner implementation.
+name: l2-provider-neutral-test-placeholder
+
+services:
+  l2-standards-placeholder:
+    image: busybox:1.36
+    profiles: ["placeholder"]
+    network_mode: "none"
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+    command:
+      - sh
+      - -c
+      - |
+        test -f .agent/l2-capabilities.yaml
+        test -d .agent/evidence/l2
+        echo "L2 standards placeholder checked local manifest and evidence directory"

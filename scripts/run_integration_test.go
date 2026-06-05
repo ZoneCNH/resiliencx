@@ -72,3 +72,21 @@ func TestRunIntegrationCoversRequiredDownstreams(t *testing.T) {
 		t.Fatal("run_integration.sh still includes legacy corekit integration target")
 	}
 }
+
+func TestRenderedTemplateCheckSkipsMigratedInboxArchive(t *testing.T) {
+	contents, err := os.ReadFile("check_rendered_template.sh")
+	if err != nil {
+		t.Fatalf("read check_rendered_template.sh: %v", err)
+	}
+
+	script := string(contents)
+	for _, token := range []string{
+		"--glob '!.agent/archive/inbox/**'",
+		"--glob '!**/.agent/archive/inbox/**'",
+		"-not -path '*/.agent/archive/inbox/*'",
+	} {
+		if !strings.Contains(script, token) {
+			t.Fatalf("check_rendered_template.sh missing migrated inbox archive exclusion %q", token)
+		}
+	}
+}

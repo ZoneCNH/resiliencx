@@ -1,0 +1,572 @@
+schema_version: "1.0"
+issue: "#59"
+generated_at: "2026-06-03T22:20:00Z"
+purpose: "Phase 3/4 physical migration manifest for .agent logical-first classification."
+status: physical_migration_applied
+status_semantics: "Lifecycle acceptance state for #59 Phase 3/4; path coverage is declared by migrations, root_exceptions, and classified_in_place."
+compatibility_strategy:
+  old_paths: documented_compatibility_aliases
+  rule: "Repository consumers must reference new_path values; old_path values remain only in this manifest and release evidence compatibility records."
+  generated_artifacts: "Generated-only and validated-mirror artifacts keep stable semantics while their source registry paths move to physical classification directories."
+root_exceptions:
+  - path: .agent/index.yaml
+    reason: "Bootstrap index remains at the control-plane root so legacy tooling can discover physical classification without an alias hop."
+migrations:
+  - old_path: .agent/goal-runtime.md
+    new_path: .agent/runtime/goal-runtime.md
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/object-model.md
+    new_path: .agent/runtime/object-model.md
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/state-machine.md
+    new_path: .agent/runtime/state-machine.md
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/harness.yaml
+    new_path: .agent/harness/harness.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/command-registry.yaml
+    new_path: .agent/registries/command-registry.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/issue-registry.yaml
+    new_path: .agent/registries/issue-registry.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/layer-governance.yaml
+    new_path: .agent/policies/layer-governance.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/command-implementation-status.yaml
+    new_path: .agent/registries/command-implementation-status.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/makefile-target-registry.yaml
+    new_path: .agent/registries/makefile-target-registry.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/makefile-baseline.yaml
+    new_path: .agent/registries/makefile-baseline.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/release-required-gates.yaml
+    new_path: .agent/release/release-required-gates.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/evidence-protocol.md
+    new_path: .agent/evidence/evidence-protocol.md
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/runtime-file-ownership.yaml
+    new_path: .agent/policies/runtime-file-ownership.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/execution-context.yaml
+    new_path: .agent/policies/execution-context.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/policy-schema.yaml
+    new_path: .agent/policies/policy-schema.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/traceability-matrix.md
+    new_path: .agent/traceability/traceability-matrix.md
+    layer: traceability
+    compatibility: documented_alias
+  - old_path: .agent/risk-register.md
+    new_path: .agent/traceability/risk-register.md
+    layer: traceability
+    compatibility: documented_alias
+  - old_path: .agent/decision-log.md
+    new_path: .agent/traceability/decision-log.md
+    layer: traceability
+    compatibility: documented_alias
+  - old_path: .agent/rollback-protocol.md
+    new_path: .agent/runtime/rollback-protocol.md
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/release-template.md
+    new_path: .agent/release/release-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/agent-teams.md
+    new_path: .agent/docs/agent-teams.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/retrospective.md
+    new_path: .agent/archive/retrospective.md
+    layer: archive
+    compatibility: documented_alias
+  - old_path: .agent/acceptance-matrix.yaml
+    new_path: .agent/contracts/acceptance-matrix.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/autoresearch.yaml
+    new_path: .agent/policies/autoresearch.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/boundary.yaml
+    new_path: .agent/policies/boundary.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/changelog.yaml
+    new_path: .agent/archive/changelog.yaml
+    layer: archive
+    compatibility: documented_alias
+  - old_path: .agent/conformance-profiles.yaml
+    new_path: .agent/policies/conformance-profiles.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/debt/dependency-purpose.yaml
+    new_path: .agent/policies/debt/dependency-purpose.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/debt/exceptions.yaml
+    new_path: .agent/policies/debt/exceptions.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/debt/profile.yaml
+    new_path: .agent/policies/debt/profile.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/debt/register.md
+    new_path: .agent/archive/debt/register.md
+    layer: archive
+    compatibility: documented_alias
+  - old_path: .agent/debt/rule-registry.yaml
+    new_path: .agent/registries/debt/rule-registry.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/debt/rules.yaml
+    new_path: .agent/policies/debt/rules.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/design.md
+    new_path: .agent/docs/design.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/done-assertion.yaml
+    new_path: .agent/evidence/done-assertion.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/downstream-adoption-modes.yaml
+    new_path: .agent/registries/downstream-adoption-modes.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/downstream-adoption-status.yaml
+    new_path: .agent/registries/downstream-adoption-status.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/downstream-baseline-scan.yaml
+    new_path: .agent/registries/downstream-baseline-scan.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/downstream-registry.yaml
+    new_path: .agent/registries/downstream-registry.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/enforcement-levels.yaml
+    new_path: .agent/policies/enforcement-levels.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/evidence-artifact-policy.yaml
+    new_path: .agent/evidence/evidence-artifact-policy.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/evidence-artifacts.yaml
+    new_path: .agent/evidence/evidence-artifacts.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/evidence-pack.yaml
+    new_path: .agent/evidence/evidence-pack.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/evidence-replay.yaml
+    new_path: .agent/evidence/evidence-replay.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/evidence-template.md
+    new_path: .agent/evidence/evidence-template.md
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/evidence-usability.yaml
+    new_path: .agent/evidence/evidence-usability.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/evidence.md
+    new_path: .agent/evidence/evidence.md
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/failure-taxonomy.yaml
+    new_path: .agent/traceability/failure-taxonomy.yaml
+    layer: traceability
+    compatibility: documented_alias
+  - old_path: .agent/gate-pack.yaml
+    new_path: .agent/harness/gate-pack.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/gates.md
+    new_path: .agent/harness/gates.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/generated-artifacts.yaml
+    new_path: .agent/registries/generated-artifacts.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/github-governance.yaml
+    new_path: .agent/policies/github-governance.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/github-settings.yaml
+    new_path: .agent/policies/github-settings.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/goal.md
+    new_path: .agent/runtime/goal.md
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/governance-fixture-test.yaml
+    new_path: .agent/harness/governance-fixture-test.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/harness-patches.md
+    new_path: .agent/harness/harness-patches.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/harness-patches.yaml
+    new_path: .agent/harness/harness-patches.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/harness.md
+    new_path: .agent/harness/harness.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/inbox/goal-patch-v1.0-to-v2.2.md
+    new_path: .agent/archive/inbox/goal-patch-v1.0-to-v2.2.md
+    layer: archive
+    compatibility: documented_alias
+  - old_path: .agent/install-runtime.md
+    new_path: .agent/contracts/install-runtime.md
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/minimal-kernel.yaml
+    new_path: .agent/runtime/minimal-kernel.yaml
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/naming.yaml
+    new_path: .agent/policies/naming.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/plan.md
+    new_path: .agent/docs/plan.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/pr-template-contract.yaml
+    new_path: .agent/contracts/pr-template-contract.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/prompt-patches.md
+    new_path: .agent/docs/prompt-patches.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/prompt-patches.yaml
+    new_path: .agent/policies/prompt-patches.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/registry/commands.yaml
+    new_path: .agent/registries/commands.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/registry/runtime.yaml
+    new_path: .agent/registries/runtime.yaml
+    layer: registry
+    compatibility: documented_alias
+  - old_path: .agent/regression-memory.yaml
+    new_path: .agent/traceability/regression-memory.yaml
+    layer: traceability
+    compatibility: documented_alias
+  - old_path: .agent/release-readiness-formula.yaml
+    new_path: .agent/release/release-readiness-formula.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/release.md
+    new_path: .agent/release/release.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/retrospective-template.md
+    new_path: .agent/docs/retrospective-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/review-template.md
+    new_path: .agent/docs/review-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/review.md
+    new_path: .agent/docs/review.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/root-cause.yaml
+    new_path: .agent/traceability/root-cause.yaml
+    layer: traceability
+    compatibility: documented_alias
+  - old_path: .agent/rule-patches.md
+    new_path: .agent/docs/rule-patches.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/rule-patches.yaml
+    new_path: .agent/policies/rule-patches.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/runtime-health.yaml
+    new_path: .agent/contracts/runtime-health.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/runtime-install.yaml
+    new_path: .agent/contracts/runtime-install.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/runtime-upgrade.yaml
+    new_path: .agent/contracts/runtime-upgrade.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/scope-lock.md
+    new_path: .agent/docs/scope-lock.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/scope-lock.yaml
+    new_path: .agent/contracts/scope-lock.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/scope-locks.yaml
+    new_path: .agent/contracts/scope-locks.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/security.yaml
+    new_path: .agent/policies/security.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/self-healing-skeleton.md
+    new_path: .agent/docs/self-healing-skeleton.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/spec.md
+    new_path: .agent/docs/spec.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/standard-pack.yaml
+    new_path: .agent/contracts/standard-pack.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/standard/audit-2026-06-03.md
+    new_path: .agent/archive/standard/audit-2026-06-03.md
+    layer: archive
+    compatibility: documented_alias
+  - old_path: .agent/standard/goal-runtime-canonical.md
+    new_path: .agent/runtime/standard/goal-runtime-canonical.md
+    layer: runtime_contract
+    compatibility: documented_alias
+  - old_path: .agent/standard/goalcli-mapping.md
+    new_path: .agent/docs/standard/goalcli-mapping.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/tasks.md
+    new_path: .agent/docs/tasks.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/team-contract.md
+    new_path: .agent/docs/team-contract.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/team-contract.yaml
+    new_path: .agent/contracts/team-contract.yaml
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/templates/evidence-template.md
+    new_path: .agent/docs/templates/evidence-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/templates/issue-template.md
+    new_path: .agent/docs/templates/issue-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/templates/pr-template.md
+    new_path: .agent/docs/templates/pr-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/templates/release-manifest-template.md
+    new_path: .agent/docs/templates/release-manifest-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/templates/retrospective-template.md
+    new_path: .agent/docs/templates/retrospective-template.md
+    layer: documentation
+    compatibility: documented_alias
+  - old_path: .agent/toolchain.yaml
+    new_path: .agent/policies/toolchain.yaml
+    layer: policy
+    compatibility: documented_alias
+  - old_path: .agent/truth-state.yaml
+    new_path: .agent/evidence/truth-state.yaml
+    layer: evidence
+    compatibility: documented_alias
+  - old_path: .agent/upgrade-runtime.md
+    new_path: .agent/contracts/upgrade-runtime.md
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/upgrade-standard.md
+    new_path: .agent/contracts/upgrade-standard.md
+    layer: machine_contract
+    compatibility: documented_alias
+  - old_path: .agent/physical-migration-manifest.yaml
+    new_path: .agent/registries/physical-migration-manifest.yaml
+    layer: registry
+    compatibility: manifest_relocated
+classified_in_place:
+  - path: .agent/evidence/ledger.jsonl
+    layer: evidence
+    authority: source_of_truth
+    mutability: append_only
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/evidence/README.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/commit-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/context-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/design-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/evidence-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/pr-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/release-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/retro-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/spec-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/task-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/harness/gates/worktree-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/README.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/agent-runtime-rules.md
+    layer: policy
+    authority: validated_mirror
+    mutability: generated
+    reason: "Validated/generated artifact registered directly in its physical classification bucket."
+  - path: .agent/rules/commit-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/core-rules.md
+    layer: policy
+    authority: validated_mirror
+    mutability: generated
+    reason: "Validated/generated artifact registered directly in its physical classification bucket."
+  - path: .agent/rules/evidence-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/goal-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/harness-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/iron-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/issue-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/pr-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/registry.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: generated
+    reason: "Validated/generated artifact registered directly in its physical classification bucket."
+  - path: .agent/rules/release-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/risk-decision-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/schema-registry-rules.md
+    layer: policy
+    authority: validated_mirror
+    mutability: generated
+    reason: "Validated/generated artifact registered directly in its physical classification bucket."
+  - path: .agent/rules/security-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/self-improving-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."
+  - path: .agent/rules/worktree-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    reason: "Current physical-classification path with no flat-root source alias."

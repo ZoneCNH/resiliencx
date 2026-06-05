@@ -14,7 +14,7 @@
   2 - registry.yaml 解析失败
 
 用法:
-  python3 scripts/verify_rules.py
+  goalcli rules-verify
 """
 from __future__ import annotations
 
@@ -27,27 +27,18 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / ".agent" / "rules" / "registry.yaml"
 MAIN_GO = ROOT / "cmd" / "goalcli" / "main.go"
-REGISTRY_GO = ROOT / "cmd" / "goalcli" / "registry.go"
 MAKEFILE = ROOT / "Makefile"
 
 
 def load_goalcli_commands() -> set[str]:
-    cmds: set[str] = set()
-
-    # 1) main.go 中的 case 分支（向后兼容）
     text = MAIN_GO.read_text(encoding="utf-8")
+    cmds: set[str] = set()
     for line in text.splitlines():
         m = re.search(r"case\s+(.+?):\s*$", line)
         if not m:
             continue
         for tok in re.findall(r'"([^"]+)"', m.group(1)):
             cmds.add(tok)
-
-    # 2) registry.go 中 commandRegistry map 的 key
-    text = REGISTRY_GO.read_text(encoding="utf-8")
-    for m in re.finditer(r'^\s*"([^"]+)":\s', text, re.MULTILINE):
-        cmds.add(m.group(1))
-
     return cmds
 
 
@@ -61,8 +52,20 @@ def load_make_targets() -> set[str]:
     return targets
 
 
-def resolve(enforced_by: str, xcmds: set[str], mtargets: set[str]) -> str | None:
+def normalize_enforced_by(raw: str | dict | None) -> str:
+    """将 enforced_by 统一转为字符串格式（兼容 dict {command, args, context}）。"""
+    if isinstance(raw, dict):
+        cmd = raw.get("command", "")
+        args = raw.get("args", [])
+        if isinstance(args, list):
+            return " ".join([cmd] + [str(a) for a in args]) if cmd else ""
+        return cmd
+    return raw or ""
+
+
+def resolve(enforced_by: str | dict | None, xcmds: set[str], mtargets: set[str]) -> str | None:
     """返回 None 表示合法; 返回字符串描述表示问题"""
+    enforced_by = normalize_enforced_by(enforced_by)
     if not enforced_by:
         return None  # 应配合 status=indexed 检查
     parts = enforced_by.split()

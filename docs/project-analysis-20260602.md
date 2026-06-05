@@ -1,33 +1,33 @@
-# xlib-standard 深度分析报告
+# resiliencx 深度分析报告
 
 > 生成日期：2026-06-02
 > 分析范围：全仓库代码、测试、CI、治理体系、治理文件结构
 > 当前版本：v0.3.7 | 质量评分：10/10（阈值 9.8）
-> 口径说明：本文的 `v0.3.7` 是项目发布/分析快照版本；当前治理主基线以 [docs/goal.md](goal/goal.md) v2.9.3 Complete 和 [.agent/traceability-matrix.md](../.agent/traceability-matrix.md) 为准。
+> 口径说明：本文的 `v0.3.7` 是项目发布/分析快照版本；当前治理主基线以 [docs/goal.md](goal/goal.md) v2.9.3 Complete 和 [.agent/traceability/traceability-matrix.md](../.agent/traceability/traceability-matrix.md) 为准。
 
 ---
 
 ## 一、项目定位与核心职责
 
-`xlib-standard` 是一个 **Go 1.23 基础库标准与交付运行时仓库**，模块路径 `github.com/ZoneCNH/xlib-standard`，同时承担五类职责：
+`resiliencx` 是一个 **Go 1.23 基础库标准与交付运行时仓库**，模块路径 `github.com/ZoneCNH/resiliencx`，同时承担五类职责：
 
 | 职责                      | 说明                                                                                       |
 | ------------------------- | ------------------------------------------------------------------------------------------ |
 | **Standard Source**       | 维护基础库 P0 标准、仓库角色、分层、模块边界、DoD、安全、release 和 Evidence 协议          |
-| **Go Reference Template** | 提供可编译参考包 `pkg/templatex`，证明标准可落地                                           |
+| **Go Reference Template** | 提供可编译参考包 `pkg/resiliencx`，证明标准可落地                                           |
 | **Generator**             | 通过 `scripts/render_template.sh` 渲染下游基础库（kernel、configx、observex 等 10 个目标） |
 | **Harness**               | 通过 Makefile + `cmd/goalcli` 固化 60+ 门禁命令                                           |
 | **Evidence Runtime**      | 通过 `.agent/` 和 release manifest 记录可追溯完成状态                                      |
 
-旧名 `baselib-template` 和 `foundationx` 只允许出现在迁移文档语境中。
+旧名 `resiliencx` 和 `foundationx` 只允许出现在迁移文档语境中。
 
 ---
 
 ## 二、代码架构
 
 ```
-xlib-standard/
-├── pkg/templatex/          # 公共 API 参考实现（~10 文件）
+resiliencx/
+├── pkg/resiliencx/          # 公共 API 参考实现（~10 文件）
 │   ├── config.go           # Config + Validate + Sanitize
 │   ├── client.go           # New/Close 生命周期，mutex 保护
 │   ├── health.go           # 三态健康检查（healthy/degraded/unhealthy）
@@ -56,7 +56,7 @@ xlib-standard/
 
 ---
 
-## 三、核心包 `pkg/templatex` 设计亮点
+## 三、核心包 `pkg/resiliencx` 设计亮点
 
 1. **Config 模式**：`Validate()` 校验 → `Sanitize()` 脱敏 → 返回 `SanitizedConfig`，敏感字段不泄露
 2. **Client 生命周期**：`New()` 验证 context + config → `Close()` 幂等关闭，mutex 保护状态转换
@@ -160,7 +160,7 @@ golangci-lint 启用 14 个 linter（errorlint、govet、staticcheck、ineffassi
 - **设计层**：`docs/design.md`、`docs/spec.md`、`docs/api.md`
 - **运营层**：`docs/release.md`、`docs/scorecard.md`、`docs/supply-chain.md`
 - **ADR**：3 个架构决策记录
-- **迁移**：`docs/migration/baselib-template-to-xlib-standard.md`
+- **迁移**：`docs/migration/resiliencx-to-resiliencx.md`
 - **审计**：`docs/independent-audit-20260602.md`
 
 ---
@@ -213,7 +213,7 @@ golangci-lint 启用 14 个 linter（errorlint、govet、staticcheck、ineffassi
 | ------------------------ | ---- | ---------------------------------------------- |
 | Planned command 空壳验证 | -1.5 | 30 个命令只检查文件存在，gate 通过但无实质验证 |
 | governance.go 超级文件   | -0.5 | 743 行 40 函数，新增门禁需联动 7 个文件        |
-| 版本号体系混乱           | -0.5 | 4 套版本不同步，templatex.Version 停在 v0.1.0  |
+| 版本号体系混乱           | -0.5 | 4 套版本不同步，resiliencx.Version 停在 v0.1.0  |
 | Issue registry 硬编码    | -0.3 | count 值写死在 Go 代码中                       |
 | Shell/Go 职责分裂        | -0.3 | 输出格式不统一，check_docs.sh 470 行混合脚本   |
 | docs-check 脆弱性        | -0.2 | 70+ 条字符串包含断言                           |
@@ -229,4 +229,4 @@ golangci-lint 启用 14 个 linter（errorlint、govet、staticcheck、ineffassi
 
 ## 十一、一句话总结
 
-> `xlib-standard` 是一个**以治理为核心驱动力的基础库标准仓库**——它不只是提供 Go 代码模板，更构建了一套完整的"标准定义 → 机器门禁 → 发布证据"三层自验证体系，确保基础库的 API、安全、测试和发布流程可审计、可追溯、可复现。
+> `resiliencx` 是一个**以治理为核心驱动力的基础库标准仓库**——它不只是提供 Go 代码模板，更构建了一套完整的"标准定义 → 机器门禁 → 发布证据"三层自验证体系，确保基础库的 API、安全、测试和发布流程可审计、可追溯、可复现。

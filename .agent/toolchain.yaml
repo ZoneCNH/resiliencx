@@ -1,2 +1,0 @@
-schema_version: "2.9.3"
-required: [go, git, make, golangci-lint, govulncheck]

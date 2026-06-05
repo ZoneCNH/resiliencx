@@ -1,0 +1,47 @@
+version: "1.0"
+kind: l2-golden-sample-registry
+owner: resiliencx
+purpose: Standards-only sample manifests used to verify downstream shape without connecting to providers.
+samples:
+  redisx:
+    layer: L2
+    adapter_family: key_value
+    expected_contract_packs: [common, kv, ttl, pool]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false
+  postgresx:
+    layer: L2
+    adapter_family: relational
+    expected_contract_packs: [common, sql, transaction, pool]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false
+  kafkax:
+    layer: L2
+    adapter_family: streaming
+    expected_contract_packs: [common, producer, consumer, offset_commit]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false
+  natsx:
+    layer: L2
+    adapter_family: messaging
+    expected_contract_packs: [common, pubsub, request_reply]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false
+  ossx:
+    layer: L2
+    adapter_family: object_storage
+    expected_contract_packs: [common, objectstore]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false
+  clickhousex:
+    layer: L2
+    adapter_family: analytics
+    expected_contract_packs: [common, columnstore]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false
+  taosx:
+    layer: L2
+    adapter_family: time_series
+    expected_contract_packs: [common, timeseries]
+    manifest_template: templates/l2/.agent/l2-capabilities.yaml
+    provider_required: false

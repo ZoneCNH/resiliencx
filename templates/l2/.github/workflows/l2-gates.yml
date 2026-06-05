@@ -1,0 +1,16 @@
+name: L2 Gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  l2-standards-shape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check L2 manifest shape
+        run: make l2-manifest-check
+      - name: Check L2 evidence directory
+        run: make l2-evidence-check

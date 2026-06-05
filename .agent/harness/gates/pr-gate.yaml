@@ -9,7 +9,7 @@ rules:
   - PR 合并条件必须满足 (RULE-PR-003)
   - 禁止直接合并未验证 PR (RULE-PR-004)
 commands:
-  - make pr-check
+  - goalcli pr-check --context ci_pull_request
 pass_condition: PR 包含 Goal/Issues/Evidence/Traceability，CI 和 Harness 通过
 fail_condition: PR 缺少 Evidence 或 Traceability，或 CI 未通过
 evidence_required: PR description + CI result

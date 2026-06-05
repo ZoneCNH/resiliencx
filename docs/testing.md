@@ -1,6 +1,6 @@
 # 测试策略
 
-`xlib-standard` 的测试策略同时约束标准仓库、Go 参考模板、generator、Harness、Evidence Runtime 和所有生成基础库。
+`resiliencx` 的测试策略同时约束标准仓库、Go 参考模板、generator、Harness、Evidence Runtime 和所有生成基础库。
 
 ## 必需覆盖范围
 
@@ -26,3 +26,15 @@
 - `testkit` 必须验证 `Config("fixture")` 生成可通过 `Validate` 的测试配置。
 
 生成的基础库必须保持测试独立于 `x.go`，且不得读取 `/home/k8s/secrets/env/*`。
+
+## Docker Toolchain Runtime 测试
+
+Docker Toolchain Runtime 只把既有测试 gate 放入统一容器边界，不新增第二套断言。下游和 release 语境必须继续使用 `GOWORK=off`：
+
+```bash
+GOWORK=off make docker-toolchain-check
+GOWORK=off make docker-ci
+GOWORK=off make integration DOWNSTREAM=kernel
+```
+
+`make docker-ci` 在容器中运行既有 `make ci`；若 `goalcli doctor` 或 `goalcli score --min 9.8` 失败，应修复对应 doctor details 或 score 维度，不能用 Docker 成功替代测试 Evidence。

@@ -1,0 +1,18 @@
+version: "1.0"
+kind: l2gate
+standard_source: resiliencx
+runner: testkitx
+adjudicator: xlibgate
+policy:
+  fail_closed: true
+  provider_credentials_allowed: false
+  release_levels_source: resiliencx
+checks:
+  - name: capability-manifest-present
+    input: .agent/l2-capabilities.yaml
+  - name: contract-packs-declared
+    input: .agent/l2-capabilities.yaml
+  - name: evidence-present
+    input: .agent/evidence/l2
+  - name: release-readiness-evaluated
+    input: .agent/evidence/l2/release-readiness.json

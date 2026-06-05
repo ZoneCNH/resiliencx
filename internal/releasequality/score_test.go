@@ -234,12 +234,12 @@ func writeReleaseQualityFixture(t *testing.T, root string) {
 	score --min 9.8
 release-final-check: score-check
 `,
-		"scripts/check_release_evidence.sh": "RELEASE_EVIDENCE_MIN_SCORE --min-score",
-		"scripts/check_secrets.sh":          "github_pat_ ghp_[A-Za-z0-9_]{36,} PRIVATE KEY-----",
-		"docs/release.md":                   "go run ./cmd/goalcli score --min 9.8 workflow_run_id artifact_url",
-		"docs/supply-chain.md":              "score workflow_run_id artifact_url",
-		".agent/retrospective-template.md":  "Score Gate Patch",
-		".agent/release-template.md":        "go run ./cmd/goalcli score --min 9.8 CI artifact score",
+		"scripts/check_release_evidence.sh":     "RELEASE_EVIDENCE_MIN_SCORE --min-score",
+		"scripts/check_secrets.sh":              "github_pat_ ghp_[A-Za-z0-9_]{36,} PRIVATE KEY-----",
+		"docs/release.md":                       "go run ./cmd/goalcli score --min 9.8 workflow_run_id artifact_url",
+		"docs/supply-chain.md":                  "score workflow_run_id artifact_url",
+		".agent/docs/retrospective-template.md": "Score Gate Patch",
+		".agent/release/release-template.md":    "go run ./cmd/goalcli score --min 9.8 CI artifact score",
 	}
 
 	for name, content := range files {

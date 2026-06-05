@@ -30,7 +30,7 @@ const traceabilityValidMatrix = `# Traceability
 func TestTraceabilityCheckPasses(t *testing.T) {
 	dir := t.TempDir()
 	chdir(t, dir)
-	writeTraceFile(t, dir, ".agent/traceability-matrix.md", traceabilityValidMatrix)
+	writeTraceFile(t, dir, ".agent/traceability/traceability-matrix.md", traceabilityValidMatrix)
 	writeTraceFile(t, dir, "docs/standard/foo.md", "x")
 	writeTraceFile(t, dir, ".agent/state.yaml", "x")
 	writeTraceFile(t, dir, "docs/release.md", "x")
@@ -50,7 +50,7 @@ func TestTraceabilityCheckPasses(t *testing.T) {
 func TestTraceabilityCheckGapExits9(t *testing.T) {
 	dir := t.TempDir()
 	chdir(t, dir)
-	writeTraceFile(t, dir, ".agent/traceability-matrix.md", traceabilityValidMatrix)
+	writeTraceFile(t, dir, ".agent/traceability/traceability-matrix.md", traceabilityValidMatrix)
 	// 故意只创建部分产物, 其余缺失
 	writeTraceFile(t, dir, "docs/standard/foo.md", "x")
 

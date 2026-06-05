@@ -10,10 +10,14 @@ import (
 )
 
 const (
-	DefaultGoalID       = "GOAL-20260603-XLIB-GOALCLI-001"
-	EvidenceLedgerPath  = "release/evidence/goalcli/"
-	SourceLedgerPath    = ".agent/evidence/ledger.jsonl"
-	finalRuntimeCommand = "goal-runtime-final"
+	DefaultGoalID                   = "GOAL-20260603-XLIB-GOALCLI-001"
+	EvidenceLedgerPath              = "release/evidence/goalcli/"
+	SourceLedgerPath                = ".agent/evidence/ledger.jsonl"
+	finalRuntimeCommand             = "goal-runtime-final"
+	downstreamAdoptionClaimEvidence = "adoption_claim=not_claimed"
+	downstreamAdoptionScopeEvidence = "downstream_adoption_scope=local_contract_only"
+	downstreamAdoptionProofEvidence = "proof_based_adoption=false"
+	downstreamRepoWriteEvidence     = "downstream_repo_write=false"
 )
 
 var standardModulePath = "github.com/ZoneCNH/" + strings.Join([]string{"xlib", "standard"}, "-")
@@ -52,11 +56,11 @@ var sourceOnlyAuthorityPaths = []string{
 
 var portableAuthorityPaths = []string{
 	"docs/standard/goalcli-cli-contract.md",
-	".agent/harness.yaml",
-	".agent/command-registry.yaml",
-	".agent/registry/runtime.yaml",
-	".agent/registry/commands.yaml",
-	".agent/command-implementation-status.yaml",
+	".agent/harness/harness.yaml",
+	".agent/registries/command-registry.yaml",
+	".agent/registries/runtime.yaml",
+	".agent/registries/commands.yaml",
+	".agent/registries/command-implementation-status.yaml",
 	".agent/evidence/README.md",
 	"docs/standard/goalcli-runtime.md",
 	"docs/plans/goalcli-v0.1.0-roadmap.md",
@@ -170,6 +174,15 @@ func Evaluate(command string, options Options) (Report, error) {
 	if !standardSourceRoot {
 		report.Details = append(report.Details, "rendered downstream 按 template-generation-contract 排除 source-only authority，仅校验 portable governance authority")
 	}
+	if carriesDownstreamAdoptionBoundary(command) {
+		report.Details = append(report.Details, "downstream adoption evidence 仅声明 resiliencx 本地 contract；不声明 proof-based downstream adoption")
+		report.Evidence = append(report.Evidence,
+			downstreamAdoptionClaimEvidence,
+			downstreamAdoptionScopeEvidence,
+			downstreamAdoptionProofEvidence,
+			downstreamRepoWriteEvidence,
+		)
+	}
 	for _, path := range requiredAuthorityPaths(standardSourceRoot) {
 		full := filepath.Join(root, filepath.FromSlash(path))
 		if _, err := os.Stat(full); err != nil {
@@ -195,6 +208,10 @@ func Evaluate(command string, options Options) (Report, error) {
 		report.MVAStatus = "not-complete"
 	}
 	return report, nil
+}
+
+func carriesDownstreamAdoptionBoundary(command string) bool {
+	return command == "goal-downstream-adoption" || command == finalRuntimeCommand
 }
 
 func requiredAuthorityPaths(standardSourceRoot bool) []string {

@@ -1,0 +1,71 @@
+schema_version: "1.0"
+purpose: "将 rules/registry.yaml 中非结构化的 enforced_by 字符串归一为 {command, args, context} 形式。"
+authority: source_of_truth
+notes:
+  - "registry.yaml 是 generated 文件，本映射表定义其 enforced_by 的标准解读。"
+  - "goalcli validator 应使用本映射表验证 enforced_by 引用的合法性。"
+
+normalization_rules:
+  - pattern: "goalcli {subcommand}"
+    normalized:
+      command: "goalcli"
+      args: "{subcommand}"
+      context: "local_write"
+    examples:
+      - "goalcli goal-runtime"
+      - "goalcli pr-template"
+      - "goalcli worktree-guard"
+      - "goalcli evidence-check"
+      - "goalcli release-final-check"
+      - "goalcli traceability-check"
+      - "goalcli policy-schema"
+      - "goalcli issue-registry"
+      - "goalcli downstream-adoption"
+      - "goalcli runtime-health"
+      - "goalcli self-improving-check"
+      - "goalcli docs-check"
+      - "goalcli agent-team-contract"
+      - "goalcli makefile-baseline"
+      - "goalcli governance-fixture-test"
+      - "goalcli secrets"
+      - "goalcli release-evidence-check"
+      - "goalcli goal-certify"
+      - "goalcli github-settings"
+      - "goalcli downstream-registry"
+      - "goalcli debt"
+      - "goalcli context-fast-check"
+      - "goalcli command-registry"
+      - "goalcli github-governance"
+      - "goalcli attest-conformance"
+      - "goalcli acceptance-matrix"
+
+  - pattern: "goalcli"
+    normalized:
+      command: "goalcli"
+      args: ""
+      context: "local_write"
+    note: "裸 goalcli 引用，9 条规则。需确认对应子命令或标记为待归一。"
+
+  - pattern: "make {target}"
+    normalized:
+      command: "make"
+      args: "{target}"
+      context: "local_write"
+    examples:
+      - "make governance-check"
+
+  - pattern: ".githooks/pre-commit"
+    normalized:
+      command: ".githooks/pre-commit"
+      args: ""
+      context: "git_hook"
+    note: "Git hook 执行，9 条规则。"
+
+  - pattern: ""
+    normalized:
+      command: ""
+      args: ""
+      context: "unassigned"
+    note: "56 条规则无 enforcement。需后续补充或标记为 documentation-only。"
+
+rejected_patterns: []

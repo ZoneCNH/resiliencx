@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resiliencx.local/schemas/l2-release-readiness.schema.json",
+  "title": "L2 Release Readiness Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "adapter",
+    "target_level",
+    "score",
+    "profiles",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.0$"
+    },
+    "adapter": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_level": {
+      "enum": [
+        "L2-T0",
+        "L2-T1",
+        "L2-T2",
+        "L2-T3",
+        "L2-T4"
+      ]
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "profiles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "profile",
+          "path",
+          "status"
+        ],
+        "properties": {
+          "profile": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail",
+              "missing",
+              "not_applicable"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

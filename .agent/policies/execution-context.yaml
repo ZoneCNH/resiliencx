@@ -1,0 +1,27 @@
+schema_version: "2.9.3"
+contexts:
+  local_write:
+    write_scope: worktree
+    mutates_files: true
+    release_evidence: false
+    requires_gowork: off
+  local_readonly:
+    write_scope: read_only
+    mutates_files: false
+    release_evidence: false
+    requires_gowork: off
+  ci_pull_request:
+    write_scope: read_only
+    mutates_files: false
+    release_evidence: false
+    requires_gowork: off
+  ci_main_verify:
+    write_scope: read_only
+    mutates_files: false
+    release_evidence: false
+    requires_gowork: off
+  release_verify:
+    write_scope: release_read_only
+    mutates_files: false
+    release_evidence: true
+    requires_gowork: off

@@ -1,0 +1,62 @@
+schema_version: "1.0"
+classification:
+  artifact_class: generated_artifact_inventory
+  authority: source_of_truth
+  validated_by: release-evidence-check
+  notes: "Catalog only; artifacts remain generated-only and are validated by release gates."
+artifacts:
+  - path: .agent/registries/downstream-baseline-scan.yaml
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "goalcli downstream-baseline"
+    validated_by: standard-impact-check
+  - path: release/manifest/latest.json
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "GOWORK=off make evidence"
+    validated_by: release-evidence-check
+  - path: release/manifest/latest.json.sha256
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "GOWORK=off make evidence"
+    validated_by: release-evidence-check
+  - path: .agent/rules/registry.yaml
+    classification: validated_mirror
+    source_control: generated-only
+    generated_by: "goalcli rules-verify"
+    validated_by: command-registry
+  - path: .agent/rules/agent-runtime-rules.md
+    classification: validated_mirror
+    source_control: generated-only
+    generated_by: "goalcli rules-verify"
+    validated_by: command-registry
+  - path: .agent/rules/core-rules.md
+    classification: validated_mirror
+    source_control: generated-only
+    generated_by: "goalcli rules-verify"
+    validated_by: command-registry
+  - path: .agent/rules/schema-registry-rules.md
+    classification: validated_mirror
+    source_control: generated-only
+    generated_by: "goalcli rules-verify"
+    validated_by: command-registry
+  - path: .agent/evidence/l2-standard/schema-validate.json
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "python3 scripts/verify_l2_standard.py"
+    validated_by: evidence-check
+  - path: .agent/evidence/l2-standard/registry-check.json
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "python3 scripts/verify_l2_standard.py"
+    validated_by: evidence-check
+  - path: .agent/evidence/l2-standard/template-check.json
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "python3 scripts/verify_l2_standard.py"
+    validated_by: evidence-check
+  - path: .agent/evidence/l2-standard/verification-summary.json
+    classification: generated_artifact
+    source_control: generated-only
+    generated_by: "python3 scripts/verify_l2_standard.py"
+    validated_by: evidence-check

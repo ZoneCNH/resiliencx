@@ -1,0 +1,160 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": ".agent/registry/l2-contract-packs.yaml",
+      "status": "PASS",
+      "details": "YAML parsed and schema validated"
+    },
+    {
+      "check": ".agent/registry/l2-capability-families.yaml",
+      "status": "PASS",
+      "details": "YAML parsed"
+    },
+    {
+      "check": ".agent/registry/l2-golden-samples.yaml",
+      "status": "PASS",
+      "details": "YAML parsed"
+    },
+    {
+      "check": ".agent/registry/l2-release-levels.yaml",
+      "status": "PASS",
+      "details": "YAML parsed"
+    },
+    {
+      "check": ".agent/schemas/l2-capabilities.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": ".agent/schemas/l2-contract-packs.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": ".agent/schemas/l2-release-readiness.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": ".agent/schemas/l2-compliance-matrix.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": "templates/l2/.agent/l2-capabilities.yaml",
+      "status": "PASS",
+      "details": "template manifest validates against capability schema"
+    },
+    {
+      "check": "required-artifacts",
+      "status": "PASS",
+      "details": "12 template files and 9 docs present"
+    },
+    {
+      "check": "provider-boundary",
+      "status": "PASS",
+      "details": "no provider credentials/endpoints or secret fields in standards artifacts"
+    },
+    {
+      "check": "contract-pack-invariants",
+      "status": "PASS",
+      "details": {
+        "packs": [
+          "columnstore",
+          "common",
+          "consumer",
+          "eventlog",
+          "kv",
+          "objectstore",
+          "offset_commit",
+          "pool",
+          "producer",
+          "pubsub",
+          "request_reply",
+          "sql",
+          "timeseries",
+          "transaction",
+          "ttl"
+        ],
+        "extension_backlog_contains": "ttl"
+      }
+    },
+    {
+      "check": "release-level-invariants",
+      "status": "PASS",
+      "details": {
+        "levels": [
+          "L2-T0",
+          "L2-T1",
+          "L2-T2",
+          "L2-T3",
+          "L2-T4"
+        ]
+      }
+    },
+    {
+      "check": "template-make-targets",
+      "status": "PASS",
+      "details": [
+        "l2-capability-check",
+        "l2-contract",
+        "l2-integration",
+        "l2-chaos",
+        "l2-benchmark",
+        "l2-adoption",
+        "l2-evidence",
+        "l2-release-readiness",
+        "l2-manifest-check",
+        "l2-contract-placeholder",
+        "l2-evidence-check",
+        "l2-release-readiness-check"
+      ]
+    },
+    {
+      "check": "template-contract-test",
+      "status": "PASS",
+      "details": "local manifest shape check without skip"
+    },
+    {
+      "check": "template-compose",
+      "status": "PASS",
+      "details": "provider-neutral placeholder with no default network access"
+    },
+    {
+      "check": "docs-guidance-depth",
+      "status": "PASS",
+      "details": "9 L2 docs contain expanded provider-neutral guidance"
+    },
+    {
+      "check": "registry-summary",
+      "status": "PASS",
+      "details": {
+        "contract_packs": [
+          "columnstore",
+          "common",
+          "consumer",
+          "eventlog",
+          "kv",
+          "objectstore",
+          "offset_commit",
+          "pool",
+          "producer",
+          "pubsub",
+          "request_reply",
+          "sql",
+          "timeseries",
+          "transaction",
+          "ttl"
+        ],
+        "release_levels": [
+          "L2-T0",
+          "L2-T1",
+          "L2-T2",
+          "L2-T3",
+          "L2-T4"
+        ]
+      }
+    }
+  ]
+}

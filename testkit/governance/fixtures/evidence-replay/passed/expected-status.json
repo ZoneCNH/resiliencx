@@ -1,0 +1,10 @@
+{
+  "commands": {
+    "attest-conformance": "passed",
+    "release-ready": "passed",
+    "runtime-health": "passed"
+  },
+  "generated_at": "2026-06-03T00:00:00Z",
+  "max_age_hours": 876000,
+  "schema_version": "goalcli-evidence-replay/v1"
+}

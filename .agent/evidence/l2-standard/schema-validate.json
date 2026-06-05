@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": ".agent/registry/l2-contract-packs.yaml",
+      "status": "PASS",
+      "details": "YAML parsed and schema validated"
+    },
+    {
+      "check": ".agent/schemas/l2-capabilities.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": ".agent/schemas/l2-contract-packs.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": ".agent/schemas/l2-release-readiness.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": ".agent/schemas/l2-compliance-matrix.schema.json",
+      "status": "PASS",
+      "details": "JSON schema parsed and meta-schema checked"
+    },
+    {
+      "check": "templates/l2/.agent/l2-capabilities.yaml",
+      "status": "PASS",
+      "details": "template manifest validates against capability schema"
+    }
+  ]
+}

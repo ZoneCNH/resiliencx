@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "artifact": "docker-toolchain",
+  "status": "contracted",
+  "metrics": {
+    "required_make_targets": 13,
+    "required_manifest_validators": 7,
+    "required_ci_artifacts": 1
+  },
+  "gates": [
+    "docker-toolchain-check",
+    "docker-build-check",
+    "docker-ci",
+    "docker-release-check",
+    "docker-runtime-check",
+    "docker-drift-check",
+    "docker-contract"
+  ]
+}

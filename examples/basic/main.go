@@ -6,15 +6,15 @@ import (
 	"io"
 	"os"
 
-	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
+	"github.com/ZoneCNH/resiliencx/pkg/resiliencx"
 )
 
 func main() {
-	run(os.Stdout, os.Stderr, templatex.Config{Name: "templatex"})
+	run(os.Stdout, os.Stderr, resiliencx.Config{Name: "resiliencx"})
 }
 
-func run(stdout, stderr io.Writer, cfg templatex.Config) {
-	client, err := templatex.New(context.Background(), cfg)
+func run(stdout, stderr io.Writer, cfg resiliencx.Config) {
+	client, err := resiliencx.New(context.Background(), cfg)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "create client: %v\n", err)
 		return
@@ -23,5 +23,5 @@ func run(stdout, stderr io.Writer, cfg templatex.Config) {
 		_ = client.Close(context.Background())
 	}()
 
-	_, _ = fmt.Fprintln(stdout, templatex.ModuleName)
+	_, _ = fmt.Fprintln(stdout, resiliencx.ModuleName)
 }

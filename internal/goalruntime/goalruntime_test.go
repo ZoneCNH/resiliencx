@@ -45,6 +45,11 @@ func TestEvaluateGoalRuntimeFinalPassesWithAuthority(t *testing.T) {
 	if !contains(report.Evidence, "requires=goal-certify") {
 		t.Fatalf("evidence = %#v; want final gate dependency", report.Evidence)
 	}
+	for _, want := range downstreamAdoptionBoundaryEvidence() {
+		if !contains(report.Evidence, want) {
+			t.Fatalf("evidence = %#v; want downstream adoption boundary %s", report.Evidence, want)
+		}
+	}
 	if !containsSubstring(report.Details, "完成状态由本地 authority 校验和 evidence 写入共同证明") {
 		t.Fatalf("details = %#v; want completion evidence boundary", report.Details)
 	}
@@ -122,6 +127,27 @@ func TestEvaluateGoalcliGatePassesAsBlockingMVAContract(t *testing.T) {
 	}
 }
 
+func TestEvaluateDownstreamAdoptionDeclaresLocalScope(t *testing.T) {
+	root := t.TempDir()
+	writeAuthorityFixture(t, root)
+
+	report, err := Evaluate("goal-downstream-adoption", Options{Root: root})
+	if err != nil {
+		t.Fatalf("Evaluate returned error: %v", err)
+	}
+	if report.Status != "passed" {
+		t.Fatalf("status = %q; gaps %#v", report.Status, report.Gaps)
+	}
+	for _, want := range downstreamAdoptionBoundaryEvidence() {
+		if !contains(report.Evidence, want) {
+			t.Fatalf("evidence = %#v; want downstream adoption boundary %s", report.Evidence, want)
+		}
+	}
+	if !containsSubstring(report.Details, "不声明 proof-based downstream adoption") {
+		t.Fatalf("details = %#v; want proof-based adoption boundary", report.Details)
+	}
+}
+
 func TestEvaluateGoalRuntimeFinalRequiresPrerequisiteLedger(t *testing.T) {
 	root := t.TempDir()
 	writeAuthorityFixture(t, root)
@@ -163,6 +189,11 @@ func TestWriteEvidenceWritesPackAndLedgerIdempotently(t *testing.T) {
 	}
 	if !strings.Contains(string(pack), `"mva_status": "complete"`) || !strings.Contains(string(pack), `"blocking": true`) {
 		t.Fatalf("evidence pack = %s; want complete blocking report", pack)
+	}
+	for _, want := range downstreamAdoptionBoundaryEvidence() {
+		if !strings.Contains(string(pack), want) {
+			t.Fatalf("evidence pack = %s; want downstream adoption boundary %s", pack, want)
+		}
 	}
 	ledgerPath := filepath.Join(root, filepath.FromSlash(SourceLedgerPath))
 	ledger, err := os.ReadFile(ledgerPath)
@@ -237,6 +268,15 @@ func writePrerequisiteLedgerFixture(t *testing.T, root string, goalID string) {
 		if err := WriteEvidence(root, report); err != nil {
 			t.Fatalf("WriteEvidence prerequisite %s returned error: %v", command, err)
 		}
+	}
+}
+
+func downstreamAdoptionBoundaryEvidence() []string {
+	return []string{
+		downstreamAdoptionClaimEvidence,
+		downstreamAdoptionScopeEvidence,
+		downstreamAdoptionProofEvidence,
+		downstreamRepoWriteEvidence,
 	}
 }
 

@@ -1,35 +1,35 @@
 # 基础库总标准
 
-本文定义 `x.go` 基础库体系的最小生产标准。`xlib-standard` 是 [`https://github.com/ZoneCNH/xlib-standard`](https://github.com/ZoneCNH/xlib-standard) 对应的统一仓库，同时承担 Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime。旧 `baselib-template` 只作为迁移文档语境中的兼容名出现，不再表示独立主实现仓库。
+本文定义 `x.go` 基础库体系的最小生产标准。`resiliencx` 是 [`https://github.com/ZoneCNH/resiliencx`](https://github.com/ZoneCNH/resiliencx) 对应的统一仓库，同时承担 Standard Source、Go Reference Template、Generator、Harness 和 Evidence Runtime。旧 `resiliencx` 只作为迁移文档语境中的兼容名出现，不再表示独立主实现仓库。
 
 ## 仓库定位
 
-- `xlib-standard`：标准权威源，也是 Go 基础库模板、generator、Harness 和 Evidence 实现仓库。
+- `resiliencx`：标准权威源，也是 Go 基础库模板、generator、Harness 和 Evidence 实现仓库。
 - `kernel`：默认 L0 下游集成目标，用于证明模板生成和基础能力边界。
-- 生成库：由 `xlib-standard` 渲染得到的具体基础库，必须遵守本标准，并通过自身 Harness 和 Evidence 证明符合性。
-- 旧 `baselib-template` / `foundationx`：仅允许在迁移文档语境中出现。
+- 生成库：由 `resiliencx` 渲染得到的具体基础库，必须遵守本标准，并通过自身 Harness 和 Evidence 证明符合性。
+- 旧 `resiliencx` / `foundationx`：仅允许在迁移文档语境中出现。
 
 ## 标准目标
 
 - 提供独立 Go module，可在没有 `x.go` 的情况下构建、测试和发布。
 - 提供稳定公共 API、显式配置、可验证错误模型、健康检查、metrics contract 和 release Evidence。
 - 让新基础库从创建开始就具备 Harness gate、contracts、CI、文档、评审和复盘入口。
-- 用 `kernel`、`configx`、`observex`、`testkitx`、`postgresx`、`redisx`、`kafkax`、`taosx`、`ossx` 和 `clickhousex` 的下游矩阵约束复用边界。
+- 用 `kernel`、`configx`、`observex`、`testkitx`、`postgresx`、`redisx`、`kafkax`、`natsx`、`taosx`、`ossx` 和 `clickhousex` 的下游矩阵约束复用边界。
 
 ## 分层
 
-- Standard：`xlib-standard`，同时是 Standard 规则的独立来源和 Go 基础库模板中的实现仓库。
+- Standard：`resiliencx`，同时是 Standard 规则的独立来源和 Go 基础库模板中的实现仓库。
 - L0：`kernel` 等语言级、无业务依赖的公共能力。
-- L1：面向具体中间件或基础设施的库，例如 `postgresx`、`redisx`、`kafkax`、`taosx`、`ossx`、`clickhousex`。
-- L2：组合多个基础能力的技术组件。
-- Business：业务服务，只消费基础库，不向基础库反向注入业务模型。
+- L1：横切治理能力库，例如 `configx`、`observex`、`testkitx`。
+- L2：具体基础设施适配库，例如 `postgresx`、`redisx`、`kafkax`、`natsx`、`taosx`、`ossx`、`clickhousex`。
+- L3 / Business：`x.go`、`market-data`、`market-engine`、`macro-data`、`macro-engine`、`regime-engine` 等业务系统，只消费基础库，不向基础库反向注入业务模型。
 
 ## 依赖方向
 
-- 依赖方向只能从 Business 指向 L2/L1/L0/Standard，或从具体库继承 `xlib-standard`。
-- `xlib-standard` 不得依赖 `x.go`、业务仓库、profile-specific runtime 或生成库真实 runtime。
+- 依赖方向只能从 L3 / Business 指向 L2/L1/L0/Standard，或从具体库继承 `resiliencx`。
+- `resiliencx` 不得依赖 `x.go`、业务仓库、profile-specific runtime 或生成库真实 runtime。
 - 生成库不得依赖 `x.go`、业务模型或调用方生产密钥路径。
-- `/home/k8s/secrets/env/*` 是调用方部署路径；`xlib-standard`、`kernel` 和生成库不得读取该路径作为默认配置源，也不得把其内容写入源码、README、测试日志、release manifest、PR 描述或 Evidence。
+- `/home/k8s/secrets/env/*` 是调用方部署路径；`resiliencx`、`kernel` 和生成库不得读取该路径作为默认配置源，也不得把其内容写入源码、README、测试日志、release manifest、PR 描述或 Evidence。
 
 ## 公共 API
 

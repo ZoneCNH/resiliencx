@@ -905,7 +905,7 @@ xgo
 | ---------- | ------------- | ----------------------------------------- |
 | minimal    | 小库            | worktree/evidence/schema                  |
 | standard   | 普通基础库         | minimal + traceability/pr/release         |
-| full       | xlib-standard | standard + retro/adoption/audit/dashboard |
+| full       | resiliencx | standard + retro/adoption/audit/dashboard |
 | downstream | 下游库           | adoption-check + contract                 |
 | xgo        | x.go          | x.go 架构专用 gates                           |
 

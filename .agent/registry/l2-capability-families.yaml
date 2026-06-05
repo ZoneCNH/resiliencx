@@ -1,0 +1,31 @@
+version: "1.0"
+kind: l2-capability-family-registry
+owner: resiliencx
+families:
+  common:
+    description: Cross-adapter lifecycle, health, error, configuration, and resource behavior.
+    allowed_packs: [common, pool]
+  key_value:
+    description: Key-value data access and expiration semantics.
+    allowed_packs: [kv, ttl]
+  relational:
+    description: SQL, transaction, migration, and relational integrity semantics.
+    allowed_packs: [sql, transaction]
+  messaging:
+    description: Pub/sub, request/reply, and durable message-log semantics.
+    allowed_packs: [pubsub, request_reply, eventlog]
+  streaming:
+    description: Producer, consumer, offset, partition, and delivery-guarantee semantics.
+    allowed_packs: [producer, consumer, offset_commit]
+  object_storage:
+    description: Object CRUD, listing, metadata, and integrity semantics.
+    allowed_packs: [objectstore]
+  analytics:
+    description: Column-store ingestion, query, and analytical performance semantics.
+    allowed_packs: [columnstore]
+  time_series:
+    description: Time-series ingest, range query, retention, and tag semantics.
+    allowed_packs: [timeseries]
+manifest_fields:
+  required: [schema_version, adapter, capabilities, contract_packs, evidence]
+  forbidden: [provider_credentials, provider_endpoint, secret, password, token]

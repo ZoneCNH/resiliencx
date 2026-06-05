@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resiliencx.local/contracts/downstream-adoption-proof.schema.json",
+  "title": "Downstream adoption proof",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_repo",
+    "source_commit",
+    "downstream_repo",
+    "downstream_commit",
+    "mode",
+    "gate_outputs",
+    "rollback"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "source_repo": {"type": "string"},
+    "source_commit": {"type": "string"},
+    "downstream_repo": {"type": "string"},
+    "downstream_commit": {"type": "string"},
+    "mode": {"type": "string", "enum": ["patch-only", "dry-run", "pr-plan"]},
+    "gate_outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "status", "artifact_path", "sha256"],
+        "properties": {
+          "command": {"type": "string"},
+          "status": {"type": "string", "enum": ["passed", "failed", "gap"]},
+          "artifact_path": {"type": "string"},
+          "sha256": {"type": "string"}
+        }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "owner", "commands"],
+      "properties": {
+        "strategy": {"type": "string"},
+        "owner": {"type": "string"},
+        "commands": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

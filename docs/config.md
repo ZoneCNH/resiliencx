@@ -2,9 +2,9 @@
 
 ## 占位符
 
-- `{{MODULE_NAME}}`
-- `{{MODULE_PATH}}`
-- `{{PACKAGE_NAME}}`
+- `resiliencx`
+- `github.com/ZoneCNH/resiliencx`
+- `resiliencx`
 
 ## 规则
 

@@ -1,0 +1,35 @@
+version: "1.0"
+kind: l2-release-level-registry
+owner: resiliencx
+policy: L2 release levels are defined only by resiliencx and consumed downstream without local override.
+levels:
+  L2-T0:
+    name: Skeleton Ready
+    release_allowed: false
+    factory_grade_allowed: false
+    required_profiles: [skeleton]
+    min_score: 0
+  L2-T1:
+    name: Contract Ready
+    release_allowed: false
+    factory_grade_allowed: false
+    required_profiles: [unit, contract]
+    min_score: 60
+  L2-T2:
+    name: Integration Ready
+    release_allowed: false
+    factory_grade_allowed: false
+    required_profiles: [unit, contract, integration]
+    min_score: 75
+  L2-T3:
+    name: Release Ready
+    release_allowed: true
+    factory_grade_allowed: false
+    required_profiles: [unit, contract, integration, chaos, benchmark, adoption]
+    min_score: 85
+  L2-T4:
+    name: Factory Grade
+    release_allowed: true
+    factory_grade_allowed: true
+    required_profiles: [unit, contract, integration, chaos, benchmark, adoption, retrospective]
+    min_score: 95

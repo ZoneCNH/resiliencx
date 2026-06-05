@@ -6,14 +6,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 )
@@ -63,6 +61,16 @@ func TestCheckNamesCoverReleaseTargets(t *testing.T) {
 		"testing_debt",
 		"implementation_debt",
 		"downstream_debt",
+		"docker_toolchain_check",
+		"docker_build_check",
+		"docker_ci",
+		"docker_release_check",
+		"docker_release_final_check",
+		"docker_goalcli_image",
+		"docker_goalcli_version",
+		"docker_runtime_check",
+		"docker_drift_check",
+		"docker_contract",
 	}
 
 	if strings.Join(checkNames, ",") != strings.Join(wantNames, ",") {
@@ -117,7 +125,7 @@ func TestRunCLIGeneratesManifestToOut(t *testing.T) {
 	t.Setenv("VERSION", "v1.2.3-cli")
 	t.Setenv("GENERATED_BY", "releasemanifest-cli-test")
 	t.Setenv("CHECK_STATUS", "passed")
-	chdir(t, sharedFixtureRepo(t))
+	chdir(t, releaseManifestFixtureRepo(t))
 
 	outPath := filepath.Join(t.TempDir(), "custom", "latest.json")
 	var stdout bytes.Buffer
@@ -157,6 +165,20 @@ func TestRunCLIGeneratesManifestToOut(t *testing.T) {
 	}
 	if manifest.Workflow.WorkflowRunID == "" || manifest.Workflow.ArtifactName == "" || manifest.Workflow.ArtifactURL == "" {
 		t.Fatalf("workflow evidence is incomplete: %+v", manifest.Workflow)
+	}
+	if !manifest.Docker.Enabled {
+		t.Fatalf("docker.enabled = false, want default local evidence enabled")
+	}
+	if manifest.Docker.ContractVersion != "docker-toolchain/v2" || manifest.Docker.GoVersion == "" || manifest.Docker.GolangCILintVersion == "" || manifest.Docker.GovulncheckVersion == "" {
+		t.Fatalf("docker toolchain version evidence is incomplete: %+v", manifest.Docker)
+	}
+	if manifest.Docker.BaseImage == "" || manifest.Docker.ToolchainImage == "" || manifest.Docker.RuntimeImage == "" {
+		t.Fatalf("docker image evidence is incomplete: %+v", manifest.Docker)
+	}
+	for _, validator := range dockerEvidenceValidators {
+		if !contains(manifest.Docker.ValidatedBy, validator) {
+			t.Fatalf("docker.validated_by = %v, want %s", manifest.Docker.ValidatedBy, validator)
+		}
 	}
 	if manifest.Score.Threshold != 9.8 || manifest.Score.Status == "" || len(manifest.Score.Dimensions) == 0 {
 		t.Fatalf("score report is incomplete: %+v", manifest.Score)
@@ -228,7 +250,7 @@ func TestRunCLIGenerateReportsBuildManifestFailure(t *testing.T) {
 func TestRunCLIGenerateReportsWriteManifestFailure(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
-	chdir(t, sharedFixtureRepo(t))
+	chdir(t, releaseManifestFixtureRepo(t))
 
 	outPath := t.TempDir()
 	var stdout bytes.Buffer
@@ -246,134 +268,62 @@ func TestRunCLIGenerateReportsWriteManifestFailure(t *testing.T) {
 	}
 }
 
-// 合并多个 CLI verify 测试，共享 cachedCLIGenerateManifest 结果。
-func TestRunCLIVerifySuite(t *testing.T) {
-	outPath := cachedCLIGenerateManifest(t)
+func TestRunCLIVerifiesManifestWithRequirePassed(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("VERSION", "v1.2.3")
+	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
+	repo := releaseManifestFixtureRepo(t)
+	writeStandardImpactReportFixture(t, repo)
+	chdir(t, repo)
 
-	// --- AcceptsFreshManifestWithRequirePassed ---
-	t.Run("AcceptsFreshManifest", func(t *testing.T) {
-		var stdout, stderr bytes.Buffer
-		code := runCLI("releasemanifest", []string{"-verify", outPath, "-require-passed", "-expect-version", "v1.2.3"}, &stdout, &stderr)
-		if code != 0 {
-			t.Fatalf("runCLI verify exit code = %d, want 0; stderr: %s", code, stderr.String())
-		}
-		if stderr.Len() != 0 {
-			t.Fatalf("stderr = %q, want empty", stderr.String())
-		}
-		if want := "release evidence verified: " + outPath; !strings.Contains(stdout.String(), want) {
-			t.Fatalf("stdout = %q, want substring %q", stdout.String(), want)
-		}
-	})
+	outPath := filepath.Join(t.TempDir(), "latest.json")
+	var generateStdout bytes.Buffer
+	var generateStderr bytes.Buffer
+	if code := runCLI("releasemanifest", []string{"-out", outPath}, &generateStdout, &generateStderr); code != 0 {
+		t.Fatalf("runCLI generate exit code = %d, want 0; stderr: %s", code, generateStderr.String())
+	}
 
-	// --- RejectsScoreBelowMinimum ---
-	t.Run("RejectsScoreBelowMinimum", func(t *testing.T) {
-		var stdout, stderr bytes.Buffer
-		code := runCLI("releasemanifest", []string{"-verify", outPath, "-min-score", "9.8"}, &stdout, &stderr)
-		if code != 1 {
-			t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
-		}
-		if stdout.Len() != 0 {
-			t.Fatalf("stdout = %q, want empty", stdout.String())
-		}
-		for _, want := range []string{"release score", "below minimum"} {
-			if !strings.Contains(stderr.String(), want) {
-				t.Fatalf("stderr = %q, want substring %q", stderr.String(), want)
-			}
-		}
-	})
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	code := runCLI("releasemanifest", []string{"-verify", outPath, "-require-passed", "-expect-version", "v1.2.3"}, &stdout, &stderr)
+	if code != 0 {
+		t.Fatalf("runCLI verify exit code = %d, want 0; stderr: %s", code, stderr.String())
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("stderr = %q, want empty", stderr.String())
+	}
+	if want := "release evidence verified: " + outPath; !strings.Contains(stdout.String(), want) {
+		t.Fatalf("stdout = %q, want substring %q", stdout.String(), want)
+	}
+}
 
-	// --- RejectsExpectedVersionMismatch ---
-	t.Run("RejectsExpectedVersionMismatch", func(t *testing.T) {
-		var stdout, stderr bytes.Buffer
-		code := runCLI("releasemanifest", []string{"-verify", outPath, "-expect-version", "v9.9.9"}, &stdout, &stderr)
-		if code != 1 {
-			t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
-		}
-		if stdout.Len() != 0 {
-			t.Fatalf("stdout = %q, want empty", stdout.String())
-		}
-		if want := `version mismatch: got "v1.2.3", want "v9.9.9"`; !strings.Contains(stderr.String(), want) {
+func TestRunCLIVerifyRejectsScoreBelowMinimum(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("CHECK_STATUS", "passed")
+	chdir(t, releaseManifestFixtureRepo(t))
+
+	outPath := filepath.Join(t.TempDir(), "latest.json")
+	var generateStdout bytes.Buffer
+	var generateStderr bytes.Buffer
+	if code := runCLI("releasemanifest", []string{"-out", outPath}, &generateStdout, &generateStderr); code != 0 {
+		t.Fatalf("runCLI generate exit code = %d, want 0; stderr: %s", code, generateStderr.String())
+	}
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	code := runCLI("releasemanifest", []string{"-verify", outPath, "-min-score", "9.8"}, &stdout, &stderr)
+	if code != 1 {
+		t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
+	}
+	if stdout.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty", stdout.String())
+	}
+	for _, want := range []string{"release score", "below minimum"} {
+		if !strings.Contains(stderr.String(), want) {
 			t.Fatalf("stderr = %q, want substring %q", stderr.String(), want)
 		}
-	})
-
-	// --- ReportsDrift ---
-	t.Run("ReportsDrift", func(t *testing.T) {
-		data, err := os.ReadFile(outPath)
-		if err != nil {
-			t.Fatal(err)
-		}
-		var manifest Manifest
-		if err := json.Unmarshal(data, &manifest); err != nil {
-			t.Fatal(err)
-		}
-		manifest.SourceDigest = "sha256:stale"
-		manifest.Checks["lint"] = "failed"
-		manifest.StandardImpact.Status = "stale"
-		manifest.Debt.Status = "stale"
-		manifest.GovernanceRuntime.Status = "stale"
-		manifest.DownstreamSyncRequired = !manifest.StandardImpact.DownstreamSyncRequired
-		manifest.GovernanceRuntime.RuntimeVersion = "v2.9.2"
-		manifest.GovernanceRuntime.ProfileStatuses["p2_runtime"] = "failed"
-		manifest.GeneratorEvidence.Targets = nil
-		driftPath := filepath.Join(t.TempDir(), "drift.json")
-		if err := writeManifest(driftPath, manifest); err != nil {
-			t.Fatal(err)
-		}
-
-		var stdout, stderr bytes.Buffer
-		code := runCLI("releasemanifest", []string{"-verify", driftPath, "-require-passed"}, &stdout, &stderr)
-		if code != 1 {
-			t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
-		}
-		if stdout.Len() != 0 {
-			t.Fatalf("stdout = %q, want empty", stdout.String())
-		}
-		message := stderr.String()
-		for _, want := range []string{
-			"ERROR: release evidence verification failed",
-			"source_digest does not match current tracked file contents",
-			"standard_impact does not match current standard impact evidence",
-			"debt does not match current debt evidence",
-			`debt.status must be passed, got "stale"`,
-			"governance_runtime does not match current context runtime evidence",
-			"generator_evidence does not match current integration evidence",
-			`checks.lint must be passed, got "failed"`,
-		} {
-			if !strings.Contains(message, want) {
-				t.Fatalf("stderr = %q, want substring %q", message, want)
-			}
-		}
-	})
-
-	// --- RequiresCleanTree ---
-	t.Run("RequiresCleanTree", func(t *testing.T) {
-		data, err := os.ReadFile(outPath)
-		if err != nil {
-			t.Fatal(err)
-		}
-		var manifest Manifest
-		if err := json.Unmarshal(data, &manifest); err != nil {
-			t.Fatal(err)
-		}
-		manifest.TreeState = "dirty"
-		dirtyPath := filepath.Join(t.TempDir(), "dirty.json")
-		if err := writeManifest(dirtyPath, manifest); err != nil {
-			t.Fatal(err)
-		}
-
-		var stdout, stderr bytes.Buffer
-		code := runCLI("releasemanifest", []string{"-verify", dirtyPath, "-require-clean"}, &stdout, &stderr)
-		if code != 1 {
-			t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
-		}
-		if stdout.Len() != 0 {
-			t.Fatalf("stdout = %q, want empty", stdout.String())
-		}
-		if want := `tree_state must be clean, got "dirty"`; !strings.Contains(stderr.String(), want) {
-			t.Fatalf("stderr = %q, want substring %q", stderr.String(), want)
-		}
-	})
+	}
 }
 
 func TestBuildWorkflowEvidencePrefersExplicitEnvironment(t *testing.T) {
@@ -385,6 +335,219 @@ func TestBuildWorkflowEvidencePrefersExplicitEnvironment(t *testing.T) {
 
 	if got.WorkflowRunID != "12345" || got.ArtifactName != "manifest-artifact" || got.ArtifactURL != "https://example.invalid/artifacts/manifest" {
 		t.Fatalf("workflow evidence = %+v, want explicit env values", got)
+	}
+}
+
+func TestBuildDockerEvidencePrefersExplicitEnvironment(t *testing.T) {
+	t.Setenv("WORKFLOW_RUN_ID", "12345")
+	t.Setenv("ARTIFACT_NAME", "manifest-artifact")
+	t.Setenv("ARTIFACT_URL", "https://example.invalid/artifacts/manifest")
+	t.Setenv("DOCKER_TOOLCHAIN_ENABLED", "true")
+	t.Setenv("DOCKER_CONTRACT_VERSION", "docker-toolchain/v2")
+	t.Setenv("DOCKER_GO_VERSION", "go1.25.0")
+	t.Setenv("DOCKER_GOLANGCI_LINT_VERSION", "golangci-lint v2.0.0")
+	t.Setenv("DOCKER_GOVULNCHECK_VERSION", "govulncheck v1.2.3")
+	t.Setenv("DOCKER_BUILDKIT_REQUIRED", "true")
+	t.Setenv("DOCKER_CACHE_MOUNTS", "go-build,go-mod,lint-cache")
+	t.Setenv("DOCKER_BASE_IMAGE", "golang:1.25")
+	t.Setenv("DOCKER_BASE_IMAGE_DIGEST", "sha256:base")
+	t.Setenv("DOCKER_TOOLCHAIN_IMAGE", "ghcr.io/example/toolchain:latest")
+	t.Setenv("DOCKER_TOOLCHAIN_IMAGE_DIGEST", "sha256:toolchain")
+	t.Setenv("DOCKER_RUNTIME_IMAGE", "ghcr.io/example/runtime:latest")
+	t.Setenv("DOCKER_RUNTIME_IMAGE_DIGEST", "sha256:runtime")
+	t.Setenv("DOCKER_VALIDATED_BY", strings.Join(dockerEvidenceValidators, ","))
+	t.Setenv("DOCKER_ARTIFACT_NAME", "docker-evidence")
+	t.Setenv("DOCKER_ARTIFACT_URL", "https://example.invalid/artifacts/docker")
+
+	got := buildDockerEvidence()
+
+	if !got.Enabled || got.ContractVersion != "docker-toolchain/v2" || got.GoVersion != "go1.25.0" {
+		t.Fatalf("docker evidence basic fields = %+v, want explicit env values", got)
+	}
+	if got.BaseImageDigest != "sha256:base" || got.ToolchainImageDigest != "sha256:toolchain" || got.RuntimeImageDigest != "sha256:runtime" {
+		t.Fatalf("docker digests = %+v, want explicit digest env values", got)
+	}
+	if got.ArtifactName != "docker-evidence" || got.ArtifactURL != "https://example.invalid/artifacts/docker" || got.WorkflowRunID != "12345" {
+		t.Fatalf("docker artifact evidence = %+v, want explicit artifact values", got)
+	}
+	for _, validator := range dockerEvidenceValidators {
+		if !contains(got.ValidatedBy, validator) {
+			t.Fatalf("docker.validated_by = %v, want %s", got.ValidatedBy, validator)
+		}
+	}
+}
+
+func setDockerDigestEvidence(t *testing.T) {
+	t.Helper()
+
+	t.Setenv("DOCKER_BASE_IMAGE_DIGEST", "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	t.Setenv("DOCKER_TOOLCHAIN_IMAGE_DIGEST", "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+	t.Setenv("DOCKER_RUNTIME_IMAGE_DIGEST", "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+}
+
+func TestVerifyManifestRejectsEnabledDockerEvidenceWithoutDigests(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("CHECK_STATUS", "passed")
+	repo := releaseManifestFixtureRepo(t)
+	writeStandardImpactReportFixture(t, repo)
+	chdir(t, repo)
+
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest.Docker.Enabled = true
+	manifest.Docker.BaseImage = "golang:1.25"
+	manifest.Docker.BaseImageDigest = ""
+	manifest.Docker.ToolchainImage = "ghcr.io/example/toolchain:latest"
+	manifest.Docker.ToolchainImageDigest = "not-a-sha"
+	manifest.Docker.RuntimeImage = "ghcr.io/example/runtime:latest"
+	manifest.Docker.RuntimeImageDigest = ""
+
+	path := filepath.Join(t.TempDir(), "manifest.json")
+	if err := writeManifest(path, manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	err = verifyManifest(path, true, false, "", 0)
+	if err == nil {
+		t.Fatal("verify manifest with missing Docker digests succeeded, want error")
+	}
+	message := err.Error()
+	for _, want := range []string{
+		"docker.base_image_digest is required",
+		"docker.toolchain_image_digest must start with sha256:",
+		"docker.runtime_image_digest is required",
+	} {
+		if !strings.Contains(message, want) {
+			t.Fatalf("error = %q, want substring %q", message, want)
+		}
+	}
+}
+
+func TestRunCLIVerifyRejectsExpectedVersionMismatch(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("VERSION", "v1.2.3")
+	t.Setenv("CHECK_STATUS", "passed")
+	chdir(t, releaseManifestFixtureRepo(t))
+
+	outPath := filepath.Join(t.TempDir(), "latest.json")
+	var generateStdout bytes.Buffer
+	var generateStderr bytes.Buffer
+	if code := runCLI("releasemanifest", []string{"-out", outPath}, &generateStdout, &generateStderr); code != 0 {
+		t.Fatalf("runCLI generate exit code = %d, want 0; stderr: %s", code, generateStderr.String())
+	}
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	code := runCLI("releasemanifest", []string{"-verify", outPath, "-expect-version", "v9.9.9"}, &stdout, &stderr)
+	if code != 1 {
+		t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
+	}
+	if stdout.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty", stdout.String())
+	}
+	if want := `version mismatch: got "v1.2.3", want "v9.9.9"`; !strings.Contains(stderr.String(), want) {
+		t.Fatalf("stderr = %q, want substring %q", stderr.String(), want)
+	}
+}
+
+func TestRunCLIVerifyReportsDrift(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
+	chdir(t, releaseManifestFixtureRepo(t))
+
+	outPath := filepath.Join(t.TempDir(), "latest.json")
+	var generateStdout bytes.Buffer
+	var generateStderr bytes.Buffer
+	if code := runCLI("releasemanifest", []string{"-out", outPath}, &generateStdout, &generateStderr); code != 0 {
+		t.Fatalf("runCLI generate exit code = %d, want 0; stderr: %s", code, generateStderr.String())
+	}
+
+	data, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest Manifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	manifest.SourceDigest = "sha256:stale"
+	manifest.Checks["lint"] = "failed"
+	manifest.StandardImpact.Status = "stale"
+	manifest.Debt.Status = "stale"
+	manifest.GovernanceRuntime.Status = "stale"
+	manifest.DownstreamSyncRequired = !manifest.StandardImpact.DownstreamSyncRequired
+	manifest.GovernanceRuntime.RuntimeVersion = "v2.9.2"
+	manifest.GovernanceRuntime.ProfileStatuses["p2_runtime"] = "failed"
+	manifest.GeneratorEvidence.Targets = nil
+	if err := writeManifest(outPath, manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	code := runCLI("releasemanifest", []string{"-verify", outPath, "-require-passed"}, &stdout, &stderr)
+	if code != 1 {
+		t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
+	}
+	if stdout.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty", stdout.String())
+	}
+	message := stderr.String()
+	for _, want := range []string{
+		"ERROR: release evidence verification failed",
+		"source_digest does not match current tracked file contents",
+		"standard_impact does not match current standard impact evidence",
+		"debt does not match current debt evidence",
+		`debt.status must be passed, got "stale"`,
+		"governance_runtime does not match current context runtime evidence",
+		"generator_evidence does not match current integration evidence",
+		`checks.lint must be passed, got "failed"`,
+	} {
+		if !strings.Contains(message, want) {
+			t.Fatalf("stderr = %q, want substring %q", message, want)
+		}
+	}
+}
+
+func TestRunCLIVerifyRequiresCleanTree(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("CHECK_STATUS", "passed")
+	chdir(t, releaseManifestFixtureRepo(t))
+
+	outPath := filepath.Join(t.TempDir(), "latest.json")
+	var generateStdout bytes.Buffer
+	var generateStderr bytes.Buffer
+	if code := runCLI("releasemanifest", []string{"-out", outPath}, &generateStdout, &generateStderr); code != 0 {
+		t.Fatalf("runCLI generate exit code = %d, want 0; stderr: %s", code, generateStderr.String())
+	}
+
+	data, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest Manifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	manifest.TreeState = "dirty"
+	if err := writeManifest(outPath, manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	code := runCLI("releasemanifest", []string{"-verify", outPath, "-require-clean"}, &stdout, &stderr)
+	if code != 1 {
+		t.Fatalf("runCLI verify exit code = %d, want 1; stdout: %s; stderr: %s", code, stdout.String(), stderr.String())
+	}
+	if stdout.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty", stdout.String())
+	}
+	if want := `tree_state must be clean, got "dirty"`; !strings.Contains(stderr.String(), want) {
+		t.Fatalf("stderr = %q, want substring %q", stderr.String(), want)
 	}
 }
 
@@ -455,19 +618,24 @@ func TestMainDelegatesToRunCLIAndExit(t *testing.T) {
 
 func TestBuildManifestRecordsFixtureRepositoryFacts(t *testing.T) {
 	t.Setenv("GOWORK", "off")
+	t.Setenv("VERSION", "v9.9.9-test")
+	t.Setenv("GENERATED_BY", "releasemanifest-test")
 	t.Setenv("CHECK_STATUS", "passed")
-	chdir(t, sharedFixtureRepo(t))
+	chdir(t, releaseManifestFixtureRepo(t))
 
-	manifest := cachedBuildManifest(t)
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if manifest.Module != "example.com/releasefixture" {
 		t.Fatalf("module = %q, want example.com/releasefixture", manifest.Module)
 	}
-	if manifest.Version == "" {
-		t.Fatal("version is empty")
+	if manifest.Version != "v9.9.9-test" {
+		t.Fatalf("version = %q, want v9.9.9-test", manifest.Version)
 	}
-	if manifest.GeneratedBy == "" {
-		t.Fatal("generated_by is empty")
+	if manifest.GeneratedBy != "releasemanifest-test" {
+		t.Fatalf("generated_by = %q, want releasemanifest-test", manifest.GeneratedBy)
 	}
 	if _, err := time.Parse(time.RFC3339, manifest.GeneratedAt); err != nil {
 		t.Fatalf("generated_at = %q, want RFC3339: %v", manifest.GeneratedAt, err)
@@ -486,6 +654,17 @@ func TestBuildManifestRecordsFixtureRepositoryFacts(t *testing.T) {
 	}
 	if manifest.Tools["go"] == "" {
 		t.Fatal("tools.go is empty")
+	}
+	if !manifest.Docker.Enabled || manifest.Docker.ContractVersion != "docker-toolchain/v2" || len(manifest.Docker.CacheMounts) == 0 {
+		t.Fatalf("docker evidence = %+v, want enabled v2 contract and cache evidence", manifest.Docker)
+	}
+	if manifest.Docker.BaseImage == "" || manifest.Docker.ToolchainImage == "" || manifest.Docker.RuntimeImage == "" {
+		t.Fatalf("docker image evidence = %+v, want image evidence", manifest.Docker)
+	}
+	for _, validator := range dockerEvidenceValidators {
+		if !contains(manifest.Docker.ValidatedBy, validator) {
+			t.Fatalf("docker.validated_by = %v, want %s", manifest.Docker.ValidatedBy, validator)
+		}
 	}
 	if manifest.StandardImpact.ReportPath != standardImpactReportPath {
 		t.Fatalf("standard_impact.report_path = %q, want %q", manifest.StandardImpact.ReportPath, standardImpactReportPath)
@@ -570,7 +749,7 @@ func TestBuildManifestReportsBuilderFailures(t *testing.T) {
 			name: "source digest",
 			setup: func(t *testing.T) string {
 				t.Setenv("GOWORK", "off")
-				return copyFixtureRepo(t)
+				return releaseManifestFixtureRepo(t)
 			},
 			mock: func(name string, args ...string) ([]byte, error) {
 				if name == "git" && strings.Join(args, " ") == "ls-files -z" {
@@ -584,7 +763,7 @@ func TestBuildManifestReportsBuilderFailures(t *testing.T) {
 			name: "module digests",
 			setup: func(t *testing.T) string {
 				t.Setenv("GOWORK", "off")
-				return copyFixtureRepo(t)
+				return releaseManifestFixtureRepo(t)
 			},
 			mock: func(name string, args ...string) ([]byte, error) {
 				if name == "go" && strings.Join(args, " ") == "list -m -json all" {
@@ -598,7 +777,7 @@ func TestBuildManifestReportsBuilderFailures(t *testing.T) {
 			name: "standard impact",
 			setup: func(t *testing.T) string {
 				t.Setenv("GOWORK", "off")
-				repo := copyFixtureRepo(t)
+				repo := releaseManifestFixtureRepo(t)
 				reportPath := filepath.Join(repo, filepath.FromSlash(standardImpactReportPath))
 				if err := os.MkdirAll(reportPath, 0o755); err != nil {
 					t.Fatal(err)
@@ -611,7 +790,7 @@ func TestBuildManifestReportsBuilderFailures(t *testing.T) {
 			name: "debt evidence",
 			setup: func(t *testing.T) string {
 				t.Setenv("GOWORK", "off")
-				repo := copyFixtureRepo(t)
+				repo := releaseManifestFixtureRepo(t)
 				reportPath := filepath.Join(repo, filepath.FromSlash(debtReportPath))
 				if err := os.Remove(reportPath); err != nil {
 					t.Fatal(err)
@@ -643,13 +822,75 @@ func TestBuildManifestReportsBuilderFailures(t *testing.T) {
 	}
 }
 
+func TestVerifyManifestAcceptsFreshManifestAndRejectsDrift(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
+	repo := releaseManifestFixtureRepo(t)
+	writeStandardImpactReportFixture(t, repo)
+	chdir(t, repo)
+
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	goodPath := filepath.Join(t.TempDir(), "latest.json")
+	if err := writeManifest(goodPath, manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := verifyManifest(goodPath, true, false, "", 0); err != nil {
+		t.Fatalf("verify fresh manifest: %v", err)
+	}
+
+	manifest.SourceDigest = "sha256:bad"
+	manifest.Checks["lint"] = "unknown"
+	manifest.Artifacts = []string{"release/manifest/latest.json"}
+	manifest.StandardImpact.Status = "stale"
+	manifest.Debt.Status = "stale"
+	manifest.GovernanceRuntime.Status = "stale"
+	manifest.DownstreamSyncRequired = !manifest.StandardImpact.DownstreamSyncRequired
+	manifest.GovernanceRuntime.GateStatuses["governance"] = "failed"
+	manifest.GeneratorEvidence.Command = "make old-integration"
+	badPath := filepath.Join(t.TempDir(), "stale.json")
+	if err := writeManifest(badPath, manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	err = verifyManifest(badPath, true, false, "", 0)
+	if err == nil {
+		t.Fatal("verify stale manifest succeeded, want error")
+	}
+	message := err.Error()
+	for _, want := range []string{
+		"source_digest does not match current tracked file contents",
+		`checks.lint must be passed, got "unknown"`,
+		"artifacts must include release/manifest/latest.json.sha256",
+		"standard_impact does not match current standard impact evidence",
+		"debt does not match current debt evidence",
+		"governance_runtime does not match current context runtime evidence",
+		"downstream_sync_required must match standard_impact.downstream_sync_required",
+		"governance_runtime does not match current governance runtime evidence",
+		`governance_runtime.gate_statuses.governance must be passed, got "failed"`,
+		"generator_evidence does not match current integration evidence",
+	} {
+		if !strings.Contains(message, want) {
+			t.Fatalf("error = %q, want substring %q", message, want)
+		}
+	}
+}
+
 func TestVerifyManifestRejectsInvalidStandardImpactReleaseDecisionEnums(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
-	repo := sharedFixtureRepoWithStandardImpact(t)
+	repo := releaseManifestFixtureRepo(t)
+	writeStandardImpactReportFixture(t, repo)
 	chdir(t, repo)
 
-	base := cachedBuildManifestWithStandardImpact(t)
+	base, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		name   string
@@ -693,97 +934,50 @@ func TestVerifyManifestRejectsInvalidStandardImpactReleaseDecisionEnums(t *testi
 	}
 }
 
-// 合并多个使用 base fixture 的 verify 测试，共享 buildManifest 结果减少 go list 调用。
-func TestVerifyManifestWithBaseFixture(t *testing.T) {
+func TestVerifyManifestRequiresStandardImpactEvidenceWhenChecksRequired(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
-	chdir(t, sharedFixtureRepo(t))
+	setDockerDigestEvidence(t)
+	chdir(t, releaseManifestFixtureRepo(t))
 
-	manifest := cachedBuildManifest(t)
-
-	// --- RequiresStandardImpactEvidenceWhenChecksRequired ---
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if manifest.StandardImpact.Status != "missing" {
 		t.Fatalf("fixture standard_impact.status = %q, want missing", manifest.StandardImpact.Status)
 	}
-	siPath := filepath.Join(t.TempDir(), "latest.json")
-	if err := writeManifest(siPath, manifest); err != nil {
+
+	path := filepath.Join(t.TempDir(), "latest.json")
+	if err := writeManifest(path, manifest); err != nil {
 		t.Fatal(err)
 	}
-	if err := verifyManifest(siPath, true, false, "", 0); err == nil {
+
+	err = verifyManifest(path, true, false, "", 0)
+	if err == nil {
 		t.Fatal("verify manifest without standard impact report succeeded, want error")
-	} else {
-		for _, want := range []string{
-			`standard_impact.status must be present, got "missing"`,
-			"standard_impact.report_sha256 is required",
-			"standard_impact.primary_downstream is required",
-		} {
-			if !strings.Contains(err.Error(), want) {
-				t.Fatalf("error = %q, want substring %q", err.Error(), want)
-			}
-		}
 	}
-
-	// --- RejectsCorruptedManifestFields ---
-	corrupt := cachedBuildManifest(t)
-	corrupt.GeneratedAt = "not-rfc3339"
-	corrupt.Module = "example.com/wrong"
-	corrupt.Commit = "wrong-commit"
-	corrupt.TreeSHA = "wrong-tree"
-	corrupt.TrackedFileCount++
-	corrupt.TreeState = "wrong-state"
-	corrupt.Score.Value++
-	corrupt.Score.Status = ""
-	corrupt.Score.Threshold = 0
-	corrupt.Contracts = nil
-	corrupt.Dependencies = nil
-	corrupt.GovernanceRuntime = GovernanceRuntime{}
-	corrupt.Debt = DebtEvidence{}
-	corrupt.GeneratorEvidence.Required = false
-	corrupt.Tools = map[string]string{}
-
-	corruptPath := filepath.Join(t.TempDir(), "corrupt.json")
-	if err := writeManifest(corruptPath, corrupt); err != nil {
-		t.Fatal(err)
-	}
-	if err := verifyManifest(corruptPath, false, false, "", 0); err == nil {
-		t.Fatal("verify corrupt manifest succeeded, want error")
-	} else {
-		for _, want := range []string{
-			"generated_at must be RFC3339",
-			"module mismatch:",
-			"commit mismatch:",
-			"tree_sha mismatch:",
-			"tracked_file_count mismatch:",
-			"tree_state mismatch:",
-			"score.value mismatch:",
-			"score.status is required",
-			"score.threshold is required",
-			"contract fingerprints do not match current contract files",
-			"dependency inventory does not match go list -m -json all",
-			"governance_runtime.runtime is required",
-			"debt.report_path is required",
-			"debt.status is required",
-			"governance_runtime.profiles is required",
-			"governance_runtime.legacy_aliases is required",
-			"generator_evidence.required must be true",
-			"tools.go must be recorded",
-		} {
-			if !strings.Contains(err.Error(), want) {
-				t.Fatalf("error = %q, want substring %q", err.Error(), want)
-			}
+	message := err.Error()
+	for _, want := range []string{
+		`standard_impact.status must be present, got "missing"`,
+		"standard_impact.report_sha256 is required",
+		"standard_impact.primary_downstream is required",
+	} {
+		if !strings.Contains(message, want) {
+			t.Fatalf("error = %q, want substring %q", message, want)
 		}
 	}
 }
 
-// 合并多个使用 SI fixture 的 verify 测试，共享 buildManifest 结果。
-func TestVerifyManifestWithSIFixture(t *testing.T) {
+func TestVerifyManifestRejectsCorruptedManifestFields(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
-	chdir(t, sharedFixtureRepoWithStandardImpact(t))
+	chdir(t, releaseManifestFixtureRepo(t))
 
-	manifest := cachedBuildManifestWithStandardImpact(t)
-
-	// --- AcceptsFreshManifestAndRejectsDrift ---
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
 	manifest.GeneratedAt = "not-rfc3339"
 	manifest.Module = "example.com/wrong"
 	manifest.Commit = "wrong-commit"
@@ -805,7 +999,7 @@ func TestVerifyManifestWithSIFixture(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err := verifyManifest(path, false, false, "", 0)
+	err = verifyManifest(path, false, false, "", 0)
 	if err == nil {
 		t.Fatal("verify corrupt manifest succeeded, want error")
 	}
@@ -1091,9 +1285,15 @@ func TestValidateChecksRequiresStatusButOnlyRequiresPassedWhenRequested(t *testi
 func TestVerifyManifestRequiresCleanTree(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
-	chdir(t, sharedFixtureRepoWithStandardImpact(t))
+	setDockerDigestEvidence(t)
+	repo := releaseManifestFixtureRepo(t)
+	writeStandardImpactReportFixture(t, repo)
+	chdir(t, repo)
 
-	manifest := cachedBuildManifestWithStandardImpact(t)
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
 	manifest.TreeState = "dirty"
 
 	path := filepath.Join(t.TempDir(), "dirty.json")
@@ -1101,7 +1301,7 @@ func TestVerifyManifestRequiresCleanTree(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err := verifyManifest(path, true, true, "", 0)
+	err = verifyManifest(path, true, true, "", 0)
 	if err == nil {
 		t.Fatal("verify dirty manifest with requireClean succeeded, want error")
 	}
@@ -1310,7 +1510,7 @@ func TestToolVersionReportsMissingBinary(t *testing.T) {
 
 func TestWorkflowEvidenceBuildsGitHubAndLocalURLs(t *testing.T) {
 	server := "https://github.com/"
-	repo := "/ZoneCNH/xlib-standard/"
+	repo := "/ZoneCNH/resiliencx/"
 	t.Setenv("WORKFLOW_RUN_ID", "123")
 	t.Setenv("GITHUB_SERVER_URL", server)
 	t.Setenv("GITHUB_REPOSITORY", repo)
@@ -1394,234 +1594,6 @@ func TestRequireNonEmptyAppendsOnlyForBlankValues(t *testing.T) {
 	}
 }
 
-// 缓存 fixture 仓库和 buildManifest() 结果，避免每个测试重复执行昂贵的外部命令。
-var (
-	fixtureOnce        sync.Once
-	fixtureRepoPath    string
-	fixtureManifest    Manifest
-	fixtureManifestErr error
-)
-
-func TestMain(m *testing.M) {
-	// 清理环境变量，防止缓存的 manifest 被其他测试的 env 污染
-	_ = os.Unsetenv("VERSION")
-	_ = os.Unsetenv("GENERATED_BY")
-	// 全局安装 cachedCommandRunner，避免每个测试重复执行昂贵的外部命令
-	runRawCommand = func(name string, args ...string) ([]byte, error) {
-		// 将工作目录加入缓存键，避免不同目录的命令返回错误的缓存结果
-		dir, _ := os.Getwd()
-		key := dir + "|" + name + " " + strings.Join(args, " ")
-		// 缓存所有 go 和 git 命令（除了 git add/commit 等修改操作）
-		if name == "go" || (name == "git" && len(args) > 0 && args[0] != "add" && args[0] != "commit" && args[0] != "config") {
-			cmdCacheMu.Lock()
-			if out, ok := cmdCacheOut[key]; ok {
-				err := cmdCacheErr[key]
-				cmdCacheMu.Unlock()
-				return out, err
-			}
-			cmdCacheMu.Unlock()
-			out, err := runRaw(name, args...)
-			cmdCacheMu.Lock()
-			cmdCacheOut[key] = out
-			cmdCacheErr[key] = err
-			cmdCacheMu.Unlock()
-			return out, err
-		}
-		return runRaw(name, args...)
-	}
-	code := m.Run()
-	if fixtureRepoPath != "" {
-		_ = os.RemoveAll(fixtureRepoPath)
-	}
-	if siFixtureRepoPath != "" {
-		_ = os.RemoveAll(siFixtureRepoPath)
-	}
-	if cliManifestPath != "" {
-		_ = os.RemoveAll(filepath.Dir(cliManifestPath))
-	}
-	// cliManifestRepo 现在指向 siFixtureRepoPath，无需单独清理
-	os.Exit(code)
-}
-
-func initFixtureRepo(t *testing.T) string {
-	t.Helper()
-	fixtureOnce.Do(func() {
-		dir, err := os.MkdirTemp("", "releasemanifest-fixture-") //nolint:usetesting // sync.Once: temp dir 必须跨测试持久化
-		if err != nil {
-			fixtureManifestErr = err
-			return
-		}
-		fixtureRepoPath = dir
-		runTestCommand(t, fixtureRepoPath, "git", "init")
-		if err := os.WriteFile(filepath.Join(fixtureRepoPath, "go.mod"), []byte("module example.com/releasefixture\n\ngo 1.23\n"), 0o644); err != nil {
-			fixtureManifestErr = err
-			return
-		}
-		for _, path := range contractFiles {
-			fullPath := filepath.Join(fixtureRepoPath, filepath.FromSlash(path))
-			if err := os.MkdirAll(filepath.Dir(fullPath), 0o755); err != nil {
-				fixtureManifestErr = err
-				return
-			}
-			content := "{}\n"
-			if strings.HasSuffix(path, ".md") {
-				content = "# Fixture Contract\n"
-			}
-			if err := os.WriteFile(fullPath, []byte(content), 0o644); err != nil {
-				fixtureManifestErr = err
-				return
-			}
-		}
-		writeFixtureDebtPolicy(t, fixtureRepoPath)
-		writeFixtureOMCState(t, fixtureRepoPath)
-		writeDebtReportFixture(t, fixtureRepoPath)
-		runTestCommand(t, fixtureRepoPath, "git", "add", ".")
-
-		// 预构建 manifest（只执行一次昂贵的 go list / git ls-files）
-		previous, _ := os.Getwd()
-		if err := os.Chdir(fixtureRepoPath); err != nil {
-			fixtureManifestErr = err
-			return
-		}
-		fixtureManifest, fixtureManifestErr = buildManifestCached()
-		if err := os.Chdir(previous); err != nil {
-			fixtureManifestErr = err
-		}
-	})
-	if fixtureManifestErr != nil {
-		t.Fatalf("fixture init failed: %v", fixtureManifestErr)
-	}
-	return fixtureRepoPath
-}
-
-// sharedFixtureRepo 返回缓存的 fixture 仓库路径（不复制），用于只读测试。
-// 多个测试共享同一目录，使 cachedCommandRunner 缓存命中。
-func sharedFixtureRepo(t *testing.T) string {
-	t.Helper()
-	return initFixtureRepo(t)
-}
-
-// copyFixtureRepo 将缓存的 fixture 仓库复制到新的临时目录，保证测试隔离。
-// 仅用于需要修改仓库内容的测试。
-func copyFixtureRepo(t *testing.T) string {
-	t.Helper()
-	src := initFixtureRepo(t)
-	dst := t.TempDir()
-	cpCmd := exec.Command("cp", "-a", src+"/.", dst+"/")
-	if out, err := cpCmd.CombinedOutput(); err != nil {
-		t.Fatalf("copy fixture repo: %v: %s", err, string(out))
-	}
-	return dst
-}
-
-// cachedBuildManifest 返回缓存的 manifest 副本（避免重复执行 go list / git ls-files）。
-func cachedBuildManifest(t *testing.T) Manifest {
-	t.Helper()
-	initFixtureRepo(t)
-	return fixtureManifest
-}
-
-// 全局命令缓存：昂贵的 go list / git ls-files 结果跨测试共享。
-var (
-	cmdCacheMu  sync.Mutex
-	cmdCacheOut = map[string][]byte{}
-	cmdCacheErr = map[string]error{}
-)
-
-// 缓存含 standard impact report 的 manifest（多个 verify 测试需要）。
-var (
-	siFixtureOnce     sync.Once
-	siFixtureRepoPath string
-	siFixtureManifest Manifest
-	siFixtureErr      error
-)
-
-// initFixtureRepoWithStandardImpact 创建包含 standard impact report 的 fixture 仓库并缓存结果。
-func initFixtureRepoWithStandardImpact(t *testing.T) string {
-	t.Helper()
-	siFixtureOnce.Do(func() {
-		// 复制基础 fixture
-		dir, err := os.MkdirTemp("", "releasemanifest-si-fixture-") //nolint:usetesting // sync.Once: temp dir 必须跨测试持久化
-		if err != nil {
-			siFixtureErr = err
-			return
-		}
-		siFixtureRepoPath = dir
-		cpCmd := exec.Command("cp", "-a", initFixtureRepo(t)+"/.", siFixtureRepoPath+"/")
-		if out, err := cpCmd.CombinedOutput(); err != nil {
-			siFixtureErr = fmt.Errorf("copy fixture: %w: %s", err, string(out))
-			return
-		}
-		writeStandardImpactReportFixture(t, siFixtureRepoPath)
-
-		previous, _ := os.Getwd()
-		if err := os.Chdir(siFixtureRepoPath); err != nil {
-			siFixtureErr = err
-			return
-		}
-		siFixtureManifest, siFixtureErr = buildManifestCached()
-		if err := os.Chdir(previous); err != nil {
-			siFixtureErr = err
-		}
-	})
-	if siFixtureErr != nil {
-		t.Fatalf("SI fixture init failed: %v", siFixtureErr)
-	}
-	return siFixtureRepoPath
-}
-
-// sharedFixtureRepoWithStandardImpact 返回缓存的 SI fixture 仓库路径（不复制）。
-func sharedFixtureRepoWithStandardImpact(t *testing.T) string {
-	t.Helper()
-	return initFixtureRepoWithStandardImpact(t)
-}
-
-func cachedBuildManifestWithStandardImpact(t *testing.T) Manifest {
-	t.Helper()
-	initFixtureRepoWithStandardImpact(t)
-	return siFixtureManifest
-}
-
-// 缓存 CLI 生成的 manifest 文件和所在 repo 目录（多个 CLI verify 测试共享同一份生成结果）。
-var (
-	cliManifestOnce sync.Once
-	cliManifestPath string
-	cliManifestRepo string
-	cliManifestErr  error
-)
-
-// cachedCLIGenerateManifest 使用 CLI 生成 manifest 并缓存结果文件路径，同时 chdir 到 fixture repo。
-// 直接使用 SI fixture 目录（不复制），verify 测试只读取不修改仓库。
-func cachedCLIGenerateManifest(t *testing.T) string {
-	t.Helper()
-	cliManifestOnce.Do(func() {
-		t.Setenv("GOWORK", "off")
-		t.Setenv("VERSION", "v1.2.3")
-		t.Setenv("CHECK_STATUS", "passed")
-		// 直接使用 SI fixture 目录，避免复制和额外的 buildManifest 调用
-		cliManifestRepo = initFixtureRepoWithStandardImpact(t)
-		chdir(t, cliManifestRepo)
-
-		dir, err := os.MkdirTemp("", "releasemanifest-cli-") //nolint:usetesting // sync.Once: temp dir 必须跨测试持久化
-		if err != nil {
-			cliManifestErr = err
-			return
-		}
-		cliManifestPath = filepath.Join(dir, "latest.json")
-		var stdout, stderr bytes.Buffer
-		code := runCLI("releasemanifest", []string{"-out", cliManifestPath}, &stdout, &stderr)
-		if code != 0 {
-			cliManifestErr = fmt.Errorf("runCLI generate exit code = %d; stderr: %s", code, stderr.String())
-		}
-	})
-	if cliManifestErr != nil {
-		t.Fatalf("cached CLI generate failed: %v", cliManifestErr)
-	}
-	// 确保当前测试在 fixture repo 目录中（verify 需要读取合约文件等）
-	chdir(t, cliManifestRepo)
-	return cliManifestPath
-}
-
 func chdir(t *testing.T, dir string) {
 	t.Helper()
 
@@ -1660,13 +1632,41 @@ func runTestCommand(t *testing.T, dir string, name string, args ...string) {
 	}
 }
 
+func releaseManifestFixtureRepo(t *testing.T) string {
+	t.Helper()
+
+	repo := t.TempDir()
+	runTestCommand(t, repo, "git", "init")
+	if err := os.WriteFile(filepath.Join(repo, "go.mod"), []byte("module example.com/releasefixture\n\ngo 1.23\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range contractFiles {
+		fullPath := filepath.Join(repo, filepath.FromSlash(path))
+		if err := os.MkdirAll(filepath.Dir(fullPath), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		content := "{}\n"
+		if strings.HasSuffix(path, ".md") {
+			content = "# Fixture Contract\n"
+		}
+		if err := os.WriteFile(fullPath, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	writeFixtureDebtPolicy(t, repo)
+	writeFixtureOMCState(t, repo)
+	writeDebtReportFixture(t, repo)
+	runTestCommand(t, repo, "git", "add", ".")
+	return repo
+}
+
 func writeFixtureDebtPolicy(t *testing.T, repo string) {
 	t.Helper()
 	files := map[string]string{
-		".agent/debt/rules.yaml":              "schema_version: debt-rules/v1\nprofile: fixture\n",
-		".agent/debt/rule-registry.yaml":      "schema_version: debt-rule-registry/v1\nrules: []\n",
-		".agent/debt/exceptions.yaml":         "schema_version: debt-exceptions/v1\nexceptions: []\n",
-		".agent/debt/dependency-purpose.yaml": "schema_version: debt-dependency-purpose/v1\npurposes: []\n",
+		".agent/policies/debt/rules.yaml":              "schema_version: debt-rules/v1\nprofile: fixture\n",
+		".agent/registries/debt/rule-registry.yaml":    "schema_version: debt-rule-registry/v1\nrules: []\n",
+		".agent/policies/debt/exceptions.yaml":         "schema_version: debt-exceptions/v1\nexceptions: []\n",
+		".agent/policies/debt/dependency-purpose.yaml": "schema_version: debt-dependency-purpose/v1\npurposes: []\n",
 	}
 	for path, content := range files {
 		fullPath := filepath.Join(repo, filepath.FromSlash(path))
@@ -1715,11 +1715,11 @@ func writeDebtReportFixture(t *testing.T, repo string) {
   "status": "passed",
   "score": 9.8,
   "min_score": 9.8,
-  "policy_path": ".agent/debt/rules.yaml",
+  "policy_path": ".agent/policies/debt/rules.yaml",
   "checks": [
     {"id": "policy", "status": "passed"}
   ],
-  "downstream_targets": ["kernel/configx", "kernel/redisx", "corekit"]
+  "downstream_targets": ["kernel/configx", "kernel/redisx", "kernel/taosx"]
 }` + "\n")
 	if err := os.WriteFile(reportPath, data, 0o644); err != nil {
 		t.Fatal(err)
