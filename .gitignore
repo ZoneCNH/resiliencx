@@ -13,6 +13,8 @@
 
 # Code coverage profiles and other test artifacts
 *.out
+!testkit/governance/fixtures/evidence-replay/passed/artifacts/
+!testkit/governance/fixtures/evidence-replay/passed/artifacts/*.out
 coverage.*
 *.coverprofile
 profile.cov

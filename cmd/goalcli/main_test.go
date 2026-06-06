@@ -2435,6 +2435,31 @@ func TestEvidenceReplayRejectsChecksumAndHashMismatch(t *testing.T) {
 	}
 }
 
+func TestEvidenceReplayMissingArtifactBlocks(t *testing.T) {
+	chdir(t, filepath.Join("..", ".."))
+	fixture := copyEvidenceReplayFixture(t)
+	missingArtifact := filepath.Join(fixture, "artifacts", "runtime-health.out")
+	if err := os.Remove(missingArtifact); err != nil {
+		t.Fatalf("remove copied artifact: %v", err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	got := run([]string{"evidence-replay", "--input", fixture, "--verify"}, strings.NewReader(""), &stdout, &stderr)
+	if got != 1 {
+		t.Fatalf("missing artifact evidence replay exit = %d, stderr %q, stdout %q; want 1", got, stderr.String(), stdout.String())
+	}
+	var report gateReport
+	if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
+		t.Fatalf("stdout is not gateReport JSON: %v; stdout %q", err, stdout.String())
+	}
+	if report.Status != "failed" {
+		t.Fatalf("report status = %q; want failed; report %#v", report.Status, report)
+	}
+	if !gapsContainSubstring(report.Gaps, "missing artifact artifacts/runtime-health.out") {
+		t.Fatalf("gaps = %#v; want missing runtime-health artifact", report.Gaps)
+	}
+}
+
 func TestEvidenceReplayMissingOrStaleEvidenceBlocks(t *testing.T) {
 	chdir(t, filepath.Join("..", ".."))
 	missingFixture := t.TempDir()

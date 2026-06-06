@@ -351,6 +351,13 @@ files:
     owner: governance
     validator: evidence-check
     purpose: L2 标准 Goal 执行证据。
+  - path: .agent/runs/GOAL-20260606-001/evidence.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: evidence-check
+    purpose: Agent team PR 修复与结构分析证据。
   - path: .agent/evidence/README.md
     layer: evidence
     authority: source_of_truth
