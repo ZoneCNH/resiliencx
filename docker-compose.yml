@@ -1,0 +1,22 @@
+services:
+  toolchain:
+    build:
+      context: .
+      target: toolchain
+      args:
+        GO_VERSION: ${GO_VERSION:-1.23}
+    working_dir: /workspace
+    environment:
+      GOWORK: ${GOWORK:-off}
+      XLIB_CONTEXT: ${XLIB_CONTEXT:-docker_toolchain}
+      VERSION: ${VERSION:-}
+      DOWNSTREAM: ${DOWNSTREAM:-}
+      XLIB_ENABLE_VULNCHECK: ${XLIB_ENABLE_VULNCHECK:-}
+    volumes:
+      - .:/workspace
+      - go-build-cache:/root/.cache/go-build
+      - go-mod-cache:/go/pkg/mod
+
+volumes:
+  go-build-cache:
+  go-mod-cache:

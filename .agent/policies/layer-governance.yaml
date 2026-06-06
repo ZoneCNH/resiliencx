@@ -1,0 +1,54 @@
+schema_version: layer-governance/v1
+module: resiliencx
+source_doc: docs/standard/layer-governance-rules.md
+adr: docs/adr/ADR-20260604-001-layer-governance.md
+dependency_direction: "L3>L2>L1>L0>Standard"
+
+layers:
+  - id: Standard
+    visibility: public
+    repos: [resiliencx]
+    may_depend_on: []
+    forbids: [business_semantics, production_secrets, production_wiring]
+  - id: L0
+    visibility: public
+    repos: [kernel]
+    may_depend_on: [Standard]
+    forbids: [l1_imports, l2_imports, l3_imports, production_secrets]
+  - id: L1
+    visibility: public
+    repos: [configx, observex, testkitx]
+    may_depend_on: [L0, Standard]
+    forbids: [l2_imports, l3_imports, business_semantics, production_secrets]
+  - id: L2
+    visibility: public
+    repos: [redisx, kafkax, postgresx, taosx, ossx, clickhousex, natsx]
+    may_depend_on: [L1, L0, Standard]
+    forbids: [l3_imports, business_repository, business_schema, production_secrets]
+  - id: L3
+    visibility: private
+    repos: [x.go, market-data, market-engine, macro-data, macro-engine, regime-engine]
+    may_depend_on: [L2, L1, L0, Standard]
+    forbids: [public_release, public_business_semantics, committed_production_secrets]
+
+rules:
+  - id: LAYER-P0-PRIVATE-BOUNDARY
+    level: P0
+    owner: platform
+    applies_to: [Standard, L0, L1, L2, L3]
+    evidence: [docs-check, schema-check, boundary, standard-impact-check]
+  - id: LAYER-P0-DEPENDENCY-DIRECTION
+    level: P0
+    owner: platform
+    applies_to: [L0, L1, L2, L3]
+    evidence: [schema-check, boundary, contracts]
+  - id: LAYER-P1-DOWNSTREAM-UPDATE
+    level: P1
+    owner: platform
+    applies_to: [L0, L1, L2]
+    evidence: [standard-impact-check, downstream-sync-policy, release-manifest]
+  - id: LAYER-P2-ITERATION-EVIDENCE
+    level: P2
+    owner: platform
+    applies_to: [Standard, L0, L1, L2, L3]
+    evidence: [adr, release-notes, migration-guide]

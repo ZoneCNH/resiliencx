@@ -7,9 +7,9 @@ Use this index to avoid false authority or completion claims while migrating fro
 - Standard: `docs/standard/goalcli-runtime.md`
 - ADR: `docs/adr/ADR-20260603-001-goalcli-runtime.md`
 - Roadmap: `docs/plans/goalcli-v0.1.0-roadmap.md`
-- Command registry: `.agent/command-registry.yaml`
-- Harness control plane: `.agent/harness.yaml`
-- Runtime registry: `.agent/registry/runtime.yaml`
+- Command registry: `.agent/registries/command-registry.yaml`
+- Harness control plane: `.agent/harness/harness.yaml`
+- Runtime registry: `.agent/registries/runtime.yaml`
 - Source evidence ledger: `.agent/evidence/ledger.jsonl`
 
 ## Evidence split

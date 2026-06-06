@@ -36,7 +36,7 @@ temp
 至少：
 
 ```text
-make worktree-check
+goalcli worktree-check --context local_write
 make lint
 make test
 make evidence-check

@@ -3,7 +3,7 @@
 > SSOT. 本文件由 [`docs/adr/ADR-20260603-002-rules-registry.md`](../../docs/adr/ADR-20260603-002-rules-registry.md) 锁定。
 > 任何分歧以本文件 + [`registry.yaml`](./registry.yaml) 为准；`.worktree/goal-patch.md` 仅作历史推导记录。
 >
-> **叙事/解释层**：完整背景、9 层架构、v0.1.0 五主线见 [`.agent/standard/goal-runtime-canonical.md`](../standard/goal-runtime-canonical.md)（PR #30 引入）。本文件是机器消费层；canonical 把 RULE-EVIDENCE-001 单独列为第 8 条以利叙事，本文件把它合入第 1 条以利归一化——两者通过下方"七律"的括注 RULE-* 编号保持稳定映射。
+> **叙事/解释层**：完整背景、9 层架构、v0.1.0 五主线见 [`.agent/runtime/standard/goal-runtime-canonical.md`](../standard/goal-runtime-canonical.md)（PR #30 引入）。本文件是机器消费层；canonical 把 RULE-EVIDENCE-001 单独列为第 8 条以利叙事，本文件把它合入第 1 条以利归一化——两者通过下方"七律"的括注 RULE-* 编号保持稳定映射。
 
 铁律是 [`registry.yaml`](./registry.yaml) 中 119 条 P0 规则的归一化压缩，**违反任何一条都必须阻断 Release**。
 

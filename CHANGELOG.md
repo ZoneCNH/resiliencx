@@ -2,30 +2,45 @@
 
 ## 未发布
 
-暂无。
+## v0.4.14 - 2026-06-05
 
-## v0.4.8 - 2026-06-04
+### 治理
 
-### 架构
+- 引入治理宪法三层定位架构：CONSTITUTION.md（最高铁律）、AGENTS.md（通用 Agent 协议）、CLAUDE.md（Claude Code 适配器）。
+- CONSTITUTION.md 定义 8 条核心铁律、标准分层模型、Harness Gates、Evidence 协议、Release 纪律、下游采纳规则和 Self-improving 机制。
 
-- 重构 `cmd/goalcli` 命令路由为注册表模式，main.go 从 311 行减至 209 行。
-- 集中版本号管理，Go 代码中版本号硬编码从 8 处减至 1 处（`pkg/templatex/version.go`）。
+### 兼容性
 
-### 文档
+- 本版本不改变 `pkg/resiliencx` 公共 API 形状；`Version` 元数据同步到 `v0.4.14`。
 
-- 补充 `pkg/templatex/` 包完整 Go Doc 注释（7 个文件）。
-- 扩充 `docs/quickstart.md` 快速入门文档（27→129 行）。
-- 更新深度分析报告，综合评分达到 10/10。
+## v0.4.13 - 2026-06-05
 
-### CI/CD
+### 治理
 
-- 修复 `goal-gates.yml` lint 检查为硬失败模式，与 Makefile 行为一致。
+- 将 `goalcli security` 的漏洞扫描从“启用即每次运行”改为一周窗口；默认 gate 继续只运行 secret scan，`XLIB_FORCE_VULNCHECK=1` 可强制执行。
+- 将 CI、Release Check、Auto Patch、Docker Contract 与 Security workflow 对齐为默认不访问漏洞库，Security 定时任务每周强制执行固定版本 `govulncheck@v1.1.4`。
+- 新增结构分析报告，记录当前项目评分、结构性问题和下阶段治理建议。
+
+### 兼容性
+
+- 本版本不改变 `pkg/resiliencx` 公共 API 形状；`Version` 元数据同步到 `v0.4.13`。
 
 ## v0.4.7 - 2026-06-04
 
-### 文档
+### 新增
 
-- 添加项目结构分析文档。
+- 新增 `goalcli downstream-sync-plan` 和 `make downstream-sync-plan`，生成本地 downstream 同步计划 Evidence，并明确 `adoption_claim=not_claimed`。
+- 新增 layer governance schema、规则文档和 ADR，锁定标准源、下游库与私有业务消费层的职责边界。
+
+### 治理
+
+- 将 downstream sync 计划纳入命令注册表、Makefile baseline、docs-check 和 generated-artifacts 管控。
+- 扩展 schema-check、standard-impact、debt evidence 和文档 gate，防止 layer governance 与下游同步证据漂移。
+- 将项目发布版本、release manifest 默认版本、`goalcli` 治理版本和 release preflight 示例同步到 `v0.4.7`。
+
+### 兼容性
+
+- 本版本不改变 `pkg/resiliencx` 公共 API 形状；`Version` 元数据同步到 `v0.4.7`。
 
 ## v0.4.6 - 2026-06-04
 
@@ -37,7 +52,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API 形状；`Version` 元数据同步到 `v0.4.6`。
+- 本版本不改变 `pkg/resiliencx` 公共 API 形状；`Version` 元数据同步到 `v0.4.6`。
 
 ## v0.4.5 - 2026-06-03
 
@@ -54,7 +69,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅更新版本元数据、CI 治理和文档链接。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅更新版本元数据、CI 治理和文档链接。
 
 ## v0.4.3 - 2026-06-03
 
@@ -70,7 +85,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅收紧 downstream debt 和 release Evidence 治理。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅收紧 downstream debt 和 release Evidence 治理。
 
 ## v0.4.2 - 2026-06-03
 
@@ -85,17 +100,17 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅修复 release Evidence/generator 交付口径。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅修复 release Evidence/generator 交付口径。
 
 ## v0.4.1 - 2026-06-03
 
 ### 治理
 
-- 对齐 release 版本口径到 `v0.4.1`，同步 `templatex.Version`、release manifest 默认版本、preflight 命令示例和 Harness 记录。
+- 对齐 release 版本口径到 `v0.4.1`，同步 `resiliencx.Version`、release manifest 默认版本、preflight 命令示例和 Harness 记录。
 
 ### 兼容性
 
-- 本版本仅更新发布治理与版本元数据，不改变 `pkg/templatex` 公共 API 行为。
+- 本版本仅更新发布治理与版本元数据，不改变 `pkg/resiliencx` 公共 API 行为。
 
 ## v0.4.0 - 2026-06-03
 
@@ -106,7 +121,7 @@
 
 ### 兼容性
 
-- 本版本不改变 `pkg/templatex` 公共 API，仅收紧发布 Evidence 校验与文档门禁。
+- 本版本不改变 `pkg/resiliencx` 公共 API，仅收紧发布 Evidence 校验与文档门禁。
 
 ## v0.3.8 - 2026-06-02
 
@@ -118,7 +133,7 @@
 
 ### 兼容性
 
-- 本版本仅包含治理和文档更新，不改变 `pkg/templatex` 公共 API。
+- 本版本仅包含治理和文档更新，不改变 `pkg/resiliencx` 公共 API。
 
 ## v0.3.7 - 2026-06-02
 
@@ -130,14 +145,14 @@
 
 ### 兼容性
 
-- 本版本仅包含治理和文档更新，不改变 `pkg/templatex` 公共 API。
+- 本版本仅包含治理和文档更新，不改变 `pkg/resiliencx` 公共 API。
 
 ## v0.3.6 - 2026-06-02
 
 ### 修复
 
 - Release manifest 测试改用临时 git fixture 构造 `.omc/state/agent-replay-fixture.jsonl`，避免依赖本地 Agent 运行态文件。
-- GitHub Actions workflow 固定 `checkout`、`setup-go`、`cache` 和 `upload-artifact` 的 40 位 commit SHA，并将 `govulncheck` 固定为 `v1.3.0`。
+- GitHub Actions workflow 固定 `checkout`、`setup-go`、`cache` 和 `upload-artifact` 的 40 位 commit SHA，并将 `govulncheck` 固定为 `v1.1.4`。
 - Secret Gate 同时排除 `.omc` 和 `.omx` 本地运行态目录，避免扫描 Agent 状态文件时产生误报。
 - `goalcli` dry-run verifier 在具备 manifest 覆盖时返回 `passed`，避免 `--verify` 模式继续报告 planned gap。
 - `downstream-baseline`、`downstream-adoption` 和 `upgrade-standard` 默认使用 manifest-only dry-run，只有显式传入 `--repo` 时才检查本地 downstream 路径。
@@ -168,7 +183,7 @@
 ### 治理
 
 - `release-final-check` 强制校验 scored release Evidence，避免仅凭局部 gate 结果推进发布。
-- 发布文档、Agent 运行时文档和标准文档统一到 `xlib-standard` 命名与 release gate 口径。
+- 发布文档、Agent 运行时文档和标准文档统一到 `resiliencx` 命名与 release gate 口径。
 - GitHub CI 与 release workflow 对齐 `GOWORK=off`、docs-check、security、contracts、boundary 和 release manifest 校验。
 
 ### 验证
@@ -205,7 +220,7 @@
 
 ### 新增
 
-- 初始化 `baselib-template` 结构。
+- 初始化 `resiliencx` 结构。
 - 添加标准 Go 基础库包骨架。
 - 添加 Makefile 命令。
 - 添加 Harness Gate 脚本。
@@ -225,7 +240,7 @@
 ### 安全
 
 - 添加 Secret Gate。
-- `make security` 强制运行 `govulncheck ./...` 和密钥扫描；缺少 `govulncheck` 时必须失败。
+- `make security` 强制委托 `goalcli security` 运行漏洞扫描和密钥扫描；缺少 `govulncheck` 时必须失败。
 - 配置脱敏规则覆盖 release Evidence 和日志可见内容。
 - Boundary Gate 同时拦截 `github.com/bytechainx/x.go` 和 `github.com/ZoneCNH/x.go`。
 

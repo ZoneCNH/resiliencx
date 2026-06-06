@@ -12,6 +12,7 @@ downstreams=(
   "github.com/ZoneCNH/postgresx"
   "github.com/ZoneCNH/redisx"
   "github.com/ZoneCNH/kafkax"
+  "github.com/ZoneCNH/natsx"
   "github.com/ZoneCNH/taosx"
   "github.com/ZoneCNH/ossx"
   "github.com/ZoneCNH/clickhousex"
@@ -38,7 +39,7 @@ canonical_changed_file() {
       printf 'contracts/goalcli-report.schema.json\n'
       ;;
     .agent/standard/${retired_kit}-${retired_gate}-mapping.md)
-      printf '.agent/standard/goalcli-mapping.md\n'
+      printf '.agent/docs/standard/goalcli-mapping.md\n'
       ;;
     docs/adr/ADR-20260603-001-${retired_kit}-${retired_gate}-runtime.md)
       printf 'docs/adr/ADR-20260603-001-goalcli-runtime.md\n'
@@ -193,13 +194,13 @@ classify_file() {
   local file="$1"
 
   case "$file" in
-    .agent/command-registry.yaml|.agent/issue-registry.yaml|.agent/makefile-baseline.yaml|.agent/makefile-target-registry.yaml)
+    .agent/registries/command-registry.yaml|.agent/registries/issue-registry.yaml|.agent/registries/makefile-baseline.yaml|.agent/registries/makefile-target-registry.yaml)
       add_category_file "governance_registry" "$file"
       ;;
     templates/context-consumer/*)
       add_category_file "downstream_context" "$file"
       ;;
-    AGENTS.md|Makefile|.github/workflows/*|.github/CODEOWNERS|.github/dependabot.yml|.github/rulesets/*|infra/github-rules/*|.agent/gates.md)
+    AGENTS.md|Makefile|.github/workflows/*|.github/CODEOWNERS|.github/dependabot.yml|.github/rulesets/*|infra/github-rules/*|.agent/harness/gates.md)
       add_category_file "repository_rules" "$file"
       ;;
     cmd/goalcli/*|.agent/context/*|docs/standard/goalcli-cli-contract.md|docs/standard/release-standard.md|docs/standard/harness-gates.md|docs/standard/evidence-protocol.md)

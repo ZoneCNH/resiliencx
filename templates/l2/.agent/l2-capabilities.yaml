@@ -1,0 +1,28 @@
+schema_version: "1.0"
+layer: L2
+adapter:
+  name: example-l2-adapter
+  module: github.com/example/example-l2-adapter
+  family: key_value
+  owners: []
+capabilities:
+  - name: lifecycle
+    family: common
+    status: declared
+  - name: get
+    family: key_value
+    status: declared
+  - name: set
+    family: key_value
+    status: declared
+contract_packs:
+  - common
+  - kv
+evidence:
+  required_profiles:
+    - unit
+    - contract
+  output_dir: .agent/evidence/l2
+  reports:
+    - .agent/evidence/l2/contract-report.json
+    - .agent/evidence/l2/compliance-matrix.json

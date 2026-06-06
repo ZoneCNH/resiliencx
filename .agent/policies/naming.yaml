@@ -1,0 +1,3 @@
+schema_version: "1.0"
+canonical_module: "github.com/ZoneCNH/resiliencx"
+legacy_names: ["resiliencx", "foundationx"]

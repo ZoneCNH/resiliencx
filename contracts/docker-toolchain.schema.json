@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ZoneCNH/resiliencx/contracts/docker-toolchain.schema.json",
+  "title": "Docker Toolchain Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "contract_version": {
+      "type": "string",
+      "pattern": "^docker-toolchain/v[0-9]+$"
+    },
+    "go_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "golangci_lint_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "govulncheck_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buildkit_required": {
+      "type": "boolean"
+    },
+    "cache_mounts": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "base_image": {
+      "type": "string"
+    },
+    "base_image_digest": {
+      "type": "string"
+    },
+    "toolchain_image": {
+      "type": "string"
+    },
+    "toolchain_image_digest": {
+      "type": "string"
+    },
+    "runtime_image": {
+      "type": "string"
+    },
+    "runtime_image_digest": {
+      "type": "string"
+    },
+    "validated_by": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "workflow_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_url": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "enabled",
+    "contract_version",
+    "go_version",
+    "golangci_lint_version",
+    "govulncheck_version",
+    "buildkit_required",
+    "cache_mounts",
+    "validated_by",
+    "workflow_run_id",
+    "artifact_name",
+    "artifact_url"
+  ],
+  "allOf": [
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-toolchain-check"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-build-check"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-ci"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-release-check"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-runtime-check"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-drift-check"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "validated_by": {
+          "contains": {
+            "const": "docker-contract"
+          }
+        }
+      }
+    }
+  ]
+}

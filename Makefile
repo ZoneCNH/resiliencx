@@ -2,6 +2,8 @@ GOALCLI ?= go run ./cmd/goalcli
 XLIB_CONTEXT ?= local_write
 GOAL_ID ?= GOAL-20260603-XLIB-GOALCLI-001
 GOAL_RUNTIME_MODE ?= FULL
+DOCKER_IMAGE ?= $(notdir $(CURDIR))-toolchain:local
+DOCKER_GATE ?= GITHUB_ACTIONS=$${GITHUB_ACTIONS:-} GOLANGCI_LINT_VERSION=$${GOLANGCI_LINT_VERSION:-v2.1.6} GOVULNCHECK_VERSION=$${GOVULNCHECK_VERSION:-v1.1.4} GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0=/workspace ./scripts/docker/docker_gate.sh
 
 .PHONY: require-gowork-off
 require-gowork-off:
@@ -13,6 +15,20 @@ require-gowork-off:
 .PHONY: build
 build:
 	go build ./...
+
+.PHONY: build-check
+build-check: build
+
+.PHONY: goalcli
+goalcli:
+	go build ./cmd/goalcli
+
+.PHONY: goalcli-image
+goalcli-image: goalcli
+
+.PHONY: shell
+shell:
+	bash
 
 .PHONY: fmt
 fmt:
@@ -43,6 +59,62 @@ lint:
 integration:
 	$(GOALCLI) integration
 
+.PHONY: docker-toolchain-check
+docker-toolchain-check:
+	./scripts/docker/check_toolchain.sh
+
+.PHONY: docker-build
+docker-build:
+	$(DOCKER_GATE) build
+
+
+.PHONY: docker-build-check
+docker-build-check:
+	$(DOCKER_GATE) build-check
+
+.PHONY: docker-shell
+docker-shell:
+	$(DOCKER_GATE) shell
+
+
+.PHONY: docker-ci
+docker-ci:
+	$(DOCKER_GATE) ci
+
+.PHONY: docker-release-check
+docker-release-check:
+	$(DOCKER_GATE) release-check
+
+.PHONY: docker-release-final-check
+docker-release-final-check:
+	$(DOCKER_GATE) release-final-check
+
+.PHONY: docker-goalcli
+docker-goalcli:
+	$(DOCKER_GATE) goalcli
+
+.PHONY: docker-goalcli-image
+docker-goalcli-image:
+	$(DOCKER_GATE) goalcli-image
+
+
+.PHONY: docker-goalcli-version
+docker-goalcli-version:
+	$(DOCKER_GATE) goalcli-version
+
+.PHONY: docker-runtime-check
+docker-runtime-check:
+	$(DOCKER_GATE) runtime-check
+
+.PHONY: docker-drift-check
+docker-drift-check:
+	./scripts/docker/check_toolchain.sh --drift
+
+.PHONY: docker-contract
+docker-contract:
+	$(DOCKER_GATE) contract
+
+
 .PHONY: dependency-check
 dependency-check:
 	$(GOALCLI) dependency-check
@@ -54,6 +126,10 @@ standard-impact-check:
 .PHONY: docs-check
 docs-check:
 	$(GOALCLI) docs-check
+
+.PHONY: adoption-check
+adoption-check: require-gowork-off
+	$(GOALCLI) adoption-check --verify
 
 .PHONY: rules-verify
 rules-verify:
@@ -73,6 +149,7 @@ debt-evidence-hash:
 debt-evidence-checksum-check:
 	$(GOALCLI) debt-evidence-checksum-check
 
+.PHONY: secret-check
 .PHONY: security
 
 architecture:
@@ -99,8 +176,12 @@ security-debt:
 downstream-debt:
 	$(GOALCLI) downstream-debt
 
+.PHONY: downstream-sync-plan
+downstream-sync-plan: standard-impact-check
+	$(GOALCLI) downstream-sync-plan
+
 debt:
-	$(GOALCLI) debt --config .agent/debt/rules.yaml --exceptions .agent/debt/exceptions.yaml --dependency-purpose .agent/debt/dependency-purpose.yaml --mode enforce --min-score 9.8
+	$(GOALCLI) debt --config .agent/policies/debt/rules.yaml --exceptions .agent/policies/debt/exceptions.yaml --dependency-purpose .agent/policies/debt/dependency-purpose.yaml --mode enforce --min-score 9.8
 
 .PHONY: debt-register-update debt-trend debt-patch-suggest debt-lifecycle-check
 debt-register-update:
@@ -114,6 +195,9 @@ debt-patch-suggest:
 
 debt-lifecycle-check:
 	$(GOALCLI) debt lifecycle-check
+
+secret-check:
+	$(GOALCLI) secret-check
 
 security:
 	$(GOALCLI) security
@@ -171,9 +255,24 @@ score-check:
 version:
 	$(GOALCLI) version
 
+.PHONY: goalcli-version
+goalcli-version: version
+
 .PHONY: doctor
 doctor:
 	$(GOALCLI) doctor
+
+.PHONY: runtime-check
+runtime-check: doctor
+
+.PHONY: drift-check
+drift-check:
+	$(GOALCLI) docs-check
+	$(GOALCLI) command-registry
+	$(GOALCLI) makefile-baseline
+
+.PHONY: contract
+contract: runtime-check drift-check
 
 .PHONY: main-guard
 main-guard:
@@ -202,6 +301,14 @@ command-registry:
 .PHONY: makefile-baseline
 makefile-baseline:
 	$(GOALCLI) makefile-baseline
+
+.PHONY: audit-goal
+audit-goal:
+	$(GOALCLI) audit-goal
+
+.PHONY: dashboard-generate
+dashboard-generate:
+	$(GOALCLI) dashboard-generate
 
 .PHONY: agent-team-contract scope-lock pr-template acceptance-matrix runtime-health upgrade-standard conformance-profile downstream-registry self-healing-skeleton goal-runtime github-governance supply-chain changelog governance-fixture-test autoresearch policy-schema github-settings toolchain evidence-artifacts naming
 agent-team-contract scope-lock pr-template acceptance-matrix runtime-health upgrade-standard conformance-profile downstream-registry self-healing-skeleton goal-runtime github-governance supply-chain changelog governance-fixture-test autoresearch policy-schema github-settings toolchain evidence-artifacts naming:
@@ -245,7 +352,7 @@ traceability-check:
 	$(GOALCLI) traceability-check
 
 .PHONY: governance-check
-governance-check: require-gowork-off main-guard worktree-guard evidence-check boundary architecture domain security security-debt contracts docs-check cli-contract issue-registry command-registry makefile-baseline rules-consistency-check debt traceability-check
+governance-check: require-gowork-off main-guard worktree-guard evidence-check adoption-check boundary architecture domain security security-debt contracts docs-check cli-contract issue-registry command-registry makefile-baseline audit-goal rules-consistency-check debt traceability-check
 
 .PHONY: rules-consistency-check
 rules-consistency-check:
@@ -268,6 +375,10 @@ context-profile-check:
 .PHONY: context-schema-check
 context-schema-check:
 	$(GOALCLI) context-schema-check
+
+.PHONY: schema-check
+schema-check:
+	$(GOALCLI) schema validate --all --report reports/schema-check.json
 
 .PHONY: context-lite
 context-lite: require-gowork-off governance-check
@@ -295,7 +406,7 @@ context-standard-check: context-standard
 context-full-check: context-full
 
 .PHONY: ci
-ci: doctor-hooks-local fmt vet lint test race boundary architecture domain security security-debt contracts governance-check debt score rules-verify
+ci: doctor-hooks-local fmt vet lint test race boundary architecture domain secret-check security security-debt contracts governance-check debt score rules-verify
 
 .PHONY: ci-extended
 ci-extended: ci property golden fuzz-smoke docs-drift
@@ -387,7 +498,7 @@ doctor-hooks-local:
 	fi
 
 # sync-main: 拉取远端 main 并尽量 fast-forward 本地 main。
-# 对应 .agent/standard/goal-runtime-canonical.md RULE-MAIN-SYNC-002：
+# 对应 .agent/runtime/standard/goal-runtime-canonical.md RULE-MAIN-SYNC-002：
 # 每个 worktree 创建前必须基于最新 main。
 sync-main:
 	@git fetch origin main

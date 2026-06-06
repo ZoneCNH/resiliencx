@@ -32,6 +32,11 @@ for spec in "${cases[@]}"; do
 
     GOWORK=off go mod tidy
     git diff --exit-code -- go.mod go.sum
+    if command -v docker >/dev/null 2>&1 && docker version >/dev/null 2>&1; then
+      GOWORK=off make docker-toolchain-check
+    else
+      XLIB_DOCKER_ALLOW_MISSING=1 GOWORK=off make docker-toolchain-check
+    fi
     GOWORK=off go test ./...
     GOWORK=off make contracts
     GOWORK=off make boundary

@@ -1,0 +1,9 @@
+schema_version: "2.9.3"
+required: [go, git, make, golangci-lint, python3, python3-yaml]
+optional:
+  - name: govulncheck
+    when: "XLIB_ENABLE_VULNCHECK=1 and weekly window is due, or XLIB_FORCE_VULNCHECK=1"
+docker_toolchain:
+  python3-yaml: "required for rules-verify and render-domain-rules YAML registry parsing"
+  golangci-lint: "v2.1.6"
+  govulncheck: "v1.1.4 installed, execution remains weekly/forced only"

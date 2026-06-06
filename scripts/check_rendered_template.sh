@@ -37,10 +37,49 @@ if [[ ! -d "$repo_dir/pkg/$package_name" ]]; then
   exit 1
 fi
 
-if [[ "$package_name" != "templatex" && -e "$repo_dir/pkg/templatex" ]]; then
-  echo "ERROR: stale pkg/templatex directory still exists" >&2
+if [[ "$package_name" != "resiliencx" && -e "$repo_dir/pkg/resiliencx" ]]; then
+  echo "ERROR: stale pkg/resiliencx directory still exists" >&2
   exit 1
 fi
+
+required_paths=(
+  "Dockerfile"
+  "docker-compose.yml"
+  ".dockerignore"
+  ".devcontainer/devcontainer.json"
+  "scripts/docker/check_toolchain.sh"
+  "scripts/docker/docker_gate.sh"
+)
+
+for required_path in "${required_paths[@]}"; do
+  if [[ ! -e "$repo_dir/$required_path" ]]; then
+    echo "ERROR: rendered Docker contract path missing: $required_path" >&2
+    exit 1
+  fi
+done
+
+docker_targets=(
+  docker-toolchain-check
+  docker-build
+  docker-build-check
+  docker-shell
+  docker-ci
+  docker-release-check
+  docker-release-final-check
+  docker-goalcli
+  docker-goalcli-image
+  docker-goalcli-version
+  docker-runtime-check
+  docker-drift-check
+  docker-contract
+)
+
+for required_target in "${docker_targets[@]}"; do
+  if ! grep -Eq "^\\.PHONY:.*[[:space:]]${required_target}([[:space:]]|$)|^${required_target}:" "$repo_dir/Makefile"; then
+    echo "ERROR: rendered Makefile missing Docker contract target: $required_target" >&2
+    exit 1
+  fi
+done
 
 scan_regex() {
   local pattern="$1"
@@ -85,6 +124,8 @@ scan_template_placeholders() {
       --glob '!**/.git/**' \
       --glob '!.github/workflows/**' \
       --glob '!**/.github/workflows/**' \
+      --glob '!.agent/archive/inbox/**' \
+      --glob '!**/.agent/archive/inbox/**' \
       --glob '!docs/adr/**' \
       --glob '!**/docs/adr/**' \
       --glob '!docs/goal.md' \
@@ -93,6 +134,8 @@ scan_template_placeholders() {
       --glob '!**/scripts/check_docs.sh' \
       --glob '!scripts/check_rendered_template.sh' \
       --glob '!**/scripts/check_rendered_template.sh' \
+      --glob '!scripts/docker/docker_gate.sh' \
+      --glob '!**/scripts/docker/docker_gate.sh' \
       --glob '!scripts/run_fuzz_smoke.sh' \
       --glob '!**/scripts/run_fuzz_smoke.sh' \
       --glob '!release/manifest/template.json' \
@@ -105,10 +148,12 @@ scan_template_placeholders() {
     if find "$repo_dir" -type f \
       -not -path '*/.git/*' \
       -not -path '*/.github/workflows/*' \
+      -not -path '*/.agent/archive/inbox/*' \
       -not -path '*/docs/adr/*' \
       -not -path '*/docs/goal.md' \
       -not -path '*/scripts/check_docs.sh' \
       -not -path '*/scripts/check_rendered_template.sh' \
+      -not -path '*/scripts/docker/docker_gate.sh' \
       -not -path '*/scripts/run_fuzz_smoke.sh' \
       -not -path '*/release/manifest/template.json' \
       -print0 | xargs -0 grep -InE "$pattern"; then
@@ -119,23 +164,23 @@ scan_template_placeholders() {
 }
 
 scan_template_placeholders
-scan_fixed "github.com/ZoneCNH/xlib-standard" "module path"
-scan_fixed "github.com/ZoneCNH/baselib-template" "module path"
+scan_fixed "github.com/ZoneCNH/resiliencx" "module path"
+scan_fixed "github.com/ZoneCNH/resiliencx" "module path"
 
-if [[ "$module_name" != "xlib-standard" ]]; then
-  scan_fixed "xlib-standard" "module name"
+if [[ "$module_name" != "resiliencx" ]]; then
+  scan_fixed "resiliencx" "module name"
 fi
 
-if [[ "$module_name" != "baselib-template" ]]; then
-  scan_fixed "baselib-template" "module name"
+if [[ "$module_name" != "resiliencx" ]]; then
+  scan_fixed "resiliencx" "module name"
 fi
 
-if [[ "$package_name" != "templatex" ]]; then
-  scan_fixed "pkg/templatex" "package directory reference"
-  scan_fixed "templatex_" "metrics prefix"
-  scan_fixed "Templatex" "title-case package name"
-  scan_fixed "TEMPLATEX" "upper-case package name"
-  scan_regex '\btemplatex\b' "package name"
+if [[ "$package_name" != "resiliencx" ]]; then
+  scan_fixed "pkg/resiliencx" "package directory reference"
+  scan_fixed "resiliencx_" "metrics prefix"
+  scan_fixed "Resiliencx" "title-case package name"
+  scan_fixed "RESILIENCX" "upper-case package name"
+  scan_regex '\bresiliencx\b' "package name"
 fi
 
 echo "rendered template check passed: $module_name"

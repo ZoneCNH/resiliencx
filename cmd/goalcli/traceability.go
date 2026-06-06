@@ -21,7 +21,7 @@ const traceabilityExitGap = 9
 
 // traceabilityMatrixPath 是 traceability matrix 的固定路径。
 // 维持单一来源, 与 .agent/rules/registry.yaml 的 enforced_by 绑定一致。
-const traceabilityMatrixPath = ".agent/traceability-matrix.md"
+const traceabilityMatrixPath = ".agent/traceability/traceability-matrix.md"
 
 // traceabilityPathHints 用于判断一个 token 是否"看起来是文件路径引用"。
 // 命中任一前缀或后缀的 token 会被纳入存在性校验, 其余作为说明性文字跳过。
@@ -124,7 +124,7 @@ func runTraceabilityCheck(args []string, stdout io.Writer, stderr io.Writer) int
 }
 
 // parseTraceabilityMatrix 解析 markdown 表格, 提取每行 REQ 的 artifacts 与 evidence 列。
-// 表头列序与 .agent/traceability-matrix.md 保持一致:
+// 表头列序与 .agent/traceability/traceability-matrix.md 保持一致:
 //
 //	| REQ | 需求摘要 | 主要产物 | 验证/Evidence | 收敛 owner |
 func parseTraceabilityMatrix(path string) ([]traceabilityRow, error) {

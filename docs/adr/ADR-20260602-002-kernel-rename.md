@@ -23,4 +23,4 @@ Accepted — 2026-06-02
 
 - README 生成 `kernel` 示例。
 - `docs/downstream-matrix.md` 包含 `kernel` 行。
-- `.agent/traceability-matrix.md` REQ-002/REQ-009 追踪项。
+- `.agent/traceability/traceability-matrix.md` REQ-002/REQ-009 追踪项。

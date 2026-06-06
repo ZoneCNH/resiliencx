@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
+	"github.com/ZoneCNH/resiliencx/pkg/resiliencx"
 )
 
 func TestMainPrintsHealthyStatus(t *testing.T) {
@@ -19,7 +19,7 @@ func TestMainPrintsHealthyStatus(t *testing.T) {
 func TestRunReportsInvalidConfig(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 
-	run(&stdout, &stderr, templatex.Config{})
+	run(&stdout, &stderr, resiliencx.Config{})
 
 	if stdout.String() != "" {
 		t.Fatalf("unexpected stdout: %q", stdout.String())

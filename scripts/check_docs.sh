@@ -20,17 +20,30 @@ required_files=(
   "docs/standard/agent-team-contract.md"
   "docs/standard/goalcli-cli-contract.md"
   "docs/standard/template-generation-contract.md"
-  "docs/standard/goalcli-cli-contract.md"
+  "docs/standard/docker-toolchain-standard.md"
   "docs/standard/dod.md"
   "docs/standard/downstream-compatibility.md"
+  "docs/standard/layer-governance-rules.md"
   "docs/downstream-sync-policy.md"
+  "docs/private-business-consumer-guide.md"
+  "docs/adr/ADR-20260604-001-layer-governance.md"
   "docs/scorecard.md"
-  ".agent/standard/goal-runtime-canonical.md"
-  ".agent/standard/goalcli-mapping.md"
-  ".agent/standard/audit-2026-06-03.md"
+  ".agent/policies/layer-governance.yaml"
+  ".agent/runtime/standard/goal-runtime-canonical.md"
+  ".agent/docs/standard/goalcli-mapping.md"
+  ".agent/archive/standard/audit-2026-06-03.md"
+  ".agent/registries/command-registry.yaml"
+  ".agent/registries/command-implementation-status.yaml"
+  ".agent/registries/makefile-baseline.yaml"
+  ".agent/registries/makefile-target-registry.yaml"
+  ".agent/harness/harness.yaml"
+  ".agent/harness/gates.md"
   ".agent/rules/iron-rules.md"
   ".agent/rules/registry.yaml"
   ".agent/rules/README.md"
+  "contracts/layer-governance.schema.json"
+  "contracts/goalcli-report.schema.json"
+  "internal/goalcli/README.md"
 )
 
 for file in "${required_files[@]}"; do
@@ -50,6 +63,71 @@ require_text() {
   fi
 }
 
+require_goalcli_sync_contract() {
+  require_text "cmd/goalcli/main.go" "command-registry"
+  require_text "cmd/goalcli/main.go" "makefile-baseline"
+  require_text "cmd/goalcli/main.go" "cli-contract"
+  require_text "cmd/goalcli/main.go" "docs-check"
+  require_text "cmd/goalcli/main.go" "release-final-check"
+  require_text "cmd/goalcli/main.go" "goal-runtime-final"
+  require_text "cmd/goalcli/main.go" "execution-context"
+
+  require_text "cmd/goalcli/main_test.go" "TestUsageDocumentsCommandRegistryRequiredCommands"
+  require_text "cmd/goalcli/main_test.go" "TestCommandRegistryRequiredCommandsMatchRegistryFile"
+  require_text "cmd/goalcli/main_test.go" "TestCommandRegistryCommandsStayDocumentedInUsage"
+  require_text "cmd/goalcli/main_test.go" "TestCommandImplementationStatusCommandsStayRegistered"
+  require_text "cmd/goalcli/main_test.go" "commandRegistryRequiredCommands"
+  require_text "cmd/goalcli/main_test.go" "implementationStatusCommandsFromText"
+  require_text "cmd/goalcli/main_test.go" "usage missing command"
+  require_text "cmd/goalcli/main_test.go" "Makefile must define GOALCLI as the cmd/goalcli execution surface"
+  require_text "cmd/goalcli/main_test.go" ".agent/registries/command-registry.yaml missing name: execution-context"
+
+  require_text "Makefile" "GOALCLI ?= go run ./cmd/goalcli"
+  require_text "Makefile" '$(GOALCLI) command-registry'
+  require_text "Makefile" '$(GOALCLI) makefile-baseline'
+  require_text "Makefile" '$(GOALCLI) cli-contract'
+  require_text "Makefile" '$(GOALCLI) docs-check'
+  require_text "Makefile" '$(GOALCLI) release-evidence-checksum-check'
+  require_text "Makefile" "GOWORK=off is required for release targets"
+
+  require_text ".agent/registries/command-registry.yaml" 'schema_version: "2.9.3"'
+  require_text ".agent/registries/command-registry.yaml" "name: command-registry"
+  require_text ".agent/registries/command-registry.yaml" "name: makefile-baseline"
+  require_text ".agent/registries/command-registry.yaml" "name: goal-runtime-final"
+  require_text ".agent/registries/command-registry.yaml" "name: execution-context"
+
+  require_text ".agent/registries/command-implementation-status.yaml" "source_registry: .agent/registries/command-registry.yaml"
+  require_text ".agent/registries/command-implementation-status.yaml" "truth_state: .agent/evidence/truth-state.yaml"
+  require_text ".agent/registries/command-implementation-status.yaml" "goalcli_v0_1_0_mva_blocking"
+  require_text ".agent/registries/command-implementation-status.yaml" "goal-runtime-final"
+  require_text ".agent/registries/command-implementation-status.yaml" "execution-context"
+
+  require_text ".agent/registries/makefile-baseline.yaml" 'schema_version: "2.9.3"'
+  require_text ".agent/registries/makefile-baseline.yaml" 'command-registry: "$(GOALCLI) command-registry"'
+  require_text ".agent/registries/makefile-baseline.yaml" 'makefile-baseline: "$(GOALCLI) makefile-baseline"'
+  require_text ".agent/registries/makefile-baseline.yaml" 'cli-contract: "$(GOALCLI) cli-contract"'
+  require_text ".agent/registries/makefile-baseline.yaml" 'goal-runtime-final: "$(GOALCLI) goal-runtime-final'
+
+  require_text ".agent/registries/makefile-target-registry.yaml" "command-registry"
+  require_text ".agent/registries/makefile-target-registry.yaml" "makefile-baseline"
+  require_text ".agent/registries/makefile-target-registry.yaml" "cli-contract"
+  require_text ".agent/registries/makefile-target-registry.yaml" "goal-runtime-final"
+  require_text ".agent/registries/makefile-target-registry.yaml" "execution-context"
+
+  require_text ".agent/harness/harness.yaml" 'GOWORK: "off"'
+  require_text ".agent/harness/harness.yaml" "cli_contract"
+  require_text ".agent/harness/harness.yaml" "command_registry"
+  require_text ".agent/harness/harness.yaml" "makefile_baseline"
+  require_text ".agent/harness/harness.yaml" "goalcli_v0_1_0"
+  require_text ".agent/harness/harness.yaml" "goalcli_mva_gates"
+
+  require_text "docs/standard/goalcli-cli-contract.md" "GoalCLI 同步契约"
+  require_text ".agent/docs/standard/goalcli-mapping.md" "GoalCLI 同步契约"
+  require_text "internal/goalcli/README.md" "GoalCLI 同步契约"
+}
+
+require_goalcli_sync_contract
+
 require_text "README.md" "GOWORK=off make docs-check"
 require_text "README.md" "GOWORK=off make dependency-check"
 require_text "README.md" "GOWORK=off make standard-impact-check"
@@ -64,6 +142,64 @@ require_text "README.md" "downstream_sync_required"
 require_text "README.md" "FUZZ_SMOKE_TIME"
 require_text "README.md" "docs/downstream-sync-policy.md"
 require_text "README.md" "kernel"
+require_text "README.md" "Docker Toolchain Runtime"
+require_text "README.md" "docs/standard/docker-toolchain-standard.md"
+require_text "README.md" "make docker-toolchain-check"
+require_text "README.md" "make docker-ci"
+require_text "README.md" "make docker-release-check"
+require_text "docs/standard/README.md" "docker-toolchain-standard.md"
+require_text "docs/standard/README.md" "Docker Toolchain Runtime"
+require_text "docs/standard/docker-toolchain-standard.md" "不是第二套 gate"
+require_text "docs/standard/docker-toolchain-standard.md" "parent plan #62"
+require_text "docs/standard/docker-toolchain-standard.md" ".git"
+require_text "docs/standard/docker-toolchain-standard.md" "GOWORK=off"
+require_text "docs/standard/docker-toolchain-standard.md" "XLIB_CONTEXT"
+require_text "docs/standard/docker-toolchain-standard.md" "VERSION"
+require_text "docs/standard/docker-toolchain-standard.md" "DOWNSTREAM"
+require_text "docs/standard/docker-toolchain-standard.md" "XLIB_ENABLE_VULNCHECK"
+require_text "docs/standard/docker-toolchain-standard.md" "GITHUB_ACTIONS"
+require_text "docs/standard/docker-toolchain-standard.md" "python3-yaml"
+require_text "docs/standard/docker-toolchain-standard.md" "golangci-lint v2.1.6"
+require_text "docs/standard/docker-toolchain-standard.md" "govulncheck v1.1.4"
+require_text "docs/standard/docker-toolchain-standard.md" "BuildKit"
+require_text "docs/standard/docker-toolchain-standard.md" "XLIB_CONTEXT=release_verify GOWORK=off"
+require_text "docs/standard/docker-toolchain-standard.md" "GOWORK=off make integration DOWNSTREAM=kernel"
+require_text "docs/standard/docker-toolchain-standard.md" "goalcli doctor"
+require_text "docs/standard/docker-toolchain-standard.md" "score"
+require_text "docs/testing.md" "GOWORK=off make docker-toolchain-check"
+require_text "docs/testing.md" "GOWORK=off make integration DOWNSTREAM=kernel"
+require_text "docs/release.md" "XLIB_CONTEXT=release_verify GOWORK=off"
+require_text "docs/release.md" "Docker Toolchain Runtime"
+require_text "docs/troubleshooting.md" "Docker Toolchain Runtime"
+require_text "docs/troubleshooting.md" "docker buildx inspect --bootstrap"
+require_text "docs/generation.md" "docker-toolchain-check"
+require_text "docs/generation.md" "scripts/docker/docker_gate.sh"
+require_text "docs/standard/template-generation-contract.md" "scripts/docker/docker_gate.sh"
+require_text "docs/standard/template-generation-contract.md" "Docker 不是第二套 gate"
+require_text "docs/downstream-matrix.md" "docker_contract_required"
+require_text ".agent/registries/downstream-adoption-status.yaml" "docker_contract_status"
+require_text ".agent/registries/downstream-registry.yaml" "docker_contract"
+require_text ".github/workflows/docker-contract.yml" "docker-contract"
+require_text ".github/workflows/docker-contract.yml" "make docker-toolchain-check"
+require_text ".github/workflows/docker-contract.yml" "make docker-ci"
+require_text ".github/workflows/docker-contract.yml" "make docker-release-check"
+require_text "Makefile" "docker-toolchain-check"
+require_text "Makefile" "docker-ci"
+require_text "Makefile" "docker-release-check"
+require_text "Makefile" 'GITHUB_ACTIONS=$${GITHUB_ACTIONS:-}'
+require_text "Makefile" 'GOLANGCI_LINT_VERSION=$${GOLANGCI_LINT_VERSION:-v2.1.6}'
+require_text "Makefile" "GIT_CONFIG_VALUE_0=/workspace"
+require_text "Dockerfile" "python3-yaml"
+require_text "Dockerfile" "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"
+require_text "Dockerfile" "golang.org/x/vuln/cmd/govulncheck"
+require_text "Dockerfile" "safe.directory /workspace"
+require_text ".agent/policies/toolchain.yaml" "python3-yaml"
+require_text "scripts/docker/docker_gate.sh" 'GITHUB_ACTIONS=${GITHUB_ACTIONS:-}'
+require_text "scripts/docker/docker_gate.sh" 'GOLANGCI_LINT_VERSION:-v2.1.6'
+require_text "scripts/docker/docker_gate.sh" 'GOVULNCHECK_VERSION:-v1.1.4'
+require_text "scripts/docker/docker_gate.sh" "GIT_CONFIG_VALUE_0=/workspace"
+require_text "scripts/check_rendered_template.sh" "Dockerfile"
+require_text "scripts/check_rendered_template.sh" "docker-release-check"
 require_text "docs/standard/README.md" "GOWORK=off make docs-check"
 require_text "docs/standard/README.md" "GOWORK=off make dependency-check"
 require_text "docs/standard/README.md" "GOWORK=off make standard-impact-check"
@@ -72,7 +208,41 @@ require_text "docs/standard/README.md" "release/manifest/latest.json"
 require_text "docs/standard/README.md" "release/manifest/latest.json.sha256"
 require_text "docs/standard/README.md" "FUZZ_SMOKE_TIME"
 require_text "docs/standard/README.md" "../downstream-sync-policy.md"
-require_text "docs/downstream-sync-policy.md" "xlib-standard"
+require_text "docs/standard/README.md" "layer-governance-rules.md"
+require_text "docs/standard/layer-governance-rules.md" "resiliencx"
+require_text "docs/standard/layer-governance-rules.md" 'L3 | `x.go`'
+require_text "docs/standard/layer-governance-rules.md" "L3 私有"
+require_text "docs/standard/layer-governance-rules.md" "natsx"
+require_text "docs/standard/layer-governance-rules.md" "GOPRIVATE"
+require_text "docs/standard/layer-governance-rules.md" "P0 没有临时例外"
+require_text "docs/standard/layer-governance-rules.md" "/home/k8s/secrets/env/*"
+require_text "docs/standard/layer-governance-rules.md" "owner"
+require_text "docs/standard/layer-governance-rules.md" "回滚方案"
+require_text "docs/downstream-matrix.md" '`natsx`'
+require_text ".agent/registries/downstream-adoption-status.yaml" "name: natsx"
+require_text "docs/standard/downstream-compatibility.md" '`natsx`'
+require_text "docs/adr/ADR-20260604-001-layer-governance.md" "L3 私有"
+require_text "docs/adr/ADR-20260604-001-layer-governance.md" "docs-check"
+require_text ".agent/docs/rule-patches.md" "ADR-20260604-001"
+require_text "docs/downstream-sync-policy.md" "private-business-consumer-guide.md"
+require_text "docs/private-business-consumer-guide.md" "L3 私有业务系统"
+require_text "docs/private-business-consumer-guide.md" "GOPRIVATE"
+require_text "docs/private-business-consumer-guide.md" "GONOSUMDB"
+require_text "docs/private-business-consumer-guide.md" "go list -m all"
+require_text "docs/private-business-consumer-guide.md" "go mod why -m"
+require_text "docs/private-business-consumer-guide.md" "go test ./..."
+require_text "docs/private-business-consumer-guide.md" "/home/k8s/secrets/env/*"
+require_text "docs/private-business-consumer-guide.md" "脱敏"
+require_text "docs/private-business-consumer-guide.md" "不得提交"
+require_text "docs/private-business-consumer-guide.md" "owner"
+require_text ".agent/policies/layer-governance.yaml" "dependency_direction"
+require_text ".agent/policies/layer-governance.yaml" "natsx"
+require_text ".agent/policies/layer-governance.yaml" "market-data"
+require_text ".agent/policies/layer-governance.yaml" "public_release"
+require_text "contracts/layer-governance.schema.json" "resiliencx layer governance registry"
+require_text "contracts/layer-governance.schema.json" "L3>L2>L1>L0>Standard"
+require_text "cmd/goalcli/schema_check.go" ".agent/policies/layer-governance.yaml"
+require_text "docs/downstream-sync-policy.md" "resiliencx"
 require_text "docs/downstream-sync-policy.md" "kernel"
 require_text "docs/downstream-sync-policy.md" "corekit"
 require_text "docs/downstream-sync-policy.md" "L1 基础库"
@@ -119,9 +289,9 @@ require_text "release/manifest/template.json" '"workflow_run_id"'
 require_text "internal/tools/releasemanifest/main.go" "min-score"
 require_text "Makefile" "go run ./cmd/goalcli score --min 9.8"
 require_text "Makefile" "RELEASE_EVIDENCE_MIN_SCORE=9.8"
-require_text ".agent/release-template.md" "go run ./cmd/goalcli score --min 9.8"
-require_text ".agent/retrospective-template.md" "Score"
-require_text ".agent/harness.yaml" "go run ./cmd/goalcli score --min 9.8"
+require_text ".agent/release/release-template.md" "go run ./cmd/goalcli score --min 9.8"
+require_text ".agent/docs/retrospective-template.md" "Score"
+require_text ".agent/harness/harness.yaml" "go run ./cmd/goalcli score --min 9.8"
 require_text "internal/tools/releasemanifest/main.go" "release/manifest/latest.json.sha256"
 require_text "cmd/goalcli/main.go" "docs-check"
 require_text "cmd/goalcli/main.go" "dependency-check"
@@ -151,14 +321,51 @@ require_text "Makefile" '$(GOALCLI) release-evidence-checksum-check'
 require_text "scripts/run_fuzz_smoke.sh" 'fuzz_time="${FUZZ_SMOKE_TIME:-10s}"'
 require_text ".github/workflows/ci.yml" "make release-check"
 require_text ".github/workflows/ci.yml" "release/manifest/latest.json.sha256"
+require_text ".github/workflows/ci.yml" 'XLIB_ENABLE_VULNCHECK: "0"'
+require_text ".github/workflows/ci.yml" "env.XLIB_ENABLE_VULNCHECK == '1'"
 require_text ".github/workflows/release.yml" "make release-final-check"
 require_text ".github/workflows/release.yml" "release/manifest/latest.json.sha256"
 require_text ".github/workflows/release.yml" "ARTIFACT_URL"
+require_text ".github/workflows/release.yml" 'XLIB_ENABLE_VULNCHECK: "0"'
+require_text ".github/workflows/release.yml" "env.XLIB_ENABLE_VULNCHECK == '1'"
 require_text ".github/workflows/release.yml" "contents: write"
 require_text ".github/workflows/release.yml" "gh release create"
 require_text ".github/workflows/release.yml" "gh release edit"
 require_text ".github/workflows/release.yml" "gh release view"
 require_text ".github/workflows/release.yml" "--verify-tag"
+require_text ".github/workflows/security.yml" "schedule:"
+require_text ".github/workflows/security.yml" 'cron: "17 3 * * 1"'
+require_text ".github/workflows/security.yml" "github.event_name == 'schedule'"
+require_text ".github/workflows/security.yml" 'XLIB_FORCE_VULNCHECK: ${{ github.event_name =='
+require_text ".github/workflows/security.yml" 'XLIB_VULNCHECK_INTERVAL_HOURS: "168"'
+require_text ".github/workflows/security.yml" "env.XLIB_ENABLE_VULNCHECK == '1'"
+require_text ".github/workflows/release-auto-patch.yml" "branches: [main]"
+require_text ".github/workflows/release-auto-patch.yml" "contents: write"
+require_text ".github/workflows/release-auto-patch.yml" "fetch-depth: 0"
+require_text ".github/workflows/release-auto-patch.yml" "release-auto-patch-main"
+require_text ".github/workflows/release-auto-patch.yml" 'XLIB_ENABLE_VULNCHECK: "0"'
+require_text ".github/workflows/release-auto-patch.yml" "env.XLIB_ENABLE_VULNCHECK == '1'"
+require_text ".github/workflows/release-auto-patch.yml" "git tag --points-at"
+require_text ".github/workflows/release-auto-patch.yml" "already_released=true"
+require_text ".github/workflows/release-auto-patch.yml" "git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname"
+require_text ".github/workflows/release-auto-patch.yml" 'next_patch=$((patch + 1))'
+require_text ".github/workflows/release-auto-patch.yml" "GOWORK=off make release-final-check"
+require_text ".github/workflows/release-auto-patch.yml" "git tag -a"
+require_text ".github/workflows/release-auto-patch.yml" 'git push origin "refs/tags/${RELEASE_TAG}"'
+require_text ".github/workflows/release-auto-patch.yml" "gh release create"
+require_text ".github/workflows/release-auto-patch.yml" "gh release edit"
+require_text ".github/workflows/release-auto-patch.yml" "gh release view"
+require_text ".github/workflows/release-auto-patch.yml" "--verify-tag"
+require_text ".github/workflows/release-auto-patch.yml" ".url | length > 0"
+require_text ".github/workflows/release-auto-patch.yml" "govulncheck@v1.1.4"
+require_text "docs/release.md" ".github/workflows/release-auto-patch.yml"
+require_text "docs/release.md" "vX.Y.(Z+1)"
+require_text "docs/release.md" "GOWORK=off make release-final-check"
+require_text "docs/release.md" "already_released=true"
+require_text "docs/release.md" "release-auto-patch-main"
+require_text "docs/standard/release-standard.md" ".github/workflows/release-auto-patch.yml"
+require_text "docs/standard/release-standard.md" "vX.Y.(Z+1)"
+require_text "docs/standard/release-standard.md" "already_released=true"
 require_text ".github/workflows/ci.yml" "ARTIFACT_URL"
 
 
@@ -167,20 +374,39 @@ require_text "cmd/goalcli/main.go" "main-guard"
 require_text "cmd/goalcli/main.go" "policy-schema"
 require_text "cmd/goalcli/main.go" "downstream-adoption"
 require_text "cmd/goalcli/main.go" "runtime-file-ownership"
+require_text "cmd/goalcli/main.go" "adoption-check"
+require_text "cmd/goalcli/adoption_check.go" "xlib-standard.lock"
+require_text "scripts/render_template.sh" "--enable-governance"
+require_text "Makefile" "adoption-check"
+require_text ".github/workflows/adoption-check.yml" "GOWORK=off make adoption-check"
+require_text ".github/rulesets/protect-main.json" '"bypass_actors": []'
+require_text ".github/rulesets/protect-main.json" "adoption-check"
+require_text ".github/rulesets/protect-main.json" "governance-check"
+require_text ".github/rulesets/protect-main.json" "release-check"
+require_text "mk/governance.mk" "adoption-check"
+require_text ".agent/registries/command-registry.yaml" "adoption-check"
+require_text ".agent/registries/makefile-baseline.yaml" "adoption-check"
+require_text ".agent/registries/makefile-target-registry.yaml" "adoption-check"
+require_text ".agent/harness/harness.yaml" "adoption_check"
+require_text ".agent/harness/gates.md" "adoption-check"
+require_text "docs/standard/harness-gates.md" "adoption-check"
+require_text "docs/standard/goalcli-cli-contract.md" "adoption-check"
+require_text "docs/generation.md" "--enable-governance"
+require_text "docs/generation.md" "xlib-standard.lock"
 require_text "Makefile" "governance-check"
 require_text "Makefile" "p1-governance-check"
 require_text "Makefile" "p2-runtime-check"
 require_text "Makefile" "execution-context"
 require_text ".github/workflows/ci.yml" "GOWORK=off XLIB_CONTEXT=ci_pull_request make release-check"
-require_text ".agent/command-registry.yaml" "downstream-adoption"
-require_text ".agent/command-registry.yaml" "runtime-file-ownership"
-require_text ".agent/command-registry.yaml" "execution-context"
-require_text ".agent/issue-registry.yaml" "GOAL-V293-P0"
-require_text ".agent/makefile-baseline.yaml" "score-check"
-require_text ".agent/makefile-baseline.yaml" "execution-context"
-require_text ".agent/makefile-target-registry.yaml" "execution-context"
-require_text ".agent/harness.yaml" "execution-context"
-require_text ".agent/gates.md" "execution-context"
+require_text ".agent/registries/command-registry.yaml" "downstream-adoption"
+require_text ".agent/registries/command-registry.yaml" "runtime-file-ownership"
+require_text ".agent/registries/command-registry.yaml" "execution-context"
+require_text ".agent/registries/issue-registry.yaml" "GOAL-V293-P0"
+require_text ".agent/registries/makefile-baseline.yaml" "score-check"
+require_text ".agent/registries/makefile-baseline.yaml" "execution-context"
+require_text ".agent/registries/makefile-target-registry.yaml" "execution-context"
+require_text ".agent/harness/harness.yaml" "execution-context"
+require_text ".agent/harness/gates.md" "execution-context"
 require_text "docs/standard/goalcli-cli-contract.md" "不读取真实 secrets"
 require_text "docs/standard/goalcli-cli-contract.md" "downstream-adoption"
 require_text "docs/standard/goalcli-cli-contract.md" "execution-context"
@@ -191,7 +417,7 @@ require_text "docs/standard/acceptance-matrix.md" "governance-check"
 require_text "docs/standard/downstream-registry.md" "kernel/configx"
 require_text "docs/standard/conformance-profiles.md" "l0-kernel"
 
-xlib_standard_url="https://github.com/ZoneCNH/xlib-standard"
+xlib_standard_url="https://github.com/ZoneCNH/resiliencx"
 require_text "README.md" "$xlib_standard_url"
 require_text "docs/standard/README.md" "$xlib_standard_url"
 require_text "docs/spec.md" "$xlib_standard_url"
@@ -271,28 +497,36 @@ from pathlib import Path
 root = Path(sys.argv[1])
 requirements = {
     "docs/standard/xlib-standard.md": [
-        "xlib-standard",
-        "baselib-template",
+        "resiliencx",
+        "resiliencx",
         "模板",
         "generator",
         "Harness",
         "Evidence",
     ],
     "docs/standard/repository-roles.md": [
-        "xlib-standard",
-        "baselib-template",
+        "resiliencx",
+        "resiliencx",
         "标准权威源",
         "模板、generator、Harness、Evidence 实现仓库",
     ],
     "docs/standard/layering.md": [
-        "xlib-standard",
-        "baselib-template",
+        "resiliencx",
+        "resiliencx",
         "Standard 规则的独立来源",
         "Go 基础库模板中的实现仓库",
     ],
+    "docs/standard/layer-governance-rules.md": [
+        "resiliencx",
+        "kernel",
+        "natsx",
+        "L3 私有",
+        "GOPRIVATE",
+        "P0 没有临时例外",
+    ],
     "docs/standard/module-boundary.md": [
-        "xlib-standard",
-        "baselib-template",
+        "resiliencx",
+        "resiliencx",
         "go.mod",
         "module path",
     ],

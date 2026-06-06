@@ -1,0 +1,31 @@
+schema_version: "2.9.3"
+scope: local_worker_workspace_gap
+adoption_claim: not_claimed
+downstream_adoption_scope: local_contract_only
+proof_based_adoption: false
+downstream_repo_write: false
+docker_contract:
+  template_required: true
+  required_files:
+    - Dockerfile
+    - docker-compose.yml
+    - .dockerignore
+    - .devcontainer/devcontainer.json
+    - scripts/docker/check_toolchain.sh
+    - scripts/docker/docker_gate.sh
+  required_make_targets:
+    - docker-toolchain-check
+    - docker-ci
+    - docker-release-check
+  build_context_excludes_git: true
+  git_metadata_bind_mount_allowed_for_evidence: true
+downstreams:
+  - repo: kernel/configx
+    mode: patch-only
+    status: unavailable_in_worker_workspace_gap_explicit
+  - repo: kernel/redisx
+    mode: patch-only
+    status: unavailable_in_worker_workspace_gap_explicit
+  - repo: corekit
+    mode: patch-only
+    status: unavailable_in_worker_workspace_gap_explicit

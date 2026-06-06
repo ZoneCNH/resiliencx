@@ -4,7 +4,7 @@ Truth-State 是 first-PR/MVA 的治理事实分离标准，用于把“已登记
 
 ## 目的
 
-`xlib-standard` 的治理结论必须来自可核验事实，不能把 registry、baseline scan、dry-run、artifact upload 或 downstream 声明混写为同一个 passed 结论。
+`resiliencx` 的治理结论必须来自可核验事实，不能把 registry、baseline scan、dry-run、artifact upload 或 downstream 声明混写为同一个 passed 结论。
 
 first-PR/MVA 必须至少区分：
 
@@ -18,11 +18,11 @@ first-PR/MVA 必须至少区分：
 
 | 文件 | 职责 | 不得表示 |
 | --- | --- | --- |
-| `.agent/truth-state.yaml` | 汇总治理状态分类、允许状态值和 first-PR/MVA scope。 | 不得声明 release 已通过或 downstream 已 adopted。 |
-| `.agent/command-implementation-status.yaml` | 区分 command registered、planned、dry-run verify 和 implemented。 | 不得把 planned command 记为真实 gate success。 |
-| `.agent/release-required-gates.yaml` | 列出 release required gate 与当前证据等级。 | 不得生成或替代 `release/manifest/latest.json`。 |
-| `.agent/evidence-usability.yaml` | 区分 artifact exists、checksum verified、replayable、usable。 | 不得把 artifact upload 等同 release usable。 |
-| `.agent/downstream-adoption-status.yaml` | 区分 downstream registered、baseline scanned、patch planned、proof adopted。 | 不得把 registry 存在等同 adopted。 |
+| `.agent/evidence/truth-state.yaml` | 汇总治理状态分类、允许状态值和 first-PR/MVA scope。 | 不得声明 release 已通过或 downstream 已 adopted。 |
+| `.agent/registries/command-implementation-status.yaml` | 区分 command registered、planned、dry-run verify 和 implemented。 | 不得把 planned command 记为真实 gate success。 |
+| `.agent/release/release-required-gates.yaml` | 列出 release required gate 与当前证据等级。 | 不得生成或替代 `release/manifest/latest.json`。 |
+| `.agent/evidence/evidence-usability.yaml` | 区分 artifact exists、checksum verified、replayable、usable。 | 不得把 artifact upload 等同 release usable。 |
+| `.agent/registries/downstream-adoption-status.yaml` | 区分 downstream registered、baseline scanned、patch planned、proof adopted。 | 不得把 registry 存在等同 adopted。 |
 
 这些文件是源码中的治理事实 contract。它们可以被 `governance-check` 或后续 goalcli contract 检查读取，但 first-PR/MVA 不要求改变 release runtime、release manifest schema 或 migration-wave 运行时。
 

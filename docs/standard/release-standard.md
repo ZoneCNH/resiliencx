@@ -1,6 +1,6 @@
 # 发布标准
 
-发布流程必须证明源码、contracts、依赖和 gate 状态一致。`xlib-standard` 的 release 标准同时约束生成基础库；旧 `baselib-template` 仅作为迁移兼容名记录。
+发布流程必须证明源码、contracts、依赖和 gate 状态一致。`resiliencx` 的 release 标准同时约束生成基础库；旧 `resiliencx` 仅作为迁移兼容名记录。
 
 ## 发布路径
 
@@ -40,14 +40,17 @@ Release manifest 相关测试必须在临时 fixture 仓库构造所需 `.omc` s
 ## 供应链约束
 
 - GitHub Actions workflow 引用的第三方 Action 必须固定为 40 位 commit SHA，并在同一行保留来源 tag 注释。
-- CI、Release Check 和 Security workflow 安装 `govulncheck` 时必须使用固定版本；当前基线是 `golang.org/x/vuln/cmd/govulncheck@v1.3.0`。
-- 本地缺少 `golangci-lint` 或 `govulncheck` 时，`make lint` / `make security` 必须失败，不得把必需 gate 记录为跳过。
+- CI、Release Check、Auto Patch 和 Docker Contract workflow 默认不安装或访问 `govulncheck`；Security workflow 每周定时强制执行漏洞扫描。启用或定时运行时必须使用固定版本；当前基线是 `golang.org/x/vuln/cmd/govulncheck@v1.1.4`。
+- 本地缺少 `golangci-lint` 时 `make lint` 必须失败；`make security` 默认只要求 secret scan，通过 `XLIB_ENABLE_VULNCHECK=1` 启用漏洞扫描后，仅当一周窗口到期、状态文件缺失或 `XLIB_FORCE_VULNCHECK=1` 时要求 `govulncheck`，缺失时必须失败，不得把必需 gate 记录为跳过。
 
 ## 版本
 
 - `VERSION` 必须显式传入 release-preflight。
 - 版本应与 release notes、tag 和 manifest 一致。
 - 未创建 tag 或工作区 dirty 时，不得宣称最终发布完成。
+- 合并到 `main` 的自动发布由 `.github/workflows/release-auto-patch.yml` 负责，必须读取最新稳定 `vX.Y.Z` tag 并生成 `vX.Y.(Z+1)`，再以该版本运行 `GOWORK=off make release-final-check`。
+- 自动 patch workflow 必须在同一次 `main` push workflow 内完成 `git tag -a`、`git push origin "refs/tags/${RELEASE_TAG}"`、GitHub Release 发布和 `gh release view` 校验，不得依赖 tag push 触发二次 workflow。
+- 自动 patch workflow rerun 时若当前 commit 已有稳定 release tag，必须设置 `already_released=true` 并复用该 tag，不得继续递增 patch 版本。
 
 ## GitHub Release 对象
 

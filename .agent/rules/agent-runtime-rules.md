@@ -63,8 +63,7 @@ CI Check
 “禁止 main 开发”
 不能只写在文档里
 必须落到：
-- scripts/harness/no-main-dev.sh
-- make worktree-check
+- goalcli worktree-check --context local_write
 - .githooks/pre-commit
 - .githooks/pre-push
 - GitHub branch protection
@@ -83,8 +82,7 @@ title: No main development
 severity: P0
 domain: worktree
 enforced_by:
-  - make worktree-check
-  - scripts/harness/no-main-dev.sh
+  - goalcli worktree-check --context local_write
   - .githooks/pre-commit
   - .github/workflows/worktree-guard.yml
 evidence:
@@ -178,7 +176,7 @@ Evidence ID
 
 ```yaml
 allowed_repos:
-  - xlib-standard
+  - resiliencx
 allowed_paths:
   - .agent/
   - scripts/harness/
@@ -246,7 +244,7 @@ lock_id: LOCK-TASK-GOAL-20260603-001-001
 owner: agent-01
 goal_id: GOAL-20260603-001
 task_id: TASK-GOAL-20260603-001-001
-worktree: /home/zone/code/.worktrees/xlib-standard/GOAL-20260603-001/TASK-001
+worktree: /home/zone/code/.worktrees/resiliencx/GOAL-20260603-001/TASK-001
 created_at: 2026-06-03T16:30:00+09:00
 expires_at: 2026-06-03T20:30:00+09:00
 ```
@@ -341,7 +339,7 @@ Gate false positive > 10% → 需要调参
 
 ## §83 goalcli 命令契约规则
 
-### **[P1]** `RULE-GOALCLI-001`：goalcli 必须是 Goal Runtime 的唯一执行入口之一
+### **[P1]** `RULE-GOALCLI-001`：goalcli 必须是 Goal Runtime 的唯一机器执行入口
 
 <sub>level: P1 · status: active · enforced_by: `goalcli` · exit: 1 · source: §83 L3644</sub>
 
@@ -564,7 +562,7 @@ PR 内容漂移
 
 <sub>level: P1 · status: active · enforced_by: `goalcli boundary` · exit: 1 · source: §113 L4761</sub>
 
-推荐在 `xlib-standard` 中落地：
+推荐在 `resiliencx` 中落地：
 
 ```text
 .agent/
@@ -656,7 +654,7 @@ runtime:
   worktree_root: ~/code/.worktrees
 
 repositories:
-  default: xlib-standard
+  default: resiliencx
   root: .
   remote: origin
 
@@ -810,7 +808,7 @@ reports/worktree-check.txt
 ```bash
 git status
 git branch --show-current
-make worktree-check
+goalcli worktree-check --context local_write
 make schema-check
 goalcli goal status --goal <GOAL-ID>
 goalcli task status --task <TASK-ID>
@@ -1255,7 +1253,7 @@ full design
 接入命令：
 
 ```bash
-goalcli bootstrap repo --profile xlib-standard
+goalcli bootstrap repo --profile resiliencx
 ```
 
 必须生成或检查：

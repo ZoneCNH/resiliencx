@@ -42,11 +42,11 @@ func runSelfImprovingCheck(cmdName string, args []string, stdout io.Writer, stde
 	var findings []string
 
 	required := []string{
-		".agent/retrospective.md",
-		".agent/retrospective-template.md",
-		".agent/harness-patches.yaml",
-		".agent/prompt-patches.yaml",
-		".agent/rule-patches.yaml",
+		".agent/archive/retrospective.md",
+		".agent/docs/retrospective-template.md",
+		".agent/harness/harness-patches.yaml",
+		".agent/policies/prompt-patches.yaml",
+		".agent/policies/rule-patches.yaml",
 		".agent/harness/gates/retro-gate.yaml",
 	}
 	for _, p := range required {
@@ -55,7 +55,7 @@ func runSelfImprovingCheck(cmdName string, args []string, stdout io.Writer, stde
 		}
 	}
 
-	retroPath := filepath.Join(*root, ".agent/retrospective.md")
+	retroPath := filepath.Join(*root, ".agent/archive/retrospective.md")
 	if data, err := os.ReadFile(retroPath); err == nil {
 		text := string(data)
 		// retrospective.md 必须体现复盘性质：含 "复盘/Retrospective" 关键词
@@ -78,7 +78,7 @@ func runSelfImprovingCheck(cmdName string, args []string, stdout io.Writer, stde
 	}
 
 	// template 必须遵循完整 schema (9 段) - 它是被生成新 retrospective 的"模具"
-	tplPath := filepath.Join(*root, ".agent/retrospective-template.md")
+	tplPath := filepath.Join(*root, ".agent/docs/retrospective-template.md")
 	if data, err := os.ReadFile(tplPath); err == nil {
 		text := string(data)
 		tplRequired := []string{
@@ -93,9 +93,9 @@ func runSelfImprovingCheck(cmdName string, args []string, stdout io.Writer, stde
 	}
 
 	patchFiles := []string{
-		".agent/harness-patches.yaml",
-		".agent/prompt-patches.yaml",
-		".agent/rule-patches.yaml",
+		".agent/harness/harness-patches.yaml",
+		".agent/policies/prompt-patches.yaml",
+		".agent/policies/rule-patches.yaml",
 	}
 	statusRe := regexp.MustCompile(`(?m)^\s*status:\s*"?([A-Za-z_-]+)"?\s*$`)
 	patchIDRe := regexp.MustCompile(`(?m)^\s*-\s*patch_id\s*:`)

@@ -1,6 +1,6 @@
 {
-  "module": "{{MODULE_PATH}}",
-  "version": "v0.4.8",
+  "module": "github.com/ZoneCNH/resiliencx",
+  "version": "v0.4.14",
   "commit": "{{COMMIT}}",
   "tree_sha": "{{TREE_SHA}}",
   "source_digest": "{{SOURCE_DIGEST}}",
@@ -25,11 +25,64 @@
     "docs_check": "{{CHECK_STATUS}}",
     "property": "{{CHECK_STATUS}}",
     "golden": "{{CHECK_STATUS}}",
-    "fuzz_smoke": "{{CHECK_STATUS}}"
+    "fuzz_smoke": "{{CHECK_STATUS}}",
+    "debt": "{{CHECK_STATUS}}",
+    "architecture": "{{CHECK_STATUS}}",
+    "domain": "{{CHECK_STATUS}}",
+    "docs_drift": "{{CHECK_STATUS}}",
+    "dependency_debt": "{{CHECK_STATUS}}",
+    "security_debt": "{{CHECK_STATUS}}",
+    "testing_debt": "{{CHECK_STATUS}}",
+    "implementation_debt": "{{CHECK_STATUS}}",
+    "downstream_debt": "{{CHECK_STATUS}}",
+    "docker_toolchain_check": "{{CHECK_STATUS}}",
+    "docker_build_check": "{{CHECK_STATUS}}",
+    "docker_ci": "{{CHECK_STATUS}}",
+    "docker_release_check": "{{CHECK_STATUS}}",
+    "docker_release_final_check": "{{CHECK_STATUS}}",
+    "docker_goalcli_image": "{{CHECK_STATUS}}",
+    "docker_goalcli_version": "{{CHECK_STATUS}}",
+    "docker_runtime_check": "{{CHECK_STATUS}}",
+    "docker_drift_check": "{{CHECK_STATUS}}",
+    "docker_contract": "{{CHECK_STATUS}}"
   },
   "workflow": {
     "workflow_run_id": "{{WORKFLOW_RUN_ID}}",
     "artifact_name": "release-manifest-{{WORKFLOW_RUN_ID}}",
+    "artifact_url": "{{ARTIFACT_URL}}"
+  },
+  "docker": {
+    "enabled": true,
+    "contract_version": "docker-toolchain/v2",
+    "go_version": "{{GO_VERSION}}",
+    "golangci_lint_version": "{{GOLANGCI_LINT_VERSION}}",
+    "govulncheck_version": "{{GOVULNCHECK_VERSION}}",
+    "buildkit_required": true,
+    "cache_mounts": [
+      "go-build",
+      "go-mod",
+      "golangci-lint"
+    ],
+    "base_image": "{{DOCKER_BASE_IMAGE}}",
+    "base_image_digest": "{{DOCKER_BASE_IMAGE_DIGEST}}",
+    "toolchain_image": "{{DOCKER_TOOLCHAIN_IMAGE}}",
+    "toolchain_image_digest": "{{DOCKER_TOOLCHAIN_IMAGE_DIGEST}}",
+    "runtime_image": "{{DOCKER_RUNTIME_IMAGE}}",
+    "runtime_image_digest": "{{DOCKER_RUNTIME_IMAGE_DIGEST}}",
+    "validated_by": [
+      "docker-toolchain-check",
+      "docker-build-check",
+      "docker-ci",
+      "docker-release-check",
+      "docker-release-final-check",
+      "docker-goalcli-image",
+      "docker-goalcli-version",
+      "docker-runtime-check",
+      "docker-drift-check",
+      "docker-contract"
+    ],
+    "workflow_run_id": "{{WORKFLOW_RUN_ID}}",
+    "artifact_name": "docker-contract-{{WORKFLOW_RUN_ID}}",
     "artifact_url": "{{ARTIFACT_URL}}"
   },
   "score": {
@@ -61,11 +114,15 @@
     {
       "path": "contracts/metrics.md",
       "sha256": "{{METRICS_SHA256}}"
+    },
+    {
+      "path": "contracts/docker-toolchain.schema.json",
+      "sha256": "{{DOCKER_TOOLCHAIN_SCHEMA_SHA256}}"
     }
   ],
   "dependencies": [
     {
-      "path": "{{MODULE_PATH}}",
+      "path": "github.com/ZoneCNH/resiliencx",
       "main": true
     }
   ],
@@ -79,6 +136,16 @@
     "downstream_release_decision": "{{DOWNSTREAM_RELEASE_DECISION}}",
     "repository_rules_release_decision": "{{REPOSITORY_RULES_RELEASE_DECISION}}",
     "primary_downstream": "{{PRIMARY_DOWNSTREAM}}"
+  },
+  "debt": {
+    "report_path": "release/debt/latest.json",
+    "markdown_path": "release/debt/latest.md",
+    "checksum_path": "release/debt/latest.json.sha256",
+    "report_sha256": "{{DEBT_SHA256}}",
+    "status": "{{DEBT_STATUS}}",
+    "score": 9.8,
+    "min_score": 9.8,
+    "check_count": 1
   },
   "governance_runtime": {
     "runtime": "context-runtime-v4.0",
@@ -117,9 +184,14 @@
         "package_name": "kernel"
       },
       {
-        "name": "corekit",
-        "module_path": "example.com/acme/corekit",
-        "package_name": "corekit"
+        "name": "configx",
+        "module_path": "github.com/ZoneCNH/configx",
+        "package_name": "configx"
+      },
+      {
+        "name": "redisx",
+        "module_path": "github.com/ZoneCNH/redisx",
+        "package_name": "redisx"
       }
     ]
   },
@@ -130,7 +202,12 @@
   },
   "artifacts": [
     "release/manifest/latest.json",
-    "release/manifest/latest.json.sha256"
+    "release/manifest/latest.json.sha256",
+    "release/debt/latest.json",
+    "release/debt/latest.md",
+    "release/debt/latest.json.sha256",
+    "release/docker/toolchain-check.md",
+    "release/evidence/docker-toolchain-summary.json"
   ],
   "notes": {
     "breaking_changes": "none",

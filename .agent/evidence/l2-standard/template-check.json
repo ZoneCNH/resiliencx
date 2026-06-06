@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "templates/l2/.agent/l2-capabilities.yaml",
+      "status": "PASS",
+      "details": "template manifest validates against capability schema"
+    },
+    {
+      "check": "required-artifacts",
+      "status": "PASS",
+      "details": "12 template files and 9 docs present"
+    },
+    {
+      "check": "provider-boundary",
+      "status": "PASS",
+      "details": "no provider credentials/endpoints or secret fields in standards artifacts"
+    },
+    {
+      "check": "template-make-targets",
+      "status": "PASS",
+      "details": [
+        "l2-capability-check",
+        "l2-contract",
+        "l2-integration",
+        "l2-chaos",
+        "l2-benchmark",
+        "l2-adoption",
+        "l2-evidence",
+        "l2-release-readiness",
+        "l2-manifest-check",
+        "l2-contract-placeholder",
+        "l2-evidence-check",
+        "l2-release-readiness-check"
+      ]
+    },
+    {
+      "check": "template-contract-test",
+      "status": "PASS",
+      "details": "local manifest shape check without skip"
+    },
+    {
+      "check": "template-compose",
+      "status": "PASS",
+      "details": "provider-neutral placeholder with no default network access"
+    }
+  ]
+}

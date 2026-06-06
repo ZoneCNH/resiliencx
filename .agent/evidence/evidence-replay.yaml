@@ -1,0 +1,14 @@
+schema_version: "2.9.3"
+inputs:
+  - testkit/governance/fixtures/evidence-replay/passed/ledger.jsonl
+  - testkit/governance/fixtures/evidence-replay/passed/expected-status.json
+fixtures:
+  default: testkit/governance/fixtures/evidence-replay/passed
+  ledger: ledger.jsonl
+  expected_status: expected-status.json
+replay_contract:
+  replay: strict
+  strict: true
+  checksum: stdout_sha256 must match each fixture artifact
+  hash_chain: previous_hash links to the previous entry_hash and entry_hash covers seq, command, status, stdout_sha256, previous_hash
+  expected_command_status: expected-status.json commands must match replayed command statuses

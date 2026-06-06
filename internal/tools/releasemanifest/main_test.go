@@ -61,6 +61,16 @@ func TestCheckNamesCoverReleaseTargets(t *testing.T) {
 		"testing_debt",
 		"implementation_debt",
 		"downstream_debt",
+		"docker_toolchain_check",
+		"docker_build_check",
+		"docker_ci",
+		"docker_release_check",
+		"docker_release_final_check",
+		"docker_goalcli_image",
+		"docker_goalcli_version",
+		"docker_runtime_check",
+		"docker_drift_check",
+		"docker_contract",
 	}
 
 	if strings.Join(checkNames, ",") != strings.Join(wantNames, ",") {
@@ -156,6 +166,20 @@ func TestRunCLIGeneratesManifestToOut(t *testing.T) {
 	if manifest.Workflow.WorkflowRunID == "" || manifest.Workflow.ArtifactName == "" || manifest.Workflow.ArtifactURL == "" {
 		t.Fatalf("workflow evidence is incomplete: %+v", manifest.Workflow)
 	}
+	if !manifest.Docker.Enabled {
+		t.Fatalf("docker.enabled = false, want default local evidence enabled")
+	}
+	if manifest.Docker.ContractVersion != "docker-toolchain/v2" || manifest.Docker.GoVersion == "" || manifest.Docker.GolangCILintVersion == "" || manifest.Docker.GovulncheckVersion == "" {
+		t.Fatalf("docker toolchain version evidence is incomplete: %+v", manifest.Docker)
+	}
+	if manifest.Docker.BaseImage == "" || manifest.Docker.ToolchainImage == "" || manifest.Docker.RuntimeImage == "" {
+		t.Fatalf("docker image evidence is incomplete: %+v", manifest.Docker)
+	}
+	for _, validator := range dockerEvidenceValidators {
+		if !contains(manifest.Docker.ValidatedBy, validator) {
+			t.Fatalf("docker.validated_by = %v, want %s", manifest.Docker.ValidatedBy, validator)
+		}
+	}
 	if manifest.Score.Threshold != 9.8 || manifest.Score.Status == "" || len(manifest.Score.Dimensions) == 0 {
 		t.Fatalf("score report is incomplete: %+v", manifest.Score)
 	}
@@ -248,6 +272,7 @@ func TestRunCLIVerifiesManifestWithRequirePassed(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("VERSION", "v1.2.3")
 	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
 	repo := releaseManifestFixtureRepo(t)
 	writeStandardImpactReportFixture(t, repo)
 	chdir(t, repo)
@@ -313,6 +338,93 @@ func TestBuildWorkflowEvidencePrefersExplicitEnvironment(t *testing.T) {
 	}
 }
 
+func TestBuildDockerEvidencePrefersExplicitEnvironment(t *testing.T) {
+	t.Setenv("WORKFLOW_RUN_ID", "12345")
+	t.Setenv("ARTIFACT_NAME", "manifest-artifact")
+	t.Setenv("ARTIFACT_URL", "https://example.invalid/artifacts/manifest")
+	t.Setenv("DOCKER_TOOLCHAIN_ENABLED", "true")
+	t.Setenv("DOCKER_CONTRACT_VERSION", "docker-toolchain/v2")
+	t.Setenv("DOCKER_GO_VERSION", "go1.25.0")
+	t.Setenv("DOCKER_GOLANGCI_LINT_VERSION", "golangci-lint v2.0.0")
+	t.Setenv("DOCKER_GOVULNCHECK_VERSION", "govulncheck v1.2.3")
+	t.Setenv("DOCKER_BUILDKIT_REQUIRED", "true")
+	t.Setenv("DOCKER_CACHE_MOUNTS", "go-build,go-mod,lint-cache")
+	t.Setenv("DOCKER_BASE_IMAGE", "golang:1.25")
+	t.Setenv("DOCKER_BASE_IMAGE_DIGEST", "sha256:base")
+	t.Setenv("DOCKER_TOOLCHAIN_IMAGE", "ghcr.io/example/toolchain:latest")
+	t.Setenv("DOCKER_TOOLCHAIN_IMAGE_DIGEST", "sha256:toolchain")
+	t.Setenv("DOCKER_RUNTIME_IMAGE", "ghcr.io/example/runtime:latest")
+	t.Setenv("DOCKER_RUNTIME_IMAGE_DIGEST", "sha256:runtime")
+	t.Setenv("DOCKER_VALIDATED_BY", strings.Join(dockerEvidenceValidators, ","))
+	t.Setenv("DOCKER_ARTIFACT_NAME", "docker-evidence")
+	t.Setenv("DOCKER_ARTIFACT_URL", "https://example.invalid/artifacts/docker")
+
+	got := buildDockerEvidence()
+
+	if !got.Enabled || got.ContractVersion != "docker-toolchain/v2" || got.GoVersion != "go1.25.0" {
+		t.Fatalf("docker evidence basic fields = %+v, want explicit env values", got)
+	}
+	if got.BaseImageDigest != "sha256:base" || got.ToolchainImageDigest != "sha256:toolchain" || got.RuntimeImageDigest != "sha256:runtime" {
+		t.Fatalf("docker digests = %+v, want explicit digest env values", got)
+	}
+	if got.ArtifactName != "docker-evidence" || got.ArtifactURL != "https://example.invalid/artifacts/docker" || got.WorkflowRunID != "12345" {
+		t.Fatalf("docker artifact evidence = %+v, want explicit artifact values", got)
+	}
+	for _, validator := range dockerEvidenceValidators {
+		if !contains(got.ValidatedBy, validator) {
+			t.Fatalf("docker.validated_by = %v, want %s", got.ValidatedBy, validator)
+		}
+	}
+}
+
+func setDockerDigestEvidence(t *testing.T) {
+	t.Helper()
+
+	t.Setenv("DOCKER_BASE_IMAGE_DIGEST", "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	t.Setenv("DOCKER_TOOLCHAIN_IMAGE_DIGEST", "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+	t.Setenv("DOCKER_RUNTIME_IMAGE_DIGEST", "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+}
+
+func TestVerifyManifestRejectsEnabledDockerEvidenceWithoutDigests(t *testing.T) {
+	t.Setenv("GOWORK", "off")
+	t.Setenv("CHECK_STATUS", "passed")
+	repo := releaseManifestFixtureRepo(t)
+	writeStandardImpactReportFixture(t, repo)
+	chdir(t, repo)
+
+	manifest, err := buildManifest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest.Docker.Enabled = true
+	manifest.Docker.BaseImage = "golang:1.25"
+	manifest.Docker.BaseImageDigest = ""
+	manifest.Docker.ToolchainImage = "ghcr.io/example/toolchain:latest"
+	manifest.Docker.ToolchainImageDigest = "not-a-sha"
+	manifest.Docker.RuntimeImage = "ghcr.io/example/runtime:latest"
+	manifest.Docker.RuntimeImageDigest = ""
+
+	path := filepath.Join(t.TempDir(), "manifest.json")
+	if err := writeManifest(path, manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	err = verifyManifest(path, true, false, "", 0)
+	if err == nil {
+		t.Fatal("verify manifest with missing Docker digests succeeded, want error")
+	}
+	message := err.Error()
+	for _, want := range []string{
+		"docker.base_image_digest is required",
+		"docker.toolchain_image_digest must start with sha256:",
+		"docker.runtime_image_digest is required",
+	} {
+		if !strings.Contains(message, want) {
+			t.Fatalf("error = %q, want substring %q", message, want)
+		}
+	}
+}
+
 func TestRunCLIVerifyRejectsExpectedVersionMismatch(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("VERSION", "v1.2.3")
@@ -343,6 +455,7 @@ func TestRunCLIVerifyRejectsExpectedVersionMismatch(t *testing.T) {
 func TestRunCLIVerifyReportsDrift(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
 	chdir(t, releaseManifestFixtureRepo(t))
 
 	outPath := filepath.Join(t.TempDir(), "latest.json")
@@ -542,6 +655,17 @@ func TestBuildManifestRecordsFixtureRepositoryFacts(t *testing.T) {
 	if manifest.Tools["go"] == "" {
 		t.Fatal("tools.go is empty")
 	}
+	if !manifest.Docker.Enabled || manifest.Docker.ContractVersion != "docker-toolchain/v2" || len(manifest.Docker.CacheMounts) == 0 {
+		t.Fatalf("docker evidence = %+v, want enabled v2 contract and cache evidence", manifest.Docker)
+	}
+	if manifest.Docker.BaseImage == "" || manifest.Docker.ToolchainImage == "" || manifest.Docker.RuntimeImage == "" {
+		t.Fatalf("docker image evidence = %+v, want image evidence", manifest.Docker)
+	}
+	for _, validator := range dockerEvidenceValidators {
+		if !contains(manifest.Docker.ValidatedBy, validator) {
+			t.Fatalf("docker.validated_by = %v, want %s", manifest.Docker.ValidatedBy, validator)
+		}
+	}
 	if manifest.StandardImpact.ReportPath != standardImpactReportPath {
 		t.Fatalf("standard_impact.report_path = %q, want %q", manifest.StandardImpact.ReportPath, standardImpactReportPath)
 	}
@@ -701,6 +825,7 @@ func TestBuildManifestReportsBuilderFailures(t *testing.T) {
 func TestVerifyManifestAcceptsFreshManifestAndRejectsDrift(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
 	repo := releaseManifestFixtureRepo(t)
 	writeStandardImpactReportFixture(t, repo)
 	chdir(t, repo)
@@ -812,6 +937,7 @@ func TestVerifyManifestRejectsInvalidStandardImpactReleaseDecisionEnums(t *testi
 func TestVerifyManifestRequiresStandardImpactEvidenceWhenChecksRequired(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
 	chdir(t, releaseManifestFixtureRepo(t))
 
 	manifest, err := buildManifest()
@@ -1159,6 +1285,7 @@ func TestValidateChecksRequiresStatusButOnlyRequiresPassedWhenRequested(t *testi
 func TestVerifyManifestRequiresCleanTree(t *testing.T) {
 	t.Setenv("GOWORK", "off")
 	t.Setenv("CHECK_STATUS", "passed")
+	setDockerDigestEvidence(t)
 	repo := releaseManifestFixtureRepo(t)
 	writeStandardImpactReportFixture(t, repo)
 	chdir(t, repo)
@@ -1383,7 +1510,7 @@ func TestToolVersionReportsMissingBinary(t *testing.T) {
 
 func TestWorkflowEvidenceBuildsGitHubAndLocalURLs(t *testing.T) {
 	server := "https://github.com/"
-	repo := "/ZoneCNH/xlib-standard/"
+	repo := "/ZoneCNH/resiliencx/"
 	t.Setenv("WORKFLOW_RUN_ID", "123")
 	t.Setenv("GITHUB_SERVER_URL", server)
 	t.Setenv("GITHUB_REPOSITORY", repo)
@@ -1536,10 +1663,10 @@ func releaseManifestFixtureRepo(t *testing.T) string {
 func writeFixtureDebtPolicy(t *testing.T, repo string) {
 	t.Helper()
 	files := map[string]string{
-		".agent/debt/rules.yaml":              "schema_version: debt-rules/v1\nprofile: fixture\n",
-		".agent/debt/rule-registry.yaml":      "schema_version: debt-rule-registry/v1\nrules: []\n",
-		".agent/debt/exceptions.yaml":         "schema_version: debt-exceptions/v1\nexceptions: []\n",
-		".agent/debt/dependency-purpose.yaml": "schema_version: debt-dependency-purpose/v1\npurposes: []\n",
+		".agent/policies/debt/rules.yaml":              "schema_version: debt-rules/v1\nprofile: fixture\n",
+		".agent/registries/debt/rule-registry.yaml":    "schema_version: debt-rule-registry/v1\nrules: []\n",
+		".agent/policies/debt/exceptions.yaml":         "schema_version: debt-exceptions/v1\nexceptions: []\n",
+		".agent/policies/debt/dependency-purpose.yaml": "schema_version: debt-dependency-purpose/v1\npurposes: []\n",
 	}
 	for path, content := range files {
 		fullPath := filepath.Join(repo, filepath.FromSlash(path))
@@ -1588,11 +1715,11 @@ func writeDebtReportFixture(t *testing.T, repo string) {
   "status": "passed",
   "score": 9.8,
   "min_score": 9.8,
-  "policy_path": ".agent/debt/rules.yaml",
+  "policy_path": ".agent/policies/debt/rules.yaml",
   "checks": [
     {"id": "policy", "status": "passed"}
   ],
-  "downstream_targets": ["kernel/configx", "kernel/redisx", "corekit"]
+  "downstream_targets": ["kernel/configx", "kernel/redisx", "kernel/taosx"]
 }` + "\n")
 	if err := os.WriteFile(reportPath, data, 0o644); err != nil {
 		t.Fatal(err)

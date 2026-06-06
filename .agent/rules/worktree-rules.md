@@ -32,8 +32,7 @@ task/<TASK-ID>
 必须有：
 
 ```text
-make worktree-check
-scripts/harness/no-main-dev.sh
+goalcli worktree-check --context local_write
 .githooks/pre-commit
 .githooks/pre-push
 ```

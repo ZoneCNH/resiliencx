@@ -6,7 +6,7 @@ import (
 	"flag"
 	"io"
 
-	"github.com/ZoneCNH/xlib-standard/internal/goalruntime"
+	"github.com/ZoneCNH/resiliencx/internal/goalruntime"
 )
 
 func runGoalRuntimeCommand(command string, args []string, stdout io.Writer, stderr io.Writer) int {

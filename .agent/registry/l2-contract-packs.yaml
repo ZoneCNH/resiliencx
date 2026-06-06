@@ -1,0 +1,124 @@
+version: "1.0"
+kind: l2-contract-pack-registry
+owner: resiliencx
+runner_boundary: testkitx
+adjudicator_boundary: xlibgate
+notes:
+  - resiliencx defines pack identity, scope, required evidence, and release-level mapping only.
+  - testkitx owns executable contract libraries and runner implementation.
+  - Provider credentials, network endpoints, and service containers are downstream-only.
+packs:
+  common:
+    family: common
+    title: Common adapter invariants
+    profiles: [unit, contract]
+    required_evidence: [contract_report, api_surface_report]
+    capabilities: [adapter_identity, lifecycle, health, error_mapping, configuration]
+  kv:
+    family: key_value
+    title: Key-value operations
+    profiles: [unit, contract, integration]
+    required_evidence: [contract_report, integration_report]
+    capabilities: [get, set, delete, exists, compare_and_set]
+  ttl:
+    family: key_value
+    title: Expiration and time-to-live semantics
+    profiles: [contract, integration, chaos]
+    required_evidence: [contract_report, time_drift_report]
+    capabilities: [expire, ttl, persist, expiration_events]
+  sql:
+    family: relational
+    title: SQL query and result semantics
+    profiles: [unit, contract, integration]
+    required_evidence: [contract_report, migration_report]
+    capabilities: [query, execute, prepared_statement, schema_introspection]
+  transaction:
+    family: relational
+    title: Transaction lifecycle semantics
+    profiles: [contract, integration, chaos]
+    required_evidence: [contract_report, failure_injection_report]
+    capabilities: [begin, commit, rollback, isolation, retryable_error]
+  pool:
+    family: common
+    title: Connection pool behavior
+    profiles: [unit, contract, benchmark]
+    required_evidence: [contract_report, benchmark_report]
+    capabilities: [pool_limits, acquisition_timeout, recycle, idle_cleanup]
+  pubsub:
+    family: messaging
+    title: Publish/subscribe semantics
+    profiles: [contract, integration, chaos]
+    required_evidence: [contract_report, delivery_report]
+    capabilities: [publish, subscribe, unsubscribe, fanout, ordering]
+  request_reply:
+    family: messaging
+    title: Request/reply semantics
+    profiles: [contract, integration]
+    required_evidence: [contract_report, latency_report]
+    capabilities: [request, reply, timeout, correlation]
+  eventlog:
+    family: messaging
+    title: Durable event log semantics
+    profiles: [contract, integration, chaos]
+    required_evidence: [contract_report, replay_report]
+    capabilities: [append, read, replay, retention, partition]
+  producer:
+    family: streaming
+    title: Producer semantics
+    profiles: [contract, integration, benchmark]
+    required_evidence: [contract_report, throughput_report]
+    capabilities: [send, batch_send, idempotence, partition_key]
+  consumer:
+    family: streaming
+    title: Consumer semantics
+    profiles: [contract, integration, chaos]
+    required_evidence: [contract_report, consumption_report]
+    capabilities: [poll, subscribe, flow_control, ordering]
+  offset_commit:
+    family: streaming
+    title: Offset commit semantics
+    profiles: [contract, integration, chaos]
+    required_evidence: [contract_report, replay_report]
+    capabilities: [commit, seek, checkpoint, at_least_once]
+  objectstore:
+    family: object_storage
+    title: Object storage semantics
+    profiles: [contract, integration, benchmark]
+    required_evidence: [contract_report, object_integrity_report]
+    capabilities: [put_object, get_object, delete_object, list_objects, metadata]
+  columnstore:
+    family: analytics
+    title: Column-store query semantics
+    profiles: [contract, integration, benchmark]
+    required_evidence: [contract_report, query_plan_report]
+    capabilities: [columnar_insert, aggregate_query, projection, partition_pruning]
+  timeseries:
+    family: time_series
+    title: Time-series ingest/query semantics
+    profiles: [contract, integration, benchmark]
+    required_evidence: [contract_report, retention_report]
+    capabilities: [write_points, range_query, tags, retention, downsample]
+extension_backlog:
+  - ttl
+  - pipeline
+  - lock
+  - stream
+  - migration
+  - advisory_lock
+  - copy
+  - queue_group
+  - jetstream
+  - ack
+  - redelivery
+  - dlq
+  - rebalance
+  - partition
+  - retry
+  - multipart
+  - presign
+  - streaming_query
+  - async_insert
+  - stable
+  - child_table
+  - data_quality
+  - retention

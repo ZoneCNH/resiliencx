@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resiliencx.local/schemas/l2-contract-packs.schema.json",
+  "title": "L2 Contract Pack Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "kind",
+    "owner",
+    "packs"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "kind": {
+      "const": "l2-contract-pack-registry"
+    },
+    "owner": {
+      "const": "resiliencx"
+    },
+    "runner_boundary": {
+      "type": "string"
+    },
+    "adjudicator_boundary": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "packs": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "family",
+          "title",
+          "profiles",
+          "required_evidence",
+          "capabilities"
+        ],
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "profiles": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "extension_backlog": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

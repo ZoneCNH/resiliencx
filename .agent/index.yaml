@@ -1,0 +1,1077 @@
+schema_version: "1.0"
+module: resiliencx
+control_plane:
+  purpose: ".agent 逻辑分类索引，用于约束 Goal Runtime v3.1 控制面边界。"
+  authority_order:
+    - docs/goal.md and docs/standard/
+    - .agent/*.yaml and cmd/goalcli
+    - release/manifest/ and release/evidence/
+  physical_migration: true
+files:
+  - path: .agent/runtime/goal-runtime.md
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: goal-runtime
+    purpose: 运行时总契约。
+  - path: .agent/runtime/object-model.md
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: goal-runtime
+    purpose: 运行时对象模型。
+  - path: .agent/runtime/state-machine.md
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: goal-runtime
+    purpose: Goal 生命周期状态机。
+  - path: .agent/harness/harness.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: 必需 gate 与命令编排契约。
+  - path: .agent/registries/command-registry.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: command-registry
+    purpose: goalcli 命令到 Makefile target 的注册表。
+  - path: .agent/registries/issue-registry.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: issue-registry
+    purpose: 治理 Issue 覆盖注册表。
+  - path: .agent/policies/layer-governance.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: schema-check
+    purpose: 分层治理、依赖方向与公开/私有边界清单。
+  - path: .agent/registries/command-implementation-status.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: hand_written
+    owner: gate-runtime
+    validator: command-registry
+    purpose: 命令实现状态镜像。
+  - path: .agent/registries/makefile-target-registry.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: hand_written
+    owner: ci
+    validator: makefile-baseline
+    purpose: Makefile target 表面镜像。
+  - path: .agent/registries/makefile-baseline.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: hand_written
+    owner: ci
+    validator: makefile-baseline
+    purpose: Makefile 必需 target baseline。
+  - path: .agent/release/release-required-gates.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: release-check
+    purpose: 发布必需 gate 契约。
+  - path: .agent/evidence/evidence-protocol.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 证据收集协议。
+  - path: .agent/evidence/ledger.jsonl
+    layer: evidence
+    authority: source_of_truth
+    mutability: append_only
+    owner: release
+    validator: evidence
+    purpose: 源证据 ledger。
+  - path: .agent/policies/runtime-file-ownership.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: runtime-file-ownership
+    purpose: 路径所有权与审查路由策略。
+  - path: .agent/policies/execution-context.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: execution-context
+    purpose: 允许的执行上下文。
+  - path: .agent/policies/policy-schema.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 治理策略 schema。
+  - path: .agent/traceability/traceability-matrix.md
+    layer: traceability
+    authority: validated_mirror
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: Goal 到 gate 的可追溯矩阵。
+  - path: .agent/traceability/risk-register.md
+    layer: traceability
+    authority: source_of_truth
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 风险登记。
+  - path: .agent/traceability/decision-log.md
+    layer: traceability
+    authority: source_of_truth
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 决策记录。
+  - path: .agent/runtime/rollback-protocol.md
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: governance-check
+    purpose: 回滚协议。
+  - path: .agent/release/release-template.md
+    layer: documentation
+    authority: validated_mirror
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 发布说明模板。
+  - path: .agent/docs/agent-teams.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Agent team 协作说明。
+  - path: .agent/archive/retrospective.md
+    layer: archive
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 复盘记录。
+  - path: .agent/contracts/acceptance-matrix.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: acceptance-matrix
+    purpose: 接受标准矩阵契约。
+  - path: .agent/policies/autoresearch.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 自动研究策略。
+  - path: .agent/policies/boundary.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: boundary
+    purpose: 模块边界策略。
+  - path: .agent/archive/changelog.yaml
+    layer: archive
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 控制面变更记录。
+  - path: .agent/policies/conformance-profiles.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 符合性 profile 策略。
+  - path: .agent/policies/debt/dependency-purpose.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: dependency-check
+    purpose: 依赖用途策略。
+  - path: .agent/policies/debt/exceptions.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: dependency-check
+    purpose: 技术债例外策略。
+  - path: .agent/policies/debt/profile.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: dependency-check
+    purpose: 技术债 profile。
+  - path: .agent/archive/debt/register.md
+    layer: archive
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 技术债记录。
+  - path: .agent/registries/debt/rule-registry.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: dependency-check
+    purpose: 技术债规则注册表。
+  - path: .agent/policies/debt/rules.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: dependency-check
+    purpose: 技术债规则。
+  - path: .agent/docs/design.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 标准设计说明。
+  - path: .agent/evidence/done-assertion.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 完成声明证据契约。
+  - path: .agent/registries/downstream-adoption-modes.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: downstream
+    validator: governance-check
+    purpose: 下游采用模式注册。
+  - path: .agent/registries/downstream-adoption-status.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: hand_written
+    owner: downstream
+    validator: standard-impact-check
+    purpose: 下游采用状态镜像。
+  - path: .agent/registries/downstream-baseline-scan.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: generated
+    owner: downstream
+    validator: standard-impact-check
+    purpose: 下游 baseline 扫描结果。
+  - path: .agent/registries/downstream-registry.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: downstream
+    validator: standard-impact-check
+    purpose: 下游仓库注册表。
+  - path: .agent/policies/enforcement-levels.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 执行强度分级策略。
+  - path: .agent/evidence/evidence-artifact-policy.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 证据 artifact 策略。
+  - path: .agent/evidence/evidence-artifacts.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 证据 artifact 注册。
+  - path: .agent/evidence/evidence-pack.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 证据包契约。
+  - path: .agent/evidence/evidence-replay.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-replay
+    purpose: 证据重放契约。
+  - path: .agent/evidence/evidence-template.md
+    layer: evidence
+    authority: validated_mirror
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 证据模板。
+  - path: .agent/evidence/evidence-usability.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 证据可用性契约。
+  - path: .agent/evidence/evidence.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: evidence-check
+    purpose: 证据说明。
+  - path: .agent/runs/GOAL-20260605-L2-STANDARD-001/evidence.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: evidence-check
+    purpose: L2 标准 Goal 执行证据。
+  - path: .agent/runs/GOAL-20260606-001/evidence.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: evidence-check
+    purpose: Agent team PR 修复与结构分析证据。
+  - path: .agent/evidence/README.md
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 证据目录说明。
+  - path: .agent/evidence/docker-toolchain.jsonl
+    layer: evidence
+    authority: source_of_truth
+    mutability: append_only
+    owner: release
+    validator: evidence-check
+    purpose: Docker Toolchain Runtime 源证据 ledger。
+  - path: .agent/metrics/docker-toolchain.json
+    layer: evidence
+    authority: validated_mirror
+    mutability: hand_written
+    owner: release
+    validator: docker-toolchain-check
+    purpose: Docker Toolchain Runtime 指标镜像。
+  - path: .agent/traceability/failure-taxonomy.yaml
+    layer: traceability
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 失败分类。
+  - path: .agent/harness/gate-pack.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: gate 包定义。
+  - path: .agent/harness/gates.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: docs-check
+    purpose: gate 说明。
+  - path: .agent/registries/generated-artifacts.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: release-check
+    purpose: 生成 artifact 注册表。
+  - path: .agent/policies/github-governance.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: github
+    validator: governance-check
+    purpose: GitHub 治理策略。
+  - path: .agent/policies/github-settings.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: github
+    validator: governance-check
+    purpose: GitHub 设置策略。
+  - path: .agent/runtime/goal.md
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Goal 契约说明。
+  - path: .agent/harness/governance-fixture-test.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 治理 fixture 测试契约。
+  - path: .agent/harness/harness-patches.md
+    layer: documentation
+    authority: historical_snapshot
+    mutability: append_only
+    owner: gate-runtime
+    validator: docs-check
+    purpose: Harness 补丁记录。
+  - path: .agent/harness/harness-patches.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: Harness 补丁契约。
+  - path: .agent/harness/harness.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: docs-check
+    purpose: Harness 说明。
+  - path: .agent/retrospective/docker-toolchain.md
+    layer: archive
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: Docker Toolchain Runtime 回顾。
+  - path: .agent/harness/gates/commit-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: commit gate 契约。
+  - path: .agent/harness/gates/context-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: context gate 契约。
+  - path: .agent/harness/gates/design-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: design gate 契约。
+  - path: .agent/harness/gates/evidence-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: evidence gate 契约。
+  - path: .agent/harness/gates/pr-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: PR gate 契约。
+  - path: .agent/harness/gates/release-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: release gate 契约。
+  - path: .agent/harness/gates/retro-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: retro gate 契约。
+  - path: .agent/harness/gates/spec-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: spec gate 契约。
+  - path: .agent/harness/gates/task-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: task gate 契约。
+  - path: .agent/harness/gates/worktree-gate.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: governance-check
+    purpose: worktree gate 契约。
+  - path: .agent/archive/inbox/goal-patch-v1.0-to-v2.2.md
+    layer: archive
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 历史 Goal patch 记录。
+  - path: .agent/index.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: command-registry
+    purpose: .agent 控制面分类索引。
+  - path: .agent/contracts/install-runtime.md
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: runtime
+    validator: install-runtime
+    purpose: Runtime 安装契约。
+  - path: .agent/runtime/minimal-kernel.yaml
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: 最小 kernel 契约。
+  - path: .agent/policies/naming.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 命名策略。
+  - path: .agent/docs/plan.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 计划说明。
+  - path: .agent/contracts/pr-template-contract.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: github
+    validator: pr-template
+    purpose: PR 模板契约。
+  - path: .agent/docs/prompt-patches.md
+    layer: documentation
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: Prompt patch 记录。
+  - path: .agent/policies/prompt-patches.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: Prompt patch 契约。
+  - path: .agent/registries/commands.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: command-registry
+    purpose: 命令注册扩展表。
+  - path: .agent/registries/runtime.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: runtime
+    validator: governance-check
+    purpose: Runtime 注册表。
+  - path: .agent/traceability/regression-memory.yaml
+    layer: traceability
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: governance-check
+    purpose: 回归记忆。
+  - path: .agent/release/release-readiness-formula.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: release-check
+    purpose: 发布就绪公式。
+  - path: .agent/release/release.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 发布说明。
+  - path: .agent/docs/retrospective-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 复盘模板。
+  - path: .agent/docs/review-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Review 模板。
+  - path: .agent/docs/review.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Review 说明。
+  - path: .agent/traceability/root-cause.yaml
+    layer: traceability
+    authority: source_of_truth
+    mutability: append_only
+    owner: governance
+    validator: governance-check
+    purpose: 根因记录。
+  - path: .agent/docs/rule-patches.md
+    layer: documentation
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: Rule patch 记录。
+  - path: .agent/policies/rule-patches.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: Rule patch 契约。
+  - path: .agent/rules/README.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 规则目录说明。
+  - path: .agent/rules/agent-runtime-rules.md
+    layer: policy
+    authority: validated_mirror
+    mutability: generated
+    owner: governance
+    validator: rules-verify
+    purpose: 从 .agent/rules/registry.yaml 渲染的 Agent runtime 规则镜像。
+  - path: .agent/rules/commit-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: commit 规则。
+  - path: .agent/rules/core-rules.md
+    layer: policy
+    authority: validated_mirror
+    mutability: generated
+    owner: governance
+    validator: rules-verify
+    purpose: 从 .agent/rules/registry.yaml 渲染的核心规则镜像。
+  - path: .agent/rules/evidence-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 证据规则。
+  - path: .agent/rules/goal-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Goal 规则。
+  - path: .agent/rules/harness-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: docs-check
+    purpose: Harness 规则。
+  - path: .agent/rules/iron-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 铁律规则。
+  - path: .agent/rules/issue-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Issue 规则。
+  - path: .agent/rules/pr-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: github
+    validator: docs-check
+    purpose: PR 规则。
+  - path: .agent/rules/registry.yaml
+    layer: registry
+    authority: validated_mirror
+    mutability: generated
+    owner: governance
+    validator: rules-verify
+    purpose: 从 .worktree/goal-patch.md 生成的规则机器索引。
+  - path: .agent/rules/release-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 发布规则。
+  - path: .agent/rules/risk-decision-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 风险与决策规则。
+  - path: .agent/rules/schema-registry-rules.md
+    layer: policy
+    authority: validated_mirror
+    mutability: generated
+    owner: governance
+    validator: rules-verify
+    purpose: 从 .agent/rules/registry.yaml 渲染的 schema 注册规则镜像。
+  - path: .agent/rules/security-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: security
+    validator: docs-check
+    purpose: 安全规则。
+  - path: .agent/rules/self-improving-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 自改进规则。
+  - path: .agent/rules/worktree-rules.md
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: worktree 规则。
+  - path: .agent/contracts/runtime-health.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: runtime
+    validator: runtime-health
+    purpose: Runtime 健康契约。
+  - path: .agent/contracts/runtime-install.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: runtime
+    validator: install-runtime
+    purpose: Runtime 安装机器契约。
+  - path: .agent/contracts/runtime-upgrade.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: runtime
+    validator: upgrade-runtime
+    purpose: Runtime 升级机器契约。
+  - path: .agent/docs/scope-lock.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: scope-lock
+    purpose: scope lock 说明。
+  - path: .agent/contracts/scope-lock.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: scope-lock
+    purpose: scope lock 契约。
+  - path: .agent/contracts/scope-locks.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: scope-lock
+    purpose: scope lock 集合契约。
+  - path: .agent/policies/security.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: security
+    validator: security
+    purpose: 安全策略。
+  - path: .agent/docs/self-healing-skeleton.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 自修复骨架说明。
+  - path: .agent/docs/spec.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 标准 spec 说明。
+  - path: .agent/contracts/standard-pack.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: release-check
+    purpose: 标准包契约。
+  - path: .agent/archive/standard/audit-2026-06-03.md
+    layer: archive
+    authority: historical_snapshot
+    mutability: append_only
+    owner: governance
+    validator: docs-check
+    purpose: 标准审计记录。
+  - path: .agent/runtime/standard/goal-runtime-canonical.md
+    layer: runtime_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Goal Runtime canonical 说明。
+  - path: .agent/docs/standard/goalcli-mapping.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: gate-runtime
+    validator: docs-check
+    purpose: goalcli 映射说明。
+  - path: .agent/docs/tasks.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 任务说明。
+  - path: .agent/docs/team-contract.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Team contract 说明。
+  - path: .agent/contracts/team-contract.yaml
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: agent-team-contract
+    purpose: Team contract 机器契约。
+  - path: .agent/docs/templates/evidence-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: 证据模板。
+  - path: .agent/docs/templates/issue-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Issue 模板。
+  - path: .agent/docs/templates/pr-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: github
+    validator: docs-check
+    purpose: PR 模板。
+  - path: .agent/docs/templates/release-manifest-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: docs-check
+    purpose: release manifest 模板。
+  - path: .agent/docs/templates/retrospective-template.md
+    layer: documentation
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: 复盘模板。
+  - path: .agent/policies/toolchain.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: ci
+    validator: governance-check
+    purpose: 工具链策略。
+  - path: .agent/evidence/truth-state.yaml
+    layer: evidence
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: evidence-check
+    purpose: 真相状态契约。
+  - path: .agent/contracts/upgrade-runtime.md
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: runtime
+    validator: upgrade-runtime
+    purpose: Runtime 升级说明。
+  - path: .agent/contracts/upgrade-standard.md
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: upgrade-runtime
+    purpose: 标准升级说明。
+
+  - path: .agent/research/phase0-baseline-report.md
+    layer: documentation
+    authority: historical_snapshot
+    mutability: hand_written
+    owner: governance
+    validator: docs-check
+    purpose: Issue 59 Phase 0 .agent 分类基线分析报告。
+  - path: .agent/rules/enforcement-normalization.yaml
+    layer: policy
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: command-registry
+    purpose: rules enforced_by 引用归一化策略。
+
+  - path: .agent/registries/physical-migration-manifest.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: Issue 59 Phase 3/4 .agent 物理分类迁移清单、路径引用扫描与兼容例外。
+
+  - path: .agent/registry/l2-contract-packs.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: L2 contract pack registry.
+  - path: .agent/registry/l2-capability-families.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: L2 capability family registry.
+  - path: .agent/registry/l2-golden-samples.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: L2 golden sample registry.
+  - path: .agent/registry/l2-release-levels.yaml
+    layer: registry
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: governance-check
+    purpose: L2 release readiness levels.
+  - path: .agent/schemas/l2-capabilities.schema.json
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: L2 capability manifest schema.
+  - path: .agent/schemas/l2-contract-packs.schema.json
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: L2 contract pack registry schema.
+  - path: .agent/schemas/l2-release-readiness.schema.json
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: release
+    validator: governance-check
+    purpose: L2 release readiness report schema.
+  - path: .agent/schemas/l2-compliance-matrix.schema.json
+    layer: machine_contract
+    authority: source_of_truth
+    mutability: hand_written
+    owner: governance
+    validator: governance-check
+    purpose: L2 compliance matrix schema.
+  - path: .agent/evidence/l2-standard/schema-validate.json
+    layer: evidence
+    authority: validated_mirror
+    mutability: generated
+    owner: release
+    validator: evidence-check
+    purpose: L2 schema validation evidence.
+  - path: .agent/evidence/l2-standard/registry-check.json
+    layer: evidence
+    authority: validated_mirror
+    mutability: generated
+    owner: release
+    validator: evidence-check
+    purpose: L2 registry validation evidence.
+  - path: .agent/evidence/l2-standard/template-check.json
+    layer: evidence
+    authority: validated_mirror
+    mutability: generated
+    owner: release
+    validator: evidence-check
+    purpose: L2 template validation evidence.
+  - path: .agent/evidence/l2-standard/verification-summary.json
+    layer: evidence
+    authority: validated_mirror
+    mutability: generated
+    owner: release
+    validator: evidence-check
+    purpose: L2 standards verification summary.

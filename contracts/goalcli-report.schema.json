@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xlib-standard.local/contracts/goalcli-report.schema.json",
+  "$id": "https://resiliencx.local/contracts/goalcli-report.schema.json",
   "title": "goalcli report",
   "type": "object",
   "required": ["command", "status"],

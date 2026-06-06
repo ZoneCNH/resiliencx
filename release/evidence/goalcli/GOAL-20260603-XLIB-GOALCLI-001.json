@@ -47,13 +47,18 @@
     "G12-G16 本地 contract 汇总为 goalcli v0.1.0 MVA final evidence",
     "goalcli v0.1.0 使用 cmd/goalcli 作为唯一执行面；不再保留历史并列入口",
     "G12-G16 是 goalcli MVA evidence gates，不是全局 release blocking gates",
-    "root plan 是 authority；完成状态由本地 authority 校验和 evidence 写入共同证明"
+    "root plan 是 authority；完成状态由本地 authority 校验和 evidence 写入共同证明",
+    "downstream adoption evidence 仅声明 resiliencx 本地 contract；不声明 proof-based downstream adoption"
   ],
   "evidence": [
     "fixture_id=GOAL-20260603-XLIB-GOALCLI-001",
     "source_evidence_ledger=.agent/evidence/ledger.jsonl",
     "generated_evidence_pack=release/evidence/goalcli/",
     "runtime_logic=internal/goalruntime",
+    "adoption_claim=not_claimed",
+    "downstream_adoption_scope=local_contract_only",
+    "proof_based_adoption=false",
+    "downstream_repo_write=false",
     "requires=goal-acceptance",
     "requires=goal-delivery",
     "requires=goal-handover",
@@ -63,16 +68,16 @@
   "authority_paths": [
     ".worktree/goalcli-v0.1.0-plan.md",
     ".omx/context/goalcli-v0.1.0-team-20260603T005302Z.md",
+    "docs/adr/ADR-20260603-001-goalcli-runtime.md",
     "docs/standard/goalcli-cli-contract.md",
-    ".agent/harness.yaml",
-    ".agent/command-registry.yaml",
-    ".agent/registry/runtime.yaml",
-    ".agent/registry/commands.yaml",
-    ".agent/command-implementation-status.yaml",
+    ".agent/harness/harness.yaml",
+    ".agent/registries/command-registry.yaml",
+    ".agent/registries/runtime.yaml",
+    ".agent/registries/commands.yaml",
+    ".agent/registries/command-implementation-status.yaml",
     ".agent/evidence/README.md",
     "docs/standard/goalcli-runtime.md",
     "docs/plans/goalcli-v0.1.0-roadmap.md",
-    "docs/adr/ADR-20260603-001-goalcli-runtime.md",
     "Makefile"
   ]
 }

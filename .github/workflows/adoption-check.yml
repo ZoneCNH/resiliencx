@@ -1,0 +1,25 @@
+name: adoption-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  adoption-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Skip source-template repository
+        if: ${{ github.event.repository.name == format('{0}{1}', 'xlib-', 'standard') }}
+        run: echo "adoption-check is a rendered downstream gate; source template has no downstream lock"
+      - name: Run downstream adoption gate
+        if: ${{ github.event.repository.name != format('{0}{1}', 'xlib-', 'standard') }}
+        run: GOWORK=off make adoption-check

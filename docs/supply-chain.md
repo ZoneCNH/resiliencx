@@ -16,7 +16,7 @@
 - `source_digest` 和 `tracked_file_count`：来自 `git ls-files` 中所有受跟踪文件的路径和内容摘要。
 - `contracts`：核心 contract 文件的 SHA256 指纹。
 - `dependencies`：`go list -m -json all` 的模块清单。
-- `tools`：Go、`golangci-lint` 和 `govulncheck` 的版本或可用状态。
+- `tools`：Go、`golangci-lint`，以及按 `XLIB_ENABLE_VULNCHECK` / 一周窗口状态记录的 `govulncheck` 版本或可用状态。
 - `checks`：`fmt`、`vet`、`lint`、测试、race、boundary、secret scan、security、contract 和 integration gate 状态。
 
 `release/manifest/latest.json` 是生成产物，不提交源码历史；`release/manifest/template.json` 只保留字段模板。
@@ -40,13 +40,13 @@ GitHub Actions 运行 `GOWORK=off make release-check`，并上传 `release/manif
 
 GitHub Actions workflow 必须使用 40 位 commit SHA 固定第三方 Action，并在同一行用注释记录来源 tag，例如 `# tag v4.2.2`。不得使用 `actions/checkout@v4`、`actions/setup-go@v5` 这类浮动 tag 作为最终发布门禁配置；版本更新应通过维护者审查或 dependabot PR 重新 pin 到新的 commit。
 
-CI、Release Check 和 Security workflow 安装 `govulncheck` 时必须使用固定版本。当前基线是 `golang.org/x/vuln/cmd/govulncheck@v1.3.0`；升级时应同步更新 workflow、发布文档和验证记录。
+CI、Release Check、Auto Patch 和 Docker Contract workflow 默认不执行 `govulncheck`；Security workflow 每周定时强制执行漏洞扫描。Docker toolchain image 可以安装固定版本以保证工具链可复现，但运行入口仍必须遵守 weekly/force 开关。启用或定时运行时必须使用固定版本。当前基线是 `golangci-lint@v2.1.6` 与 `golang.org/x/vuln/cmd/govulncheck@v1.1.4`；升级时应同步更新 Dockerfile、workflow、发布文档和验证记录。
 
 Release manifest 相关测试必须在临时 fixture 仓库内构造所需 `.omc` state 文件，不得依赖当前工作区的 Agent 运行态。这样可以保证 Evidence 测试在 clean checkout、CI 和本地开发目录中行为一致。
 
 ## 下游模板安全线
 
-`make integration` 会渲染 `kernel` 和 `corekit` 两个临时下游库，检查旧模板标识是否清空，并在下游库内生成、校验 release Evidence。这保证模板替换逻辑、contract gate、boundary gate 和 Evidence 工具不会只在模板仓库自身成立。旧 `foundationx` 只作为迁移兼容扫描项，不再作为默认下游。
+`make integration` 会渲染 `kernel`、`configx` 和 `redisx` 三个临时下游库，检查旧模板标识是否清空，并在下游库内运行 Docker toolchain、test、contracts、boundary、standard impact、debt 和 release Evidence 校验。这保证模板替换逻辑、contract gate、boundary gate、债务证据和 Evidence 工具不会只在模板仓库自身成立。旧 `foundationx` 只作为迁移兼容扫描项，不再作为默认下游。
 
 ## Score 与 Workflow Evidence
 
@@ -54,4 +54,4 @@ Release manifest 相关测试必须在临时 fixture 仓库内构造所需 `.omc
 
 ## Dependency debt purpose
 
-New runtime dependencies require an approved purpose in `.agent/debt/dependency-purpose.yaml` or an ADR. The dependency debt gate flags unreviewed installer patterns and feeds the release debt evidence manifest block.
+New runtime dependencies require an approved purpose in `.agent/policies/debt/dependency-purpose.yaml` or an ADR. The dependency debt gate flags unreviewed installer patterns and feeds the release debt evidence manifest block.

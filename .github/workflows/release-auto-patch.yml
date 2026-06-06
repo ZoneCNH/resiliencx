@@ -1,0 +1,189 @@
+name: Auto Patch Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-auto-patch-main
+  cancel-in-progress: false
+
+jobs:
+  release-auto-patch:
+    runs-on: ubuntu-latest
+    env:
+      XLIB_ENABLE_VULNCHECK: "0"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # tag v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
+        with:
+          version: v2.6.2
+          install-mode: binary
+          skip-cache: true
+
+      - name: Install govulncheck
+        if: ${{ env.XLIB_ENABLE_VULNCHECK == '1' }}
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+
+      - name: Resolve next patch version
+        id: next-version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          current_commit_tag="$(
+            git tag --points-at "${GITHUB_SHA}" -l 'v[0-9]*.[0-9]*.[0-9]*' \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+              | sort -V \
+              | tail -n 1 \
+              || true
+          )"
+
+          if [[ -n "${current_commit_tag}" ]]; then
+            {
+              echo "latest_tag=${current_commit_tag}"
+              echo "version=${current_commit_tag}"
+              echo "already_released=true"
+            } >> "${GITHUB_OUTPUT}"
+
+            {
+              echo "## Auto patch release"
+              echo "- Existing release tag: \`${current_commit_tag}\`"
+              echo "- Target commit: \`${GITHUB_SHA}\`"
+            } >> "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
+          latest_tag="$(
+            git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+              | head -n 1 \
+              || true
+          )"
+          if [[ -z "${latest_tag}" ]]; then
+            latest_tag="v0.0.0"
+          fi
+
+          version="${latest_tag#v}"
+          IFS=. read -r major minor patch <<< "${version}"
+
+          if [[ ! "${major}" =~ ^[0-9]+$ || ! "${minor}" =~ ^[0-9]+$ || ! "${patch}" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: latest semver tag is invalid: ${latest_tag}" >&2
+            exit 1
+          fi
+
+          next_patch=$((patch + 1))
+          release_tag="v${major}.${minor}.${next_patch}"
+
+          if git rev-parse -q --verify "refs/tags/${release_tag}" >/dev/null; then
+            echo "ERROR: release tag already exists: ${release_tag}" >&2
+            exit 1
+          fi
+
+          {
+            echo "latest_tag=${latest_tag}"
+            echo "version=${release_tag}"
+            echo "already_released=false"
+          } >> "${GITHUB_OUTPUT}"
+
+          {
+            echo "## Auto patch release"
+            echo "- Latest tag: \`${latest_tag}\`"
+            echo "- Next tag: \`${release_tag}\`"
+            echo "- Target commit: \`${GITHUB_SHA}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Release Final Check
+        env:
+          ARTIFACT_NAME: release-manifest-${{ github.run_id }}
+          ARTIFACT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          VERSION: ${{ steps.next-version.outputs.version }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          XLIB_CONTEXT: release_verify
+          XLIB_ENABLE_VULNCHECK: "0"
+        run: GOWORK=off make release-final-check
+
+      - name: Hash release manifest
+        if: always()
+        run: sha256sum release/manifest/latest.json > release/manifest/latest.json.sha256
+
+      - name: Upload release manifest
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-manifest-${{ github.run_id }}
+          path: |
+            release/manifest/latest.json
+            release/manifest/latest.json.sha256
+          if-no-files-found: error
+
+      - name: Create release tag
+        if: ${{ success() && steps.next-version.outputs.already_released != 'true' }}
+        env:
+          RELEASE_TAG: ${{ steps.next-version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "ERROR: release tag already exists on origin: ${RELEASE_TAG}" >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${RELEASE_TAG}" "${GITHUB_SHA}" -m "${RELEASE_TAG}"
+          git push origin "refs/tags/${RELEASE_TAG}"
+
+      - name: Publish GitHub Release
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.next-version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "${RELEASE_TAG}" --json tagName >/dev/null 2>&1; then
+            gh release edit "${RELEASE_TAG}" \
+              --draft=false \
+              --latest \
+              --prerelease=false \
+              --verify-tag
+          else
+            gh release create "${RELEASE_TAG}" \
+              --generate-notes \
+              --latest \
+              --title "${RELEASE_TAG}" \
+              --verify-tag
+          fi
+
+      - name: Verify GitHub Release
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.next-version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          release_json="$(gh release view "${RELEASE_TAG}" --json isDraft,isPrerelease,tagName,url)"
+          printf '%s\n' "${release_json}"
+          printf '%s\n' "${release_json}" | jq -e \
+            --arg tag "${RELEASE_TAG}" \
+            '.tagName == $tag and .isDraft == false and .isPrerelease == false and (.url | length > 0)'

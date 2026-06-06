@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ZoneCNH/xlib-standard/pkg/templatex"
+	"github.com/ZoneCNH/resiliencx/pkg/resiliencx"
 )
 
 func main() {
-	cfg := templatex.Config{
-		Name:    "templatex",
+	cfg := resiliencx.Config{
+		Name:    "resiliencx",
 		Timeout: time.Second,
 		Secret:  "example",
 	}

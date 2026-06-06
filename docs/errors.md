@@ -2,8 +2,8 @@
 
 ## 占位符
 
-- `{{MODULE_NAME}}`
-- `{{PACKAGE_NAME}}`
+- `resiliencx`
+- `resiliencx`
 
 ## 错误类型
 

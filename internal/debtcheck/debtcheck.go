@@ -18,10 +18,10 @@ import (
 const (
 	SchemaVersion       = "debt-report/v1"
 	ManifestSchema      = "debt-evidence/v1"
-	DefaultRulesPath    = ".agent/debt/rules.yaml"
-	DefaultRegistryPath = ".agent/debt/rule-registry.yaml"
-	DefaultExceptions   = ".agent/debt/exceptions.yaml"
-	DefaultPurpose      = ".agent/debt/dependency-purpose.yaml"
+	DefaultRulesPath    = ".agent/policies/debt/rules.yaml"
+	DefaultRegistryPath = ".agent/registries/debt/rule-registry.yaml"
+	DefaultExceptions   = ".agent/policies/debt/exceptions.yaml"
+	DefaultPurpose      = ".agent/policies/debt/dependency-purpose.yaml"
 	DefaultMinScore     = 9.8
 	privateKeyPrefix    = "-----BEGIN " + "PRIVATE KEY-----"
 )
@@ -90,7 +90,7 @@ func Run(opts Options) (Report, error) {
 	report := Report{
 		SchemaVersion: SchemaVersion,
 		Mode:          opts.Mode,
-		ActiveProfile: "xlib-standard-debt-v1",
+		ActiveProfile: "resiliencx-debt-v1",
 		MinScore:      opts.MinScore,
 		Digests: Digests{
 			Rules:             digestFile(opts.Root, opts.ConfigPath),
@@ -323,10 +323,10 @@ func scanSection(root, section string) []Finding {
 }
 
 var downstreamRequiredFiles = []string{
-	".agent/downstream-registry.yaml",
-	".agent/downstream-baseline-scan.yaml",
-	".agent/downstream-adoption-modes.yaml",
-	".agent/downstream-adoption-status.yaml",
+	".agent/registries/downstream-registry.yaml",
+	".agent/registries/downstream-baseline-scan.yaml",
+	".agent/registries/downstream-adoption-modes.yaml",
+	".agent/registries/downstream-adoption-status.yaml",
 	"docs/downstream-matrix.md",
 	"docs/standard/downstream-compatibility.md",
 	"scripts/run_integration.sh",
@@ -347,6 +347,7 @@ var downstreamTargetLibraries = []string{
 	"postgresx",
 	"redisx",
 	"kafkax",
+	"natsx",
 	"taosx",
 	"ossx",
 	"clickhousex",
@@ -403,36 +404,36 @@ func scanDownstreamDebt(root string) []Finding {
 		}
 	}
 
-	registry := files[".agent/downstream-registry.yaml"]
+	registry := files[".agent/registries/downstream-registry.yaml"]
 	for _, repo := range downstreamRepresentativeRepos {
-		requireDownstreamToken(&findings, registry, ".agent/downstream-registry.yaml", "repo: "+repo, "debt.downstream.registry-missing-repo", "downstream registry is missing required representative repo")
+		requireDownstreamToken(&findings, registry, ".agent/registries/downstream-registry.yaml", "repo: "+repo, "debt.downstream.registry-missing-repo", "downstream registry is missing required representative repo")
 	}
 
-	baseline := files[".agent/downstream-baseline-scan.yaml"]
-	requireDownstreamToken(&findings, baseline, ".agent/downstream-baseline-scan.yaml", "repo: kernel/configx", "debt.downstream.baseline-missing-repo", "downstream baseline must name the reference repo")
-	requireDownstreamToken(&findings, baseline, ".agent/downstream-baseline-scan.yaml", "mode: patch-only", "debt.downstream.baseline-missing-mode", "downstream baseline must preserve patch-only mode")
+	baseline := files[".agent/registries/downstream-baseline-scan.yaml"]
+	requireDownstreamToken(&findings, baseline, ".agent/registries/downstream-baseline-scan.yaml", "repo: kernel/configx", "debt.downstream.baseline-missing-repo", "downstream baseline must name the reference repo")
+	requireDownstreamToken(&findings, baseline, ".agent/registries/downstream-baseline-scan.yaml", "mode: patch-only", "debt.downstream.baseline-missing-mode", "downstream baseline must preserve patch-only mode")
 	if baseline != "" && !strings.Contains(baseline, "gap") {
 		findings = append(findings, Finding{
 			ID:       "debt.downstream.baseline-missing-gap-status",
 			Severity: "P0",
-			Path:     ".agent/downstream-baseline-scan.yaml",
+			Path:     ".agent/registries/downstream-baseline-scan.yaml",
 			Message:  "downstream baseline must explicitly record the repo-missing gap status",
 		})
 	}
 
-	modes := files[".agent/downstream-adoption-modes.yaml"]
-	requireDownstreamToken(&findings, modes, ".agent/downstream-adoption-modes.yaml", "patch-only", "debt.downstream.mode-missing-patch-only", "downstream adoption modes must include patch-only")
-	requireDownstreamToken(&findings, modes, ".agent/downstream-adoption-modes.yaml", "direct_downstream_write_without_repo", "debt.downstream.mode-missing-write-guard", "downstream adoption modes must forbid direct downstream writes without a repo")
+	modes := files[".agent/registries/downstream-adoption-modes.yaml"]
+	requireDownstreamToken(&findings, modes, ".agent/registries/downstream-adoption-modes.yaml", "patch-only", "debt.downstream.mode-missing-patch-only", "downstream adoption modes must include patch-only")
+	requireDownstreamToken(&findings, modes, ".agent/registries/downstream-adoption-modes.yaml", "direct_downstream_write_without_repo", "debt.downstream.mode-missing-write-guard", "downstream adoption modes must forbid direct downstream writes without a repo")
 
-	status := files[".agent/downstream-adoption-status.yaml"]
+	status := files[".agent/registries/downstream-adoption-status.yaml"]
 	for _, name := range downstreamTargetLibraries {
-		requireDownstreamToken(&findings, status, ".agent/downstream-adoption-status.yaml", "name: "+name, "debt.downstream.status-missing-target", "downstream adoption status must include every standard target library")
+		requireDownstreamToken(&findings, status, ".agent/registries/downstream-adoption-status.yaml", "name: "+name, "debt.downstream.status-missing-target", "downstream adoption status must include every standard target library")
 	}
 	if hasYAMLScalarLine(status, "adoption_status", "adopted") {
 		findings = append(findings, Finding{
 			ID:       "debt.downstream.false-adoption-claim",
 			Severity: "P0",
-			Path:     ".agent/downstream-adoption-status.yaml",
+			Path:     ".agent/registries/downstream-adoption-status.yaml",
 			Message:  "downstream adoption status claims adopted without proof-based adoption evidence",
 		})
 	}
@@ -440,7 +441,7 @@ func scanDownstreamDebt(root string) []Finding {
 		findings = append(findings, Finding{
 			ID:       "debt.downstream.false-proof-claim",
 			Severity: "P0",
-			Path:     ".agent/downstream-adoption-status.yaml",
+			Path:     ".agent/registries/downstream-adoption-status.yaml",
 			Message:  "downstream adoption status claims proof-based adoption without downstream proof gate evidence",
 		})
 	}
@@ -711,7 +712,12 @@ func skipDir(name string) bool {
 func skipPath(root, path string) bool {
 	relPath := rel(root, path)
 	return strings.HasPrefix(relPath, ".agent/debt/") ||
+		strings.HasPrefix(relPath, ".agent/policies/debt/") ||
+		strings.HasPrefix(relPath, ".agent/registries/debt/") ||
+		strings.HasPrefix(relPath, ".agent/archive/debt/") ||
+		strings.HasPrefix(relPath, ".agent/archive/inbox/") ||
 		strings.HasPrefix(relPath, ".agent/inbox/") ||
+		strings.HasPrefix(relPath, ".agent/archive/inbox/") ||
 		strings.HasPrefix(relPath, "internal/debtcheck/")
 }
 

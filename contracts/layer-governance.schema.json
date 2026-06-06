@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "resiliencx layer governance registry",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "module",
+    "source_doc",
+    "adr",
+    "dependency_direction",
+    "layers",
+    "rules"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "module": {
+      "type": "string",
+      "const": "resiliencx"
+    },
+    "source_doc": {
+      "type": "string",
+      "const": "docs/standard/layer-governance-rules.md"
+    },
+    "adr": {
+      "type": "string",
+      "const": "docs/adr/ADR-20260604-001-layer-governance.md"
+    },
+    "dependency_direction": {
+      "type": "string",
+      "const": "L3>L2>L1>L0>Standard"
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "visibility",
+          "repos",
+          "may_depend_on",
+          "forbids"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "Standard",
+              "L0",
+              "L1",
+              "L2",
+              "L3"
+            ]
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private"
+            ]
+          },
+          "repos": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "may_depend_on": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "forbids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "level",
+          "owner",
+          "applies_to",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^LAYER-P[0-2]-[A-Z0-9-]+$"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "applies_to": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "Standard",
+                "L0",
+                "L1",
+                "L2",
+                "L3"
+              ]
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

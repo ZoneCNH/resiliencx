@@ -2,9 +2,9 @@
 
 ## 占位符
 
-- `{{MODULE_NAME}}`：生成的仓库名称。
-- `{{MODULE_PATH}}`：生成的 Go module 路径。
-- `{{PACKAGE_NAME}}`：生成的包名。
+- `resiliencx`：生成的仓库名称。
+- `github.com/ZoneCNH/resiliencx`：生成的 Go module 路径。
+- `resiliencx`：生成的包名。
 
 ## 公共 API
 
@@ -23,4 +23,4 @@
 
 ## 生成对齐
 
-使用 `scripts/render_template.sh` 生成具体基础库时，公共包目录会从 `pkg/templatex` 移动到 `pkg/{{PACKAGE_NAME}}`，代码 imports、文档占位符和 module path 会同步替换。
+使用 `scripts/render_template.sh` 生成具体基础库时，公共包目录会从 `pkg/resiliencx` 移动到 `pkg/resiliencx`，代码 imports、文档占位符和 module path 会同步替换。
