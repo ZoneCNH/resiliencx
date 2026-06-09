@@ -1,0 +1,23 @@
+=== resiliencx P1 剩余 5 项实现 ===
+时间: 2026-06-09
+分支: feat/resiliencx-p1-remaining
+PR: https://github.com/ZoneCNH/resiliencx/pull/16
+
+新增文件:
+  pkg/resiliencx/classifier.go       (53 行) - 错误重试分类器
+  pkg/resiliencx/idempotency.go      (30 行) - 幂等守卫
+  pkg/resiliencx/event.go            (67 行) - 策略事件系统
+  pkg/resiliencx/noop.go             (13 行) - 安全默认策略
+  pkg/resiliencx/resilience.go       (36 行) - 策略层配置
+  pkg/resiliencx/classifier_test.go  (69 行) - 分类器测试
+  pkg/resiliencx/idempotency_test.go (44 行) - 幂等守卫测试
+  pkg/resiliencx/event_test.go       (67 行) - 事件系统测试
+  pkg/resiliencx/noop_test.go        (56 行) - Noop 策略测试
+  pkg/resiliencx/resilience_test.go  (56 行) - 配置测试
+
+总计: 491 行 (199 源码 + 292 测试)
+
+验证结果:
+  go build ./...           PASS
+  go vet ./...             PASS
+  go test -race            PASS (所有新旧测试)
