@@ -1,9 +1,13 @@
-// Package resiliencx provides a minimal base-library template package.
+// Package resiliencx provides runtime resilience strategies for distributed systems.
 //
-// This package demonstrates the required structure for independent base libraries:
-// Config, Validate, Sanitize, New, Close, HealthCheck, Error model, Metrics hooks,
-// tests, examples, contracts, CI gates, release manifest, and agent evidence.
+// It offers six composable patterns:
+//   - timeout: deadline enforcement for function calls
+//   - retry: configurable retry with exponential backoff
+//   - circuit: circuit breaker (Closed/Open/HalfOpen)
+//   - bulkhead: concurrency limiting via semaphore
+//   - ratelimit: token-bucket rate limiter
+//   - fallback: primary-with-fallback execution
 //
-// This package must not depend on github.com/bytechainx/x.go, github.com/ZoneCNH/x.go,
-// or any x.go internal package.
+// Each pattern is available as a standalone sub-package under resiliencx/.
+// This package must not depend on github.com/ZoneCNH/x.go internals.
 package resiliencx
