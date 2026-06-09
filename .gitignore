@@ -111,3 +111,4 @@ release/debt/latest.md
 release/debt/latest.json.sha256
 /goalcli
 /releasemanifest
+internal/goalruntime/tmp/
