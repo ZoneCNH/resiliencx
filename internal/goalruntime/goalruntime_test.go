@@ -628,6 +628,19 @@ func TestWriteEvidence_FinalWithPrerequisites(t *testing.T) {
 	}
 }
 
+func TestUpsertLedgerEntry_ReadNonNotExistError(t *testing.T) {
+	// os.ReadFile on a directory returns an error that is NOT os.IsNotExist
+	dir := t.TempDir()
+	entry := LedgerEntry{GoalID: "test", Command: "test"}
+	err := upsertLedgerEntry(dir, entry)
+	if err == nil {
+		t.Fatal("expected error when path is a directory")
+	}
+	if !strings.Contains(err.Error(), "read evidence ledger") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestUpsertLedgerEntry_WriteToReadOnlyDir(t *testing.T) {
 	dir := t.TempDir()
 	roDir := filepath.Join(dir, "readonly")
@@ -641,38 +654,56 @@ func TestUpsertLedgerEntry_WriteToReadOnlyDir(t *testing.T) {
 }
 
 func TestWriteEvidence_PackPathError(t *testing.T) {
-	// WriteEvidence with a pack path under a read-only directory
+	// Use goal-runtime-final so pack path is exercised; block MkdirAll with a file
 	root := t.TempDir()
-	roDir := filepath.Join(root, "readonly")
-	os.MkdirAll(roDir, 0o555)
+	writeAuthorityFixture(t, root)
+	writePrerequisiteLedgerFixture(t, root, DefaultGoalID)
+	// Create a file where a directory is expected
+	blocker := filepath.Join(root, "blocker")
+	if err := os.WriteFile(blocker, []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	report := Report{
-		Command:          "goal-acceptance",
+		SchemaVersion:    "goalcli-mva/v1",
+		Command:          "goal-runtime-final",
+		GoalID:           DefaultGoalID,
 		Status:           "passed",
 		MVAStatus:        "complete",
 		Blocking:         true,
-		LedgerPath:       filepath.Join(root, "ledger.jsonl"),
-		EvidencePackPath: filepath.Join(roDir, "pack.json"),
+		LedgerPath:       "ledger.jsonl",
+		EvidencePackPath: "blocker/sub/pack.json",
 	}
 	err := WriteEvidence(root, report)
-	// May succeed on root, but exercises the MkdirAll/WriteFile error paths
-	_ = err
+	if err == nil {
+		t.Fatal("expected error when pack path parent is a file")
+	}
+	if !strings.Contains(err.Error(), "create evidence pack directory") {
+		t.Fatalf("unexpected error: %v", err)
+	}
 }
 
 func TestWriteEvidence_LedgerPathError(t *testing.T) {
+	// Use a regular file as a parent directory — upsertLedgerEntry MkdirAll will fail
 	root := t.TempDir()
-	roDir := filepath.Join(root, "readonly")
-	os.MkdirAll(roDir, 0o555)
+	blocker := filepath.Join(root, "blocker")
+	if err := os.WriteFile(blocker, []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	report := Report{
 		Command:          "goal-acceptance",
 		Status:           "passed",
 		MVAStatus:        "complete",
 		Blocking:         true,
-		LedgerPath:       filepath.Join(roDir, "sub", "ledger.jsonl"),
-		EvidencePackPath: filepath.Join(root, "pack.json"),
+		LedgerPath:       "blocker/sub/ledger.jsonl",
+		EvidencePackPath: "pack.json",
 	}
 	err := WriteEvidence(root, report)
-	// May succeed on root, but exercises the upsertLedgerEntry MkdirAll path
-	_ = err
+	if err == nil {
+		t.Fatal("expected error when ledger path parent is a file")
+	}
+	if !strings.Contains(err.Error(), "create evidence ledger directory") {
+		t.Fatalf("unexpected error: %v", err)
+	}
 }
 
 func TestEvaluate_AllCommands(t *testing.T) {
